@@ -1,0 +1,67 @@
+/**
+ * @version $Id$
+ * @author Rene Kanzler <rk (at) cosmomill (dot) de>
+ */
+
+This Roundcube Plugin will let you have the option to view and edit documents,
+spreadsheets, presentations and images in the browser itself. This one click
+solution gives you a huge advantage over the traditional way of doing it:
+downloading the document from Roundcube, saving it, launching a office
+application to open it.
+
+You can see it in action at:
+http://blip.tv/cosmomill/rc-cloudview-plugin-5935069
+
+## The following formats are supported by Zoho Office. ##
+
+Microsoft Office Formats:
+doc / docx - Microsoft Word Document
+xls / xlsx - Microsoft Excel Spreadsheet
+ppt / pptx - Microsoft PowerPoint
+pps - PowerPoint Slideshow
+
+OpenDocument Formats:
+odt - OpenDocument Text
+ods - OpenDocument Spreadsheet
+odp - OpenDocument Presentation
+
+OpenOffice Formats:
+sxw - OpenOffice.org Writer Document
+sxc - OpenOffice.org Calc Spreadsheet
+sxi - OpenOffice.org Impress Presentation
+
+More Rich Text Formats:
+rtf - Rich Text Format
+html - Hyper Text Markup Language
+txt - Plain Text Document
+
+More Spreadsheet Formats:
+csv - Comma Separated Values
+
+## The following formats are supported by Pixlr. ##
+
+Bitmap Formats:
+gif - GIF Image
+jpg - JPEG Image
+png - PNG Image
+bmp - BMP Image
+
+## Installing and Activating cloudview ##
+
+After downloading a cloudview, extract (unzip) it in RoundCube's plugins directory.
+Doing this correctly should result in a subdirectory "plugins/cloudview" which contains
+all of the plugin's files.
+
+Enable it by adding its directory name to the config option plugins,
+as an array element. Editing your local "config/main.inc.php" file and
+add "cloudview" to the "$rcmail_config['plugins']" array.
+
+$rcmail_config['plugins'] = array('cloudview');
+
+To disable cloudview, just remove it from the list. 
+
+Get your Zoho API Key from: http://writer.zoho.com/apikey.htm
+and add it to your "plugins/cloudviw/config.inc.php" file.
+
+
+## cosmomill - internet solutions ##
