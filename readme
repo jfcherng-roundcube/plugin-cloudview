@@ -1,8 +1,3 @@
-/**
- * @version $Id$
- * @author Rene Kanzler <rk (at) cosmomill (dot) de>
- */
-
 This Roundcube Plugin will let you have the option to view and edit documents,
 spreadsheets, presentations and images in the browser itself. This one click
 solution gives you a huge advantage over the traditional way of doing it:
