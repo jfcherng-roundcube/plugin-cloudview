@@ -187,9 +187,10 @@ class cloudview extends rcube_plugin {
 
         // handle attachments ##
         foreach ( (array)$this->oMessage->attachments as $oAttachment ) {
-            if ($this->isSupportedDoc($oAttachment)) {
+			$sMimeType = $this->isSupportedDoc($oAttachment);
+            if ($sMimeType) { // if $sMimeType isset we support the document ##
                 $this->aAttachmentData[] = array('mime_id' => $oAttachment->mime_id,
-												'mimetype' => $oAttachment->mimetype,
+												'mimetype' => $sMimeType,
 												'filename' => $oAttachment->filename
 												);
             }
@@ -236,7 +237,7 @@ class cloudview extends rcube_plugin {
             $style = 'margin:0.5em 1em; padding:0.2em 0.5em; border:1px solid #999; '
                 .'border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; width: auto';
 
-			// add box below messsage body ##
+			// add box below message body ##
 			$p['content'] .= html::p(array('style' => $style),
 								html::a(array('href' => "#",
 											'onclick' => "return plugin_cloudview_view_document('".JQ(json_encode($aJsonDocument))."')",
@@ -320,13 +321,12 @@ class cloudview extends rcube_plugin {
 		if (is_array($aMimeExt)) {
 			$sMimeType = $aMimeExt[$sFileSuffix];
 		}
-
-		return ( mimeHelper::isMimeTypeText($oAttachment->mimetype) || mimeHelper::isMimeTypeText($sMimeType) ||
-				mimeHelper::isMimeTypeSpreadsheet($oAttachment->mimetype) || mimeHelper::isMimeTypeSpreadsheet($sMimeType) ||
-				mimeHelper::isMimeTypePresentation($oAttachment->mimetype) || mimeHelper::isMimeTypePresentation($sMimeType) ||
-				mimeHelper::isMimeTypeImage($oAttachment->mimetype) || mimeHelper::isMimeTypeImage($sMimeType) ||
-				mimeHelper::isMimeTypePdf($oAttachment->mimetype) || mimeHelper::isMimeTypePdf($sMimeType)
-				);
+		
+		if (mimeHelper::isSupportedMimeType($oAttachment->mimetype)) {
+			return mimeHelper::isSupportedMimeType($oAttachment->mimetype);
+		} else {
+			return mimeHelper::isSupportedMimeType($sMimeType);
+		}
 	}
 }
 ?>
