@@ -58,5 +58,31 @@ To disable cloudview, just remove it from the list.
 Get your Zoho API Key from: http://writer.zoho.com/apikey.htm
 and add it to your "plugins/cloudviw/config.inc.php" file.
 
+## Settings ##
+
+In "Server Settings" -> "Main Options" you will find a slew of new options.
+All these settings are optional and can be left blank.
+
+-Publicly accessible URL to store documents:
+If you have enabled the edit mode, here you can specify the URL of the server
+to which the documnet shall be saved to. For more information please read the
+Zoho API Guide.
+https://apihelp.wiki.zoho.com/Save-Document.html#SaveURL
+If you just need a ready to use solution please try my KnowlegeTree plugin.
+http://forge.knowledgetree.com/gf/project/vao/
+
+-Publicly accessible URL to store images:
+If you have enabled the edit mode, here you can specify the URL of the server
+to which the image shall be saved to. For more information please read the
+Pixlr API Documentation.
+http://pixlr.com/developer/api
+
+-Document store access key:
+The secret key to access your document/image server.
+
+-Enable edit mode:
+If enabled documents will be opened with Zoho Writer, Sheet or Show instead of
+Zoho Viewer.
+
 
 ## cosmomill - internet solutions ##
