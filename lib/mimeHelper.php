@@ -8,7 +8,27 @@
 class mimeHelper {
 	var $sMimeType;
 	
-	// supported MIME types ##
+	/**
+	 * supported MIME types
+	 * @param string $sMimeType the MIME type
+	 * @return mixed the MIME type or false 
+	 */
+
+	function isSupportedMimeType($sMimeType) {
+
+		if (self::isMimeTypePlainText($sMimeType) ||
+			self::isMimeTypeText($sMimeType) ||
+			self::isMimeTypeSpreadsheet($sMimeType) ||
+			self::isMimeTypePresentation($sMimeType) ||
+			self::isMimeTypePdf($sMimeType) ||
+			self::isMimeTypeImage($sMimeType) ||
+			self::isMimeTypeCode($sMimeType)) {
+		
+			return $sMimeType;
+		} else {
+			return false;
+		}
+	}
 	
 	/**
 	 * plain text
@@ -103,7 +123,12 @@ class mimeHelper {
 	
 	function isMimeTypePdf($sMimeType) {
 		$aPdfMimeTypes = array(
-		   'application/pdf' => true // pdf ##
+			'application/pdf' => true, // pdf ##
+			'application/x-pdf' => true, // pdf ##
+			'application/acrobat' => true, // pdf ##
+			'applications/vnd.pdf' => true, // pdf ##
+			'text/x-pdf' => true, // pdf ##
+			'text/pdf' => true // pdf ##
 		);
 		
 		if (array_key_exists($sMimeType, $aPdfMimeTypes)) {
