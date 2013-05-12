@@ -209,52 +209,130 @@ class cloudview extends rcube_plugin {
      */
     function htmlOutput($p) {
         $bAttachScript = false;
+		$bAttachPdfScript = false;
        
         foreach ($this->aAttachmentData as $aDocumentInfo) {
 			$aJsonDocument[document] = $aDocumentInfo;
 			
-			// get the icon ##
+			$style = 'margin:0.5em 1em; padding:0.2em 0.5em; border:1px solid #999; '
+                .'border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; width: auto';
+			
 			if (mimeHelper::isMimeTypeText($aDocumentInfo['mimetype'])) {
 				$icon = 'plugins/cloudview/' .$this->local_skin_path(). '/x-office-document.png';
+				// add box below message body ##
+				$p['content'] .= html::p(array('style' => $style),
+									html::a(array('href' => "#",
+												'onclick' => "return plugin_cloudview_view_document('".JQ(json_encode($aJsonDocument))."')",
+												'title' => $this->gettext('opendocument')
+												),
+												html::img(array('src' => $icon, 
+																'style' => 'vertical-align:middle'
+																)
+												)
+									) . ' ' . html::span(null, Q($aDocumentInfo['filename']))
+								);
+								
+				$bAttachScript = true;
 			}
 			
 			if (mimeHelper::isMimeTypeSpreadsheet($aDocumentInfo['mimetype'])) {
 				$icon = 'plugins/cloudview/' .$this->local_skin_path(). '/x-office-spreadsheet.png';
+				// add box below message body ##
+				$p['content'] .= html::p(array('style' => $style),
+									html::a(array('href' => "#",
+												'onclick' => "return plugin_cloudview_view_document('".JQ(json_encode($aJsonDocument))."')",
+												'title' => $this->gettext('opendocument')
+												),
+												html::img(array('src' => $icon, 
+																'style' => 'vertical-align:middle'
+																)
+												)
+									) . ' ' . html::span(null, Q($aDocumentInfo['filename']))
+								);
+								
+				$bAttachScript = true;
 			}
 			
 			if(mimeHelper::isMimeTypePresentation($aDocumentInfo['mimetype'])) {
 				$icon = 'plugins/cloudview/' .$this->local_skin_path(). '/x-office-presentation.png';
+				// add box below message body ##
+				$p['content'] .= html::p(array('style' => $style),
+									html::a(array('href' => "#",
+												'onclick' => "return plugin_cloudview_view_document('".JQ(json_encode($aJsonDocument))."')",
+												'title' => $this->gettext('opendocument')
+												),
+												html::img(array('src' => $icon, 
+																'style' => 'vertical-align:middle'
+																)
+												)
+									) . ' ' . html::span(null, Q($aDocumentInfo['filename']))
+								);
+								
+				$bAttachScript = true;
 			}
 			
 			if(mimeHelper::isMimeTypeImage($aDocumentInfo['mimetype'])) {
 				$icon = 'plugins/cloudview/' .$this->local_skin_path(). '/image-x-generic.png';
+				// add box below message body ##
+				$p['content'] .= html::p(array('style' => $style),
+									html::a(array('href' => "#",
+												'onclick' => "return plugin_cloudview_view_document('".JQ(json_encode($aJsonDocument))."')",
+												'title' => $this->gettext('opendocument')
+												),
+												html::img(array('src' => $icon, 
+																'style' => 'vertical-align:middle'
+																)
+												)
+									) . ' ' . html::span(null, Q($aDocumentInfo['filename']))
+								);
+								
+				$bAttachScript = true;
 			}
 			
 			if(mimeHelper::isMimeTypePdf($aDocumentInfo['mimetype'])) {
 				$icon = 'plugins/cloudview/' .$this->local_skin_path(). '/x-application-pdf.png';
-			}
-
-            $style = 'margin:0.5em 1em; padding:0.2em 0.5em; border:1px solid #999; '
-                .'border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; width: auto';
-
-			// add box below message body ##
-			$p['content'] .= html::p(array('style' => $style),
-								html::a(array('href' => "#",
-											'onclick' => "return plugin_cloudview_view_document('".JQ(json_encode($aJsonDocument))."')",
-											'title' => $this->gettext('opendocument')
-											),
-											html::img(array('src' => $icon, 
-															'style' => "vertical-align:middle"
-															)
-											)
-								) . ' ' . html::span(null, Q($aDocumentInfo['filename']))
+				// show PDF below message body ##
+				$p['content'] .= html::p(array('id' => 'pdfviewer-container', 'style' => $style),
+								html::span(array('style' => 'float:right'),
+									html::a(array('href' => "#",
+												'class' => 'svgicon-arrowleft',
+												'onclick' => 'goPrevious()',
+												'title' => $this->gettext('previouspage')
+												), ''
+									) . 
+									html::span(null, 
+										html::span(array('id' => 'page_num')) . ' ' . $this->gettext('pagenrof') . ' ' . html::span(array('id' => 'page_count'))
+									) .
+									html::a(array('href' => "#",
+												'class' => 'svgicon-arrowright',
+												'onclick' => 'goNext()',
+												'title' => $this->gettext('nextpage')
+												), ''
+									)
+								) .
+								html::img(array('src' => $icon, 
+												'style' => 'vertical-align:middle'
+												)
+								) . ' ' .
+								html::span(null, Q($aDocumentInfo['filename']))
 							);
-            
-			$bAttachScript = true;
-        }
+				$p['content'] .= html::div(array('id' => 'pdfviewer-viewport'), html::tag('canvas', array('id' => 'pdfviewer-canvas')));
+				$p['content'] .= html::script(array('type' => 'text/javascript'), 'showPdf(' . $aDocumentInfo['mime_id'] . ');');
+				
+				$bAttachPdfScript = true;
+			}
+		}
 
         if ($bAttachScript) {
             $this->include_script('js/openDocument.js');
+		}
+		
+		if ($bAttachPdfScript) {
+            $this->include_script('js/pdf-min.js');
+			$this->include_script('js/compatibility-min.js');
+			$this->include_script('js/showPdf.js');
+			$this->include_script('js/raphael.js');
+			$this->include_script('js/svgIcons.js');
 		}
 		
         return $p;
@@ -290,13 +368,13 @@ class cloudview extends rcube_plugin {
 		// check if editor mode is enabled ##
 		$bEnableEditor = $oRCmail->config->get('cloudview_enable_editor');
 		if ($bEnableEditor) {
-			$sOpenType = 'edit';
+			$sOpenMode = 'edit';
 		} else {
-			$sOpenType = 'view';
+			$sOpenMode = 'view';
 		}
 		
         // open document with Zoho or Pixlr ##
-		$aJsonResponse = openDocument::loadDocument($sDocument, $aDocumentInfo['document']['filename'], $aDocumentInfo['document']['mimetype'], $sOpenType);
+		$aJsonResponse = openDocument::loadDocument($sDocument, $aDocumentInfo['document']['filename'], $aDocumentInfo['document']['mimetype'], $sOpenMode);
 		
 		// check the result ##
 		$aResult = json_decode($aJsonResponse, true);
@@ -309,8 +387,8 @@ class cloudview extends rcube_plugin {
 	}
 
     /**
-     * Checks if specified message part is a document supported by Zoho
-     * @param rcube_message_part Part object
+     * Check if specified attachment contains a supported document.
+     * @param oAttachment The attachment object
      * @return boolean True if part is a document supported by Zoho
      */
     function isSupportedDoc($oAttachment) {

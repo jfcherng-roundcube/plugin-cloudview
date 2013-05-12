@@ -9,28 +9,28 @@ class pixlrService {
 	var $sDocument;
 	var $sFileName;
 	var $sMimeType;
-	var $sOpenType;
+	var $sOpenMode;
 
 	/**
 	 * send the document to Pixlr's web service
 	 * @param string $sDocument the document
 	 * @param string $sFileName the filename
 	 * @param string $sMimeType the document MIME type
-	 * @param string $sOpenType view or edit the document
+	 * @param string $sOpenMode view or edit the document
 	 * @return string a JSON string which contains the URL to view or edit the document in the Pixlr Editor
 	 */
  
-	function sendDocument($sDocument, $sFileName, $sMimeType, $sOpenType) {
+	function sendDocument($sDocument, $sFileName, $sMimeType, $sOpenMode) {
 
 		$sFileSuffix = pathinfo($sFileName, PATHINFO_EXTENSION);
 		
 		$sTmpFile = INSTALL_PATH . 'temp' . "/" . uniqid('cloudviewTmp_') . "." . $sFileSuffix;
 		file_put_contents($sTmpFile, $sDocument);
 		
-		// check open parameter ##
-		if (!$sOpenType == 'view' || !$sOpenType == 'edit') {
-			appendLogEntry::addLogEntry( "no valid open type given - set to view", "pixlrService" );
-			$sOpenType = 'view';
+		// check open mode parameter ##
+		if (!$sOpenMode == 'view' || !$sOpenMode == 'edit') {
+			appendLogEntry::addLogEntry( "no valid open mode given - set to view", "pixlrService" );
+			$sOpenMode = 'view';
 		}
 		
 		// check the if the document is an image ##
@@ -48,8 +48,8 @@ class pixlrService {
 		// POST request with curl ## 
 		$ch = curl_init($sPixlrUrl);
 		$timeout = 15;
-		#curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		#curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $aPostdata);
 		$result = curl_exec($ch);
@@ -68,7 +68,7 @@ class pixlrService {
 		$aAvailableLanguages = array('de', 'en', 'dk', 'he', 'es', 'fr', 'it', 'pl', 'ro', 'nl', 'ru', 'uk', 'sv', 'sl', 'el', 'cs', 'th', 'tr', 'jp');
 		$sLanguage = clientLanguage::getClientLanguage($aAvailableLanguages); // set Pixlr language ##
 		
-		// parameters for Zoho Writer, Sheet, Show ##
+		// parameters for Pixlr ##
 		$oRCmail = rcmail::get_instance(); // initialize the rcmail class ##
 		$this->load_config(); // load configuration ##
 			
@@ -86,13 +86,13 @@ class pixlrService {
 			$sPixlrSaveUrl = $sSaveUrl . '?id=' . $sUniqueId;
 			$sPixlrSaveUrl = urlencode($sPixlrSaveUrl);
 		} else {
-			$sOpenType = 'view';
+			$sOpenMode = 'view';
 		}
 		
 		// construct the url to open the Pixlr editor ##
-		if ($sOpenType == 'view') {
+		if ($sOpenMode == 'view') {
 			$sPixlrOpenUrl = "http://www.pixlr.com/editor/?image=http://pixlr.com/_temp/" . trim($result) . "&loc=" . $sLanguage . "&title=" . $sFileName . "&locktarget=false";
-		} elseif ($sOpenType == 'edit') {
+		} elseif ($sOpenMode == 'edit') {
 			$sPixlrOpenUrl = "http://www.pixlr.com/editor/?image=http://pixlr.com/_temp/" . trim($result) . "&loc=" . $sLanguage . "&referer=RC&title=" . $sFileName . "&method=POST&target=" . $sPixlrSaveUrl . "&locktype=source&locktitle=true&locktarget=true&credentials=true";
 		}
 		

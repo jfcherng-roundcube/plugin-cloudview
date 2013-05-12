@@ -12,5 +12,6 @@ $labels['zohosaveurl'] = 'Publicly accessible URL to store documents';
 $labels['pixlrsaveurl'] = 'Publicly accessible URL to store images';
 $labels['accesskey'] = 'Document store access key';
 $labels['enableeditor'] = 'Enable edit mode';
+$labels['pagenrof'] = 'of';
 
 ?>

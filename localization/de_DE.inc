@@ -13,5 +13,6 @@ $labels['zohosaveurl'] = 'Öffentliche URL zum speichen der Dokumente';
 $labels['pixlrsaveurl'] = 'Öffentliche URL zum speichen der Bilder';
 $labels['accesskey'] = 'Zugriffsschlüssel des Dokumentenserver';
 $labels['enableeditor'] = 'Editor Modus aktivieren';
+$labels['pagenrof'] = 'von';
 
 ?>
