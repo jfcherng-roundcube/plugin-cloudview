@@ -292,33 +292,37 @@ class cloudview extends rcube_plugin {
 			if(mimeHelper::isMimeTypePdf($aDocumentInfo['mimetype'])) {
 				$icon = 'plugins/cloudview/' .$this->local_skin_path(). '/x-application-pdf.png';
 				// show PDF below message body ##
-				$p['content'] .= html::p(array('id' => 'pdfviewer-container', 'style' => $style),
-								html::span(array('style' => 'float:right'),
-									html::a(array('href' => "#",
-												'class' => 'svgicon-arrowleft',
-												'onclick' => 'goPrevious()',
-												'title' => $this->gettext('previouspage')
-												), ''
-									) . 
-									html::span(null, 
-										html::span(array('id' => 'page_num')) . ' ' . $this->gettext('pagenrof') . ' ' . html::span(array('id' => 'page_count'))
+				$p['content'] .= html::div(array('class' => 'pdfviewer-container'), 
+									html::p(array('class' => 'pdfviewer-navigation', 'style' => $style),
+									html::span(array('style' => 'float:right'),
+										html::a(array('href' => "#",
+													'class' => 'svgicon-arrowleft prev-page',
+													'title' => $this->gettext('previouspage')
+													), ''
+										) . 
+										html::span(null, 
+											html::span(array('class' => 'page_num'), '') . ' ' . $this->gettext('pagenrof') . ' ' . html::span(array('class' => 'page_count'), '')
+										) .
+										html::a(array('href' => "#",
+													'class' => 'svgicon-arrowright next-page',
+													'title' => $this->gettext('nextpage')
+													), ''
+										)
 									) .
-									html::a(array('href' => "#",
-												'class' => 'svgicon-arrowright',
-												'onclick' => 'goNext()',
-												'title' => $this->gettext('nextpage')
-												), ''
-									)
-								) .
-								html::img(array('src' => $icon, 
-												'style' => 'vertical-align:middle'
+									html::img(array('src' => $icon, 
+													'style' => 'vertical-align:middle'
+													)
+									) . ' ' .
+									html::span(null, Q($aDocumentInfo['filename']))
+									) . 
+									html::div(array('class' => 'pdfviewer-viewport'),
+										html::tag('canvas', array('class' => 'pdfviewer-canvas',
+												'data-id' => $aDocumentInfo['mime_id']
 												)
-								) . ' ' .
-								html::span(null, Q($aDocumentInfo['filename']))
-							);
-				$p['content'] .= html::div(array('id' => 'pdfviewer-viewport'), html::tag('canvas', array('id' => 'pdfviewer-canvas')));
-				$p['content'] .= html::script(array('type' => 'text/javascript'), 'showPdf(' . $aDocumentInfo['mime_id'] . ');');
-				
+										)
+									)
+								);
+
 				$bAttachPdfScript = true;
 			}
 		}
