@@ -65,7 +65,8 @@ var pdf = (function(that) {
 	}
 
 	function bindButtons() {
-		$('.next-page', _this).click(function() {
+		$('.next-page', _this).click(function(e) {
+			e.preventDefault();
 			if(iPageNum >= oPdfDoc.numPages) {
 				return;
 			}
@@ -74,7 +75,8 @@ var pdf = (function(that) {
 			renderPage(iPageNum);
 		});
 		
-		$('.prev-page', _this).click(function() {
+		$('.prev-page', _this).click(function(e) {
+			e.preventDefault();
 			if(iPageNum <= 1) {
 				return;
 			}
