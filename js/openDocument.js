@@ -1,18 +1,12 @@
-/**
- * @version $Id$
- * open the document in a popup window
- * @author Rene Kanzler <rk (at) cosmomill (dot) de>
- */
-
-// generate a unique id ##
+// generate a unique id
 function uniqId() {
   var newDate = new Date();
   return newDate.getTime();
 }
 
-// add rc event listener ##
+// add rc event listener
 rcmail.addEventListener('plugin.cloudview', openDocument);
-// the event listener callback funktion to open the document ##
+// the event listener callback funktion to open the document
 function openDocument(response) {
   var url = response.message.url;
   var popupId = uniqId();
@@ -27,7 +21,7 @@ function openDocument(response) {
   );
 }
 
-// this function calls "viewDocument" in cloudview.php ##
+// this function calls "viewDocument" in cloudview.php
 function plugin_cloudview_view_document(documentInfo) {
   var lock = rcmail.set_busy(true, 'loading');
   rcmail.http_post(

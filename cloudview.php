@@ -21,35 +21,39 @@ class cloudview extends rcube_plugin
      */
     private $config;
 
-    private $aAttachmentData = [];
-    private $oMessage;
+    /**
+     * @var array
+     */
+    private $attachmentData = [];
+
+    private $message;
 
     /**
      * Plugin initialization.
      */
     public function init(): void
     {
-        $this->load_plugin_config();
+        $this->loadPluginConfig();
 
         // initialize the rcmail class
-        $oRCmail = rcmail::get_instance();
+        $rcMail = rcmail::get_instance();
 
-        // Add include path for internal classes
-        $include_path = $this->home . '/lib' . \PATH_SEPARATOR;
-        $include_path .= \ini_get('include_path');
-        \set_include_path($include_path);
+        // add include path for internal classes
+        $includePath = $this->home . '/lib' . \PATH_SEPARATOR;
+        $includePath .= \ini_get('include_path');
+        \set_include_path($includePath);
 
         // per-user plugin enable
         if ($this->config->get('cloudview_enabled', true)) {
             // include javascript files
             $this->include_script('js/browserWindowSize.js');
 
-            if ($oRCmail->action == 'show' || $oRCmail->action == 'preview') {
+            if ($rcMail->action == 'show' || $rcMail->action == 'preview') {
                 $this->add_hook('message_load', [$this, 'messageLoad']);
                 $this->add_hook('template_object_messagebody', [$this, 'htmlOutput']);
             } elseif (
-                !$oRCmail->output->framed &&
-                (!$oRCmail->action || $oRCmail->action == 'list')
+                !$rcMail->output->framed &&
+                (!$rcMail->action || $rcMail->action == 'list')
             ) {
                 $this->include_script('js/openDocument.js');
             }
@@ -58,7 +62,7 @@ class cloudview extends rcube_plugin
         }
 
         // preference settings hooks
-        if ($oRCmail->task == 'settings') {
+        if ($rcMail->task == 'settings') {
             $this->add_hook('preferences_list', [$this, 'preferencesList']);
             $this->add_hook('preferences_save', [$this, 'preferencesSave']);
         }
@@ -77,25 +81,25 @@ class cloudview extends rcube_plugin
         }
 
         // load localization and configuration
-        $this->add_texts('localization/');
+        $this->add_texts('locales/', true);
 
         // get disabled configuration parameters
-        $aDontOverride = $this->config->get('dont_override', []);
+        $dontOverride = $this->config->get('dont_override', []);
 
         // add enable editor check box
-        if (!\in_array('cloudview_enabled', $aDontOverride)) {
-            $sFieldId = '_cloudview_enabled';
+        if (!\in_array('cloudview_enabled', $dontOverride)) {
+            $fieldId = '_cloudview_enabled';
 
             // get the current value
-            $bIsEnabled = $this->config->get('cloudview_enabled', true);
+            $isEnabled = $this->config->get('cloudview_enabled', true);
 
             // crate the input field
-            $oCheckBox = new html_checkbox(['name' => $sFieldId, 'id' => $sFieldId, 'value' => 1]);
+            $checkBox = new html_checkbox(['name' => $fieldId, 'id' => $fieldId, 'value' => 1]);
 
             // add the new input filed to the argument list
             $args['blocks']['main']['options']['cloudview_enabled'] = [
-                'title' => html::label($sFieldId, rcmail::Q($this->gettext('plugin_enabled'))),
-                'content' => $oCheckBox->show($bIsEnabled ? 1 : 0),
+                'title' => html::label($fieldId, rcmail::Q($this->gettext('plugin_enabled'))),
+                'content' => $checkBox->show($isEnabled ? 1 : 0),
             ];
         }
 
@@ -115,10 +119,10 @@ class cloudview extends rcube_plugin
         }
 
         // get disabled configuration parameters
-        $aDontOverride = $this->config->get('dont_override', []);
+        $dontOverride = $this->config->get('dont_override', []);
 
         // enable plugin
-        if (!\in_array('cloudview_enabled', $aDontOverride)) {
+        if (!\in_array('cloudview_enabled', $dontOverride)) {
             $args['prefs']['cloudview_enabled'] = \filter_var(
                 $_POST['_cloudview_enabled'],
                 \FILTER_SANITIZE_STRING
@@ -135,24 +139,21 @@ class cloudview extends rcube_plugin
      */
     public function messageLoad($p): void
     {
-        $this->oMessage = $p['object'];
+        $this->message = $p['object'];
 
         // handle attachments
-        foreach ((array) $this->oMessage->attachments as $oAttachment) {
-            if ($this->isSupportedDoc($oAttachment)) {
-                $this->aAttachmentData[] = [
-                    'mime_id' => $oAttachment->mime_id,
-                    'mimetype' => $oAttachment->mimetype,
-                    'filename' => $oAttachment->filename,
+        foreach ((array) $this->message->attachments as $attachment) {
+            if ($this->isSupportedDoc($attachment)) {
+                $this->attachmentData[] = [
+                    'mime_id' => $attachment->mime_id,
+                    'mimetype' => $attachment->mimetype,
+                    'filename' => $attachment->filename,
                 ];
             }
         }
 
-        // debug stuff
-        //var_dump($this->oMessage->attachments);
-
-        if ($this->aAttachmentData) {
-            $this->add_texts('localization');
+        if (!empty($this->attachmentData)) {
+            $this->add_texts('locales/', true);
         }
     }
 
@@ -164,58 +165,59 @@ class cloudview extends rcube_plugin
      */
     public function htmlOutput($p)
     {
-        $bAttachScript = false;
+        $html = '';
 
-        foreach ($this->aAttachmentData as $aDocumentInfo) {
-            $bIsSupported = false;
-            $aJsonDocument['document'] = $aDocumentInfo;
+        foreach ($this->attachmentData as $documentInfo) {
+            $isSupported = false;
+            $jsonDocument = [];
+            $jsonDocument['document'] = $documentInfo;
 
             $style =
                 'margin:0.5em 1em; padding:0.2em 0.5em; border:1px solid #999; ' .
                 'border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; width: auto';
 
-            if (mimeHelper::isMimeTypeText($aDocumentInfo['mimetype'])) {
-                $bIsSupported = true;
+            if (MimeHelper::isMimeTypeText($documentInfo['mimetype'])) {
+                $isSupported = true;
                 $icon = 'x-office-document.png';
-            } elseif (mimeHelper::isMimeTypeSpreadsheet($aDocumentInfo['mimetype'])) {
-                $bIsSupported = true;
+            } elseif (MimeHelper::isMimeTypeSpreadsheet($documentInfo['mimetype'])) {
+                $isSupported = true;
                 $icon = 'x-office-spreadsheet.png';
-            } elseif (mimeHelper::isMimeTypePresentation($aDocumentInfo['mimetype'])) {
-                $bIsSupported = true;
+            } elseif (MimeHelper::isMimeTypePresentation($documentInfo['mimetype'])) {
+                $isSupported = true;
                 $icon = 'x-office-presentation.png';
-            } elseif (mimeHelper::isMimeTypePdf($aDocumentInfo['mimetype'])) {
-                $bIsSupported = true;
+            } elseif (MimeHelper::isMimeTypePdf($documentInfo['mimetype'])) {
+                $isSupported = true;
                 $icon = 'x-application-pdf.png';
             }
 
-            if ($bIsSupported) {
-                $icon = self::THIS_PLUGIN_DIR . $this->local_skin_path() . "/{$icon}";
+            if ($isSupported) {
+                $iconUrl = self::THIS_PLUGIN_DIR . $this->local_skin_path() . "/{$icon}";
 
                 // add box below message body
-                $p['content'] .= html::p(
+                $html .= html::p(
                     ['style' => $style],
                     html::a(
                         [
-                            'href' => '#',
-                            'onclick' => "return plugin_cloudview_view_document('" .
-                                rcube::JQ(\json_encode($aJsonDocument)) .
-                                "')",
-                            'title' => $this->gettext('opendocument'),
+                            'href' => 'javascript:;',
+                            'onclick' => "return plugin_cloudview_view_document('" . rcube::JQ(\json_encode($jsonDocument)) . "')",
+                            'title' => $this->gettext('open_document'),
                         ],
                         html::img([
-                            'src' => $icon,
+                            'src' => $iconUrl,
                             'style' => 'vertical-align:middle',
                         ])
-                    ) . ' ' . html::span(null, rcube::Q($aDocumentInfo['filename']))
+                    ) . ' ' . html::span(null, rcube::Q($documentInfo['filename']))
                 );
             }
-
-            $bAttachScript |= $bIsSupported;
         }
 
-        if ($bAttachScript) {
+        if ($html) {
+            $html = '<hr>' . $html;
+
             $this->include_script('js/openDocument.js');
         }
+
+        $p['content'] .= $html;
 
         return $p;
     }
@@ -228,79 +230,77 @@ class cloudview extends rcube_plugin
         $this->load_config();
 
         // tell the plugin API where to search for texts
-        $this->add_texts('localization', true);
+        $this->add_texts('locales/', true);
 
         // get the post values
-        $sUid = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_POST);
-        $aJsonDocument = rcube_utils::get_input_value('_info', rcube_utils::INPUT_POST);
+        $uid = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_POST);
+        $jsonDocument = rcube_utils::get_input_value('_info', rcube_utils::INPUT_POST);
 
-        if (!$sUid || !$aJsonDocument) {
+        if (!$uid || !$jsonDocument) {
             return;
         }
 
-        $aDocumentInfo = \json_decode($aJsonDocument, true);
+        $documentInfo = \json_decode($jsonDocument, true);
 
         // initialize the rcmail class
-        $oRCmail = rcmail::get_instance();
+        $rcMail = rcmail::get_instance();
 
-        $sFileSuffix = \strtolower(\pathinfo($aDocumentInfo['document']['filename'], \PATHINFO_EXTENSION));
-        $sFileBaseName = \hash('md5', $aJsonDocument . $this->config->get('hash_salt'));
-        $sTmpFileRelative = self::THIS_PLUGIN_DIR . "temp/{$sFileBaseName}.{$sFileSuffix}";
-        $sTmpFile = INSTALL_PATH . $sTmpFileRelative;
+        $fileSuffix = \strtolower(\pathinfo($documentInfo['document']['filename'], \PATHINFO_EXTENSION));
+        $fileBaseName = \hash('md5', $jsonDocument . $this->config->get('hash_salt'));
+        $tempFile = self::THIS_PLUGIN_DIR . "temp/{$fileBaseName}.{$fileSuffix}";
+        $tempFileFullPath = INSTALL_PATH . $tempFile;
 
         // save the attachment into temp directory
-        if (!\is_file($sTmpFile)) {
-            $sDocument = $oRCmail->imap->get_message_part($sUid, $aDocumentInfo['document']['mime_id']);
-            \file_put_contents($sTmpFile, $sDocument);
+        if (!\is_file($tempFileFullPath)) {
+            $document = $rcMail->imap->get_message_part($uid, $documentInfo['document']['mime_id']);
+            \file_put_contents($tempFileFullPath, $document);
         }
 
-        $sFileUrl = self::getSiteUrl() . $sTmpFileRelative;
-
-        // pdf: local site viewer
-        if ($sFileSuffix === 'pdf') {
-            $sViewerUrl = self::getSiteUrl() . self::THIS_PLUGIN_DIR . 'js/pdfjs-dist/web/viewer.html';
-            $sViewUrl = $sViewerUrl . '?' . \http_build_query(['file' => $sFileUrl]);
+        $fileUrl = CloudviewHelper::getSiteUrl() . $tempFile;
+        
+        // PDF: local site viewer
+        if ($fileSuffix === 'pdf') {
+            $viewerUrl = CloudviewHelper::getSiteUrl() . self::THIS_PLUGIN_DIR . 'js/pdfjs-dist/web/viewer.html';
+            $viewUrl = $viewerUrl . '?' . \http_build_query(['file' => $fileUrl]);
         }
-        // external viewer
+        // MS Office: external viewer
         else {
             if ($this->config->get('is_dev_mode')) {
-                $sFileUrl = $this->config->get('dev_mode_file_base_url') . $sTmpFileRelative;
+                $fileUrl = $this->config->get('dev_mode_file_base_url') . $tempFile;
             }
 
-            $sViewUrl = \strtr($this->config->get('viewer_url'), [
-                '{DOCUMENT_URL}' => \urlencode($sFileUrl),
+            $viewUrl = \strtr($this->config->get('viewer_url'), [
+                '{DOCUMENT_URL}' => \urlencode($fileUrl),
             ]);
         }
 
-        $oRCmail->output->command('plugin.cloudview', ['message' => ['url' => $sViewUrl]]);
-        $oRCmail->output->send();
+        $rcMail->output->command('plugin.cloudview', ['message' => ['url' => $viewUrl]]);
+        $rcMail->output->send();
     }
 
     /**
      * Check if specified attachment contains a supported document.
      *
-     * @param mixed $oAttachment
+     * @param mixed $attachment
      */
-    public function isSupportedDoc($oAttachment): bool
+    public function isSupportedDoc($attachment): bool
     {
+        if (MimeHelper::isSupportedMimeType($attachment->mimetype)) {
+            return MimeHelper::isSupportedMimeType($attachment->mimetype);
+        }
+
         // use file name suffix with hard-coded mime-type map
-        $aMimeExt = @include RCMAIL_CONFIG_DIR . '/mimetypes.php';
-        $sFileSuffix = \pathinfo($oAttachment->filename, \PATHINFO_EXTENSION);
-        if (\is_array($aMimeExt)) {
-            $sMimeType = $aMimeExt[$sFileSuffix];
-        }
+        $fileSuffix = \pathinfo($attachment->filename, \PATHINFO_EXTENSION);
+        $mimeExts = \is_file($mimeFile = RCMAIL_CONFIG_DIR . '/mimetypes.php') ? (require $mimeFile) : [];
+        $mimeType = $mimeExts[$fileSuffix] ?? null;
 
-        if (mimeHelper::isSupportedMimeType($oAttachment->mimetype)) {
-            return mimeHelper::isSupportedMimeType($oAttachment->mimetype);
-        }
-
-        return mimeHelper::isSupportedMimeType($sMimeType);
+        return MimeHelper::isSupportedMimeType($mimeType);
     }
 
     /**
      * Load plugin configuration.
      */
-    private function load_plugin_config(): void
+    private function loadPluginConfig(): void
     {
         $rcmail = rcmail::get_instance();
 
@@ -308,40 +308,5 @@ class cloudview extends rcube_plugin
         $this->load_config('config.inc.php');
 
         $this->config = $rcmail->config;
-    }
-
-    /**
-     * Get the site url.
-     */
-    private static function getSiteUrl(): string
-    {
-        $sRequestedUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . "://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
-        $aUrlComponents = \parse_url($sRequestedUrl);
-
-        // remove potential trailing index.php
-        $aUrlComponents['path'] = \preg_replace('/(\/)index.php$/iuS', '$1', $aUrlComponents['path']);
-        unset($aUrlComponents['query'], $aUrlComponents['fragment']);
-
-        return self::unparseUrl($aUrlComponents);
-    }
-
-    /**
-     * Assemble URL parts back to string URL.
-     *
-     * @param array $parts the parts
-     */
-    private static function unparseUrl(array $parts): string
-    {
-        $scheme = isset($parts['scheme']) ? $parts['scheme'] . '://' : '';
-        $host = $parts['host'] ?? '';
-        $port = isset($parts['port']) ? ":{$parts['port']}" : '';
-        $user = $parts['user'] ?? '';
-        $pass = isset($parts['pass']) ? ":{$parts['pass']}" : '';
-        $pass = ($user || $pass) ? "{$pass}@" : '';
-        $path = $parts['path'] ?? '';
-        $query = isset($parts['query']) ? "?{$parts['query']}" : '';
-        $fragment = isset($parts['fragment']) ? "#{$parts['fragment']}" : '';
-
-        return "{$scheme}{$user}{$pass}{$host}{$port}{$path}{$query}{$fragment}";
     }
 }

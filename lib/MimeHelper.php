@@ -1,53 +1,48 @@
 <?php
-/**
- * @version $Id$
- * MIME types supported by cloudview
- *
- * @author Rene Kanzler <rk (at) cosmomill (dot) de>
- */
-class mimeHelper
+
+class MimeHelper
 {
-    public $sMimeType;
+    public $mimeType;
 
     /**
      * supported MIME types.
      *
-     * @param null|string $sMimeType the MIME type
+     * @param null|string $mimeType the MIME type
      */
-    public static function isSupportedMimeType(?string $sMimeType): bool
+    public static function isSupportedMimeType(?string $mimeType): bool
     {
         return
-            self::isMimeTypeText($sMimeType) ||
-            self::isMimeTypeSpreadsheet($sMimeType) ||
-            self::isMimeTypePresentation($sMimeType) ||
-            self::isMimeTypePdf($sMimeType);
+            self::isMimeTypeText($mimeType) ||
+            self::isMimeTypeSpreadsheet($mimeType) ||
+            self::isMimeTypePresentation($mimeType) ||
+            self::isMimeTypePdf($mimeType);
     }
 
     /**
      * text.
      *
-     * @param null|string $sMimeType the MIME type
+     * @param null|string $mimeType the MIME type
      */
-    public static function isMimeTypeText(?string $sMimeType): bool
+    public static function isMimeTypeText(?string $mimeType): bool
     {
-        $aTextMimeTypes = [
+        $textMimeTypes = [
             'application/msword' => true, // doc
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => true, // docx
             'application/vnd.sun.xml.writer' => true, // sxw
             'application/vnd.oasis.opendocument.text' => true, // odt
         ];
 
-        return isset($aTextMimeTypes[$sMimeType]);
+        return isset($textMimeTypes[$mimeType]);
     }
 
     /**
      * spreadsheet.
      *
-     * @param null|string $sMimeType the MIME type
+     * @param null|string $mimeType the MIME type
      */
-    public static function isMimeTypeSpreadsheet(?string $sMimeType): bool
+    public static function isMimeTypeSpreadsheet(?string $mimeType): bool
     {
-        $aSpreadsheetMimeTypes = [
+        $spreadsheetMimeTypes = [
             'text/csv' => true, // csv
             'application/vnd.ms-excel' => true, // xls
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => true, // xlsx
@@ -55,17 +50,17 @@ class mimeHelper
             'application/vnd.oasis.opendocument.spreadsheet' => true, // ods
         ];
 
-        return isset($aSpreadsheetMimeTypes[$sMimeType]);
+        return isset($spreadsheetMimeTypes[$mimeType]);
     }
 
     /**
      * presentation.
      *
-     * @param null|string $sMimeType the MIME type
+     * @param null|string $mimeType the MIME type
      */
-    public static function isMimeTypePresentation(?string $sMimeType): bool
+    public static function isMimeTypePresentation(?string $mimeType): bool
     {
-        $aPresentationMimeTypes = [
+        $presentationMimeTypes = [
             'application/vnd.ms-powerpoint' => true, // ppt
             'application/vnd.openxmlformats-officedocument.presentationml.presentation' => true, // pptx
             'application/vnd.ms-powerpoint' => true, // pps
@@ -73,17 +68,17 @@ class mimeHelper
             'application/vnd.oasis.opendocument.presentation' => true, // odp
         ];
 
-        return isset($aPresentationMimeTypes[$sMimeType]);
+        return isset($presentationMimeTypes[$mimeType]);
     }
 
     /**
      * pdf.
      *
-     * @param null|string $sMimeType the MIME type
+     * @param null|string $mimeType the MIME type
      */
-    public static function isMimeTypePdf(?string $sMimeType): bool
+    public static function isMimeTypePdf(?string $mimeType): bool
     {
-        $aPdfMimeTypes = [
+        $pdfMimeTypes = [
             'application/pdf' => true, // pdf
             'application/x-pdf' => true, // pdf
             'application/acrobat' => true, // pdf
@@ -92,6 +87,6 @@ class mimeHelper
             'text/pdf' => true, // pdf
         ];
 
-        return isset($aPdfMimeTypes[$sMimeType]);
+        return isset($pdfMimeTypes[$mimeType]);
     }
 }
