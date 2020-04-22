@@ -45,24 +45,16 @@ class cloudview extends rcube_plugin
 
         // per-user plugin enable
         if ($this->config->get('cloudview_enabled', true)) {
-            // include javascript files
-            $this->include_script('js/browserWindowSize.js');
-
-            if ($rcMail->action == 'show' || $rcMail->action == 'preview') {
+            if ($rcMail->action === 'show' || $rcMail->action === 'preview') {
                 $this->add_hook('message_load', [$this, 'messageLoad']);
-                $this->add_hook('template_object_messagebody', [$this, 'htmlOutput']);
-            } elseif (
-                !$rcMail->output->framed &&
-                (!$rcMail->action || $rcMail->action == 'list')
-            ) {
-                $this->include_script('js/openDocument.js');
+                $this->add_hook('template_object_messageattachments', [$this, 'attachmentListHook']);
             }
 
             $this->register_action('plugin.cloudview', [$this, 'viewDocument']);
         }
 
         // preference settings hooks
-        if ($rcMail->task == 'settings') {
+        if ($rcMail->task === 'settings') {
             $this->add_hook('preferences_list', [$this, 'preferencesList']);
             $this->add_hook('preferences_save', [$this, 'preferencesSave']);
         }
@@ -114,7 +106,7 @@ class cloudview extends rcube_plugin
     public function preferencesSave(array $args): array
     {
         // add our new preferences to the server settings page
-        if ($args['section'] != 'server') {
+        if ($args['section'] !== 'server') {
             return $args;
         }
 
@@ -157,64 +149,24 @@ class cloudview extends rcube_plugin
         }
     }
 
-    /**
-     * This callback function adds a box below the message content
-     * if there is a supported document available.
-     *
-     * @param mixed $p
-     */
-    public function htmlOutput($p)
+    public function attachmentListHook($p)
     {
         $html = '';
+        $attachmentData = [];
 
         foreach ($this->attachmentData as $documentInfo) {
-            $isSupported = false;
-            $jsonDocument = [];
-            $jsonDocument['document'] = $documentInfo;
-
-            $style =
-                'margin:0.5em 1em; padding:0.2em 0.5em; border:1px solid #999; ' .
-                'border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; width: auto';
-
-            if (MimeHelper::isMimeTypeText($documentInfo['mimetype'])) {
-                $isSupported = true;
-                $icon = 'x-office-document.png';
-            } elseif (MimeHelper::isMimeTypeSpreadsheet($documentInfo['mimetype'])) {
-                $isSupported = true;
-                $icon = 'x-office-spreadsheet.png';
-            } elseif (MimeHelper::isMimeTypePresentation($documentInfo['mimetype'])) {
-                $isSupported = true;
-                $icon = 'x-office-presentation.png';
-            } elseif (MimeHelper::isMimeTypePdf($documentInfo['mimetype'])) {
-                $isSupported = true;
-                $icon = 'x-application-pdf.png';
-            }
-
-            if ($isSupported) {
-                $iconUrl = self::THIS_PLUGIN_DIR . $this->local_skin_path() . "/{$icon}";
-
-                // add box below message body
-                $html .= html::p(
-                    ['style' => $style],
-                    html::a(
-                        [
-                            'href' => 'javascript:;',
-                            'onclick' => "return plugin_cloudview_view_document('" . rcube::JQ(\json_encode($jsonDocument)) . "')",
-                            'title' => $this->gettext('open_document'),
-                        ],
-                        html::img([
-                            'src' => $iconUrl,
-                            'style' => 'vertical-align:middle',
-                        ])
-                    ) . ' ' . html::span(null, rcube::Q($documentInfo['filename']))
-                );
+            if (MimeHelper::isSupportedMimeType($documentInfo['mimetype'])) {
+                $attachmentData[] = $documentInfo;
             }
         }
 
-        if ($html) {
-            $html = '<hr>' . $html;
+        if (!empty($attachmentData)) {
+            $jsonData = \json_encode($attachmentData, \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES);
+            $html .= "<script>var cloudview_attachmentInfos = {$jsonData};</script>";
 
-            $this->include_script('js/openDocument.js');
+            $this->include_stylesheet($this->local_skin_path() . '/main.css');
+            $this->include_script('js/openDocument.min.js');
+            $this->include_script('js/appendAttachmentPreview.min.js');
         }
 
         $p['content'] .= $html;
@@ -257,7 +209,7 @@ class cloudview extends rcube_plugin
         }
 
         $fileUrl = CloudviewHelper::getSiteUrl() . $tempFile;
-        
+
         // PDF: local site viewer
         if ($fileSuffix === 'pdf') {
             $viewerUrl = CloudviewHelper::getSiteUrl() . self::THIS_PLUGIN_DIR . 'js/pdfjs-dist/web/viewer.html';
