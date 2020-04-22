@@ -7,6 +7,8 @@
  */
 class cloudview extends rcube_plugin
 {
+    const THIS_PLUGIN_DIR = 'plugins/cloudview/';
+
     /**
      * {@inheritdoc}
      */
@@ -163,9 +165,9 @@ class cloudview extends rcube_plugin
     public function htmlOutput($p)
     {
         $bAttachScript = false;
-        $bAttachPdfScript = false;
 
         foreach ($this->aAttachmentData as $aDocumentInfo) {
+            $bIsSupported = false;
             $aJsonDocument['document'] = $aDocumentInfo;
 
             $style =
@@ -173,10 +175,22 @@ class cloudview extends rcube_plugin
                 'border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; width: auto';
 
             if (mimeHelper::isMimeTypeText($aDocumentInfo['mimetype'])) {
-                $icon =
-                    'plugins/cloudview/' .
-                    $this->local_skin_path() .
-                    '/x-office-document.png';
+                $bIsSupported = true;
+                $icon = 'x-office-document.png';
+            } elseif (mimeHelper::isMimeTypeSpreadsheet($aDocumentInfo['mimetype'])) {
+                $bIsSupported = true;
+                $icon = 'x-office-spreadsheet.png';
+            } elseif (mimeHelper::isMimeTypePresentation($aDocumentInfo['mimetype'])) {
+                $bIsSupported = true;
+                $icon = 'x-office-presentation.png';
+            } elseif (mimeHelper::isMimeTypePdf($aDocumentInfo['mimetype'])) {
+                $bIsSupported = true;
+                $icon = 'x-application-pdf.png';
+            }
+
+            if ($bIsSupported) {
+                $icon = self::THIS_PLUGIN_DIR . $this->local_skin_path() . "/{$icon}";
+
                 // add box below message body
                 $p['content'] .= html::p(
                     ['style' => $style],
@@ -192,145 +206,15 @@ class cloudview extends rcube_plugin
                             'src' => $icon,
                             'style' => 'vertical-align:middle',
                         ])
-                    ) .
-                        ' ' .
-                        html::span(null, rcube::Q($aDocumentInfo['filename']))
+                    ) . ' ' . html::span(null, rcube::Q($aDocumentInfo['filename']))
                 );
-
-                $bAttachScript = true;
             }
 
-            if (mimeHelper::isMimeTypeSpreadsheet($aDocumentInfo['mimetype'])) {
-                $icon =
-                    'plugins/cloudview/' .
-                    $this->local_skin_path() .
-                    '/x-office-spreadsheet.png';
-                // add box below message body
-                $p['content'] .= html::p(
-                    ['style' => $style],
-                    html::a(
-                        [
-                            'href' => '#',
-                            'onclick' => "return plugin_cloudview_view_document('" .
-                                rcube::JQ(\json_encode($aJsonDocument)) .
-                                "')",
-                            'title' => $this->gettext('opendocument'),
-                        ],
-                        html::img([
-                            'src' => $icon,
-                            'style' => 'vertical-align:middle',
-                        ])
-                    ) .
-                        ' ' .
-                        html::span(null, rcube::Q($aDocumentInfo['filename']))
-                );
-
-                $bAttachScript = true;
-            }
-
-            if (
-                mimeHelper::isMimeTypePresentation($aDocumentInfo['mimetype'])
-            ) {
-                $icon =
-                    'plugins/cloudview/' .
-                    $this->local_skin_path() .
-                    '/x-office-presentation.png';
-                // add box below message body
-                $p['content'] .= html::p(
-                    ['style' => $style],
-                    html::a(
-                        [
-                            'href' => '#',
-                            'onclick' => "return plugin_cloudview_view_document('" .
-                                rcube::JQ(\json_encode($aJsonDocument)) .
-                                "')",
-                            'title' => $this->gettext('opendocument'),
-                        ],
-                        html::img([
-                            'src' => $icon,
-                            'style' => 'vertical-align:middle',
-                        ])
-                    ) .
-                        ' ' .
-                        html::span(null, rcube::Q($aDocumentInfo['filename']))
-                );
-
-                $bAttachScript = true;
-            }
-
-            if (mimeHelper::isMimeTypePdf($aDocumentInfo['mimetype'])) {
-                $icon =
-                    'plugins/cloudview/' .
-                    $this->local_skin_path() .
-                    '/x-application-pdf.png';
-                // show PDF below message body
-                $p['content'] .= html::div(
-                    ['class' => 'pdfviewer-container'],
-                    html::p(
-                        ['class' => 'pdfviewer-navigation', 'style' => $style],
-                        html::span(
-                            ['style' => 'float:right'],
-                            html::a(
-                                [
-                                    'href' => '#',
-                                    'class' => 'svgicon-arrowleft prev-page',
-                                    'title' => $this->gettext('previouspage'),
-                                ],
-                                ''
-                            ) .
-                                html::span(
-                                    null,
-                                    html::span(['class' => 'page_num'], '') .
-                                        ' ' .
-                                        $this->gettext('pagenrof') .
-                                        ' ' .
-                                        html::span(
-                                            ['class' => 'page_count'],
-                                            ''
-                                        )
-                                ) .
-                                html::a(
-                                    [
-                                        'href' => '#',
-                                        'class' => 'svgicon-arrowright next-page',
-                                        'title' => $this->gettext('nextpage'),
-                                    ],
-                                    ''
-                                )
-                        ) .
-                            html::img([
-                                'src' => $icon,
-                                'style' => 'vertical-align:middle',
-                            ]) .
-                            ' ' .
-                            html::span(
-                                null,
-                                rcube::Q($aDocumentInfo['filename'])
-                            )
-                    ) .
-                        html::div(
-                            ['class' => 'pdfviewer-viewport'],
-                            html::tag('canvas', [
-                                'class' => 'pdfviewer-canvas',
-                                'data-id' => $aDocumentInfo['mime_id'],
-                            ])
-                        )
-                );
-
-                $bAttachPdfScript = true;
-            }
+            $bAttachScript |= $bIsSupported;
         }
 
         if ($bAttachScript) {
             $this->include_script('js/openDocument.js');
-        }
-
-        if ($bAttachPdfScript) {
-            $this->include_script('js/pdf.min.js');
-            $this->include_script('js/compatibility.min.js');
-            $this->include_script('js/showPdf.js');
-            $this->include_script('js/raphael.min.js');
-            $this->include_script('js/svgIcons.js');
         }
 
         return $p;
@@ -359,9 +243,9 @@ class cloudview extends rcube_plugin
         // initialize the rcmail class
         $oRCmail = rcmail::get_instance();
 
-        $sFileSuffix = \pathinfo($aDocumentInfo['document']['filename'], \PATHINFO_EXTENSION);
+        $sFileSuffix = \strtolower(\pathinfo($aDocumentInfo['document']['filename'], \PATHINFO_EXTENSION));
         $sFileBaseName = \hash('md5', $aJsonDocument . $this->config->get('hash_salt'));
-        $sTmpFileRelative = "plugins/cloudview/temp/{$sFileBaseName}.{$sFileSuffix}";
+        $sTmpFileRelative = self::THIS_PLUGIN_DIR . "temp/{$sFileBaseName}.{$sFileSuffix}";
         $sTmpFile = INSTALL_PATH . $sTmpFileRelative;
 
         // save the attachment into temp directory
@@ -370,25 +254,25 @@ class cloudview extends rcube_plugin
             \file_put_contents($sTmpFile, $sDocument);
         }
 
-        if ($this->config->get('is_dev_mode')) {
-            $sFileUrl = $this->config->get('dev_mode_file_base_url') . $sTmpFileRelative;
-        } else {
-            $sRequestedUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . "://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
-            $aUrlComponents = \parse_url($sRequestedUrl);
-            unset($aUrlComponents['fragment']);
-            $aUrlComponents['path'] .= $sTmpFileRelative;
-            $aUrlComponents['query'] = null;
+        $sFileUrl = self::getSiteUrl() . $sTmpFileRelative;
 
-            $sFileUrl = $this->unparseUrl($aUrlComponents);
+        // pdf: local site viewer
+        if ($sFileSuffix === 'pdf') {
+            $sViewerUrl = self::getSiteUrl() . self::THIS_PLUGIN_DIR . 'js/pdfjs-dist/web/viewer.html';
+            $sViewUrl = $sViewerUrl . '?' . \http_build_query(['file' => $sFileUrl]);
+        }
+        // external viewer
+        else {
+            if ($this->config->get('is_dev_mode')) {
+                $sFileUrl = $this->config->get('dev_mode_file_base_url') . $sTmpFileRelative;
+            }
+
+            $sViewUrl = \strtr($this->config->get('viewer_url'), [
+                '{DOCUMENT_URL}' => \urlencode($sFileUrl),
+            ]);
         }
 
-        $oRCmail->output->command('plugin.cloudview', [
-            'message' => [
-                'url' => \strtr($this->config->get('viewer_url'), [
-                    '{DOCUMENT_URL}' => \urlencode($sFileUrl),
-                ]),
-            ],
-        ]);
+        $oRCmail->output->command('plugin.cloudview', ['message' => ['url' => $sViewUrl]]);
         $oRCmail->output->send();
     }
 
@@ -427,11 +311,26 @@ class cloudview extends rcube_plugin
     }
 
     /**
+     * Get the site url.
+     */
+    private static function getSiteUrl(): string
+    {
+        $sRequestedUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . "://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
+        $aUrlComponents = \parse_url($sRequestedUrl);
+
+        // remove potential trailing index.php
+        $aUrlComponents['path'] = \preg_replace('/(\/)index.php$/iuS', '$1', $aUrlComponents['path']);
+        unset($aUrlComponents['query'], $aUrlComponents['fragment']);
+
+        return self::unparseUrl($aUrlComponents);
+    }
+
+    /**
      * Assemble URL parts back to string URL.
      *
      * @param array $parts the parts
      */
-    private function unparseUrl(array $parts): string
+    private static function unparseUrl(array $parts): string
     {
         $scheme = isset($parts['scheme']) ? $parts['scheme'] . '://' : '';
         $host = $parts['host'] ?? '';
