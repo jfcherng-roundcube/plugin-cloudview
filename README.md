@@ -24,23 +24,33 @@ This plugin is tested in the following environment.
 
 Different environments may work as well without guarantee.
 
-## Installing `cloudview`
+## How to install this plugin in Roundcube
 
-After downloading `cloudview`, extract (unzip) it in RoundCube's plugins directory.
-Doing this correctly should result in a subdirectory `plugins/cloudview` which contains
-all of the plugin's files.
+### Install via Composer
 
-Install it by adding its directory name to the config option plugins,
-as an array element. Editing your local "config/main.inc.php" file and
-add `'cloudview'` into the `$config['plugins']` array.
+This plugin has been published on [Packagist](https://packagist.org) by the name of [jfcherng-roundcube/cloudview](https://packagist.org/packages/jfcherng-roundcube/cloudview).
 
-To uninstall `cloudview`, just remove it from the list.
+1. Go to your `ROUNDCUBE_HOME` (i.e., the root directory of your Roundcube).
+2. Run `composer require jfcherng-roundcube/cloudview`.
+3. You may edit the `config.inc.php` under this plugin's directory if you want to do some configurations.
 
-## Enabling `cloudview`
+### Install manually
 
-After this plugin has been installed, it's enabled by default.
-To disable it, you can find the switch in your preferences:
-`Settings -> Server Settings -> Main -> Enable "cloudview" plugin for mail attachments`.
+1. Create folder `cloudview` in `ROUNDCUBE_HOME/plugins` if it does not exist.
+2. Copy all plugin files there.
+3. Copy `config.inc.php.dist` to `config.inc.php` and edit `config.inc.php` if you want.
+4. Edit `ROUNDCUBE_HOME/conf/config.inc.php` locate `$config['plugins']` and add `'cloudview',` there:
+
+```php
+<?php
+
+// some other codes...
+
+$config['plugins'] = array(
+    // some other plugins...
+    'cloudview', // <-- add this
+);
+```
 
 ## Temporary Files
 
@@ -58,4 +68,5 @@ For example, execute `crontab -e` and add the following job
 
 ## Acknowledgement
 
-https://github.com/brestows/cloudview-roundcube
+- The basic idea comes from https://github.com/brestows/cloudview-roundcube
+- This plugin is sponsored by [@Galandrix](https://github.com/Galandrix).
