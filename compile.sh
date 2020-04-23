@@ -12,8 +12,11 @@ PROJECT_ROOT=${SCRIPT_DIR}
 
 LESS_FILES=(
     "skins/classic/main.less"
+    "skins/classic/settings.less"
     "skins/elastic/main.less"
+    "skins/elastic/settings.less"
     "skins/larry/main.less"
+    "skins/larry/settings.less"
 )
 
 JS_FILES=(

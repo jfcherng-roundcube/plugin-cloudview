@@ -81,6 +81,7 @@ class cloudview extends rcube_plugin
             $this->add_hook('settings_actions', [$this, 'settingsActions']);
             $this->register_action('plugin.cloudview', [$this, 'cloudviewInit']);
             $this->register_action('plugin.cloudview-save', [$this, 'cloudviewSave']);
+            $this->include_stylesheet($this->local_skin_path() . '/settings.css');
             $this->include_script('js/settings.min.js');
         }
     }
