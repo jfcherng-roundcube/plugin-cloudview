@@ -121,47 +121,55 @@ class cloudview extends rcube_plugin
         $rcmail = rcmail::get_instance();
         $this->add_texts('locales/', false);
 
-        $saveButton = html::p(null, $rcmail->output->button([
-            'command' => 'plugin.cloudview-save',
-            'type' => 'input',
-            'class' => 'button mainaction',
-            'label' => 'save',
-        ]));
+        $boxTitle = html::div(['class' => 'boxtitle'], rcmail::Q($this->gettext('plugin_settings_title')));
 
-        $table = new html_table(['cols' => 2, 'class' => 'propform']);
+        $saveButton = (new html_button())->show(
+            rcmail::Q($this->gettext('save')),
+            [
+                'type' => 'input',
+                'class' => 'btn button submit mainaction',
+                'onclick' => "return rcmail.command('plugin.cloudview-save', '', this, event)",
+            ]
+        );
 
+        $objectTable = new html_table(['cols' => 2, 'class' => 'propform']);
+
+        // option: enable this plugin or not
         $objectCloudviewEnabled = new html_checkbox([
             'name' => '_cloudview_enabled',
             'id' => '_cloudview_enabled',
             'value' => 1,
         ]);
+        $objectTable->add('title', html::label('_cloudview_enabled', rcmail::Q($this->gettext('plugin_enabled'))));
+        $objectTable->add('', $objectCloudviewEnabled->show($this->pluginPrefs['cloudview_enabled'] ? 1 : 0));
 
-        $table->add('title', html::label('_cloudview_enabled', rcmail::Q($this->gettext('plugin_enabled'))));
-        $table->add('', $objectCloudviewEnabled->show($this->pluginPrefs['cloudview_enabled'] ? 1 : 0));
-
+        // option: choose cloud viewer
         $objectCloudviewViewer = new html_select(['name' => '_cloudview_viewer', 'id' => '_cloudview_viewer']);
         $objectCloudviewViewer->add(
             [
-                $this->gettext('viewer_microsoft_office_web'),
-                $this->gettext('viewer_google_docs'),
+                rcmail::Q($this->gettext('viewer_microsoft_office_web')),
+                rcmail::Q($this->gettext('viewer_google_docs')),
             ],
             [
                 self::VIEWER_MICROSOFT_OFFICE_WEB,
                 self::VIEWER_GOOGLE_DOCS,
             ]
         );
+        $objectTable->add('title', html::label('_cloudview_viewer', rcmail::Q($this->gettext('select_viewer'))));
+        $objectTable->add('', $objectCloudviewViewer->show($this->pluginPrefs['cloudview_viewer']));
 
-        $table->add('title', html::label('_cloudview_viewer', rcmail::Q($this->gettext('select_viewer'))));
-        $table->add('', $objectCloudviewViewer->show($this->pluginPrefs['cloudview_viewer']));
+        $table = $objectTable->show();
+        $form = html::div(['class' => 'boxcontent'], $table . $saveButton);
 
-        $html .= $table->show();
-
-        $boxTitle = html::div(['class' => 'boxtitle'], $this->gettext('plugin_settings_title'));
-        $form = html::div(['class' => 'boxcontent'], $html.$saveButton);
+        if ($this->getBaseSkinName() === 'elastic') {
+            $containerAttrs = ['class' => 'formcontent'];
+        } else {
+            $containerAttrs = [];
+        }
 
         $rcmail->output->add_gui_object('cloudview-form', 'cloudview-form');
 
-        return $rcmail->output->form_tag(
+        return html::div($containerAttrs, $rcmail->output->form_tag(
             [
                 'id' => 'cloudview-form',
                 'name' => 'cloudview-form',
@@ -170,7 +178,7 @@ class cloudview extends rcube_plugin
                 'action' => './?_task=settings&_action=plugin.cloudview-save',
             ],
             html::div(['class' => 'box'], $boxTitle . $form)
-        );
+        ));
     }
 
     /**
@@ -325,6 +333,29 @@ class cloudview extends rcube_plugin
         $mimeType = $mimeExts[$fileSuffix] ?? null;
 
         return MimeHelper::isSupportedMimeType($mimeType);
+    }
+
+    /**
+     * Get the lowercase base skin name for the current skin.
+     *
+     * @return string the base skin name
+     */
+    private function getBaseSkinName(): string
+    {
+        static $base_skins = ['classic', 'larry', 'elastic'];
+
+        $rcube = rcube::get_instance();
+
+        // information about current skin and extended skins (if any)
+        $skins = (array) $rcube->output->skins;
+
+        foreach ($base_skins as $base_skin) {
+            if (isset($skins[$base_skin])) {
+                return $base_skin;
+            }
+        }
+
+        return $skins[0] ?? '';
     }
 
     /**
