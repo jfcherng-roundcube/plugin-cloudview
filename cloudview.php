@@ -4,8 +4,8 @@ class cloudview extends rcube_plugin
 {
     const THIS_PLUGIN_DIR = 'plugins/' . __CLASS__ . '/';
 
-    const VIEWER_MICROSOFT_OFFICE_WEB = 'microsoft_office_web';
     const VIEWER_GOOGLE_DOCS = 'google_docs';
+    const VIEWER_MICROSOFT_OFFICE_WEB = 'microsoft_office_web';
 
     /**
      * Cloud viewer URLs.
@@ -17,6 +17,11 @@ class cloudview extends rcube_plugin
         self::VIEWER_MICROSOFT_OFFICE_WEB => 'https://view.officeapps.live.com/op/view.aspx?src={DOCUMENT_URL}',
     ];
 
+    /**
+     * The default user plugin preferences.
+     *
+     * @var array
+     */
     const PREFS_DEFAULT = [
         'cloudview_enabled' => 1,
         'cloudview_viewer' => self::VIEWER_MICROSOFT_OFFICE_WEB,
@@ -51,14 +56,14 @@ class cloudview extends rcube_plugin
      */
     public function init(): void
     {
-        $rcMail = rcmail::get_instance();
+        $rcmail = rcmail::get_instance();
 
         $this->loadPluginConfig();
         $this->add_texts('locales/', false);
 
         $this->pluginPrefs = \array_merge(
             self::PREFS_DEFAULT,
-            $rcMail->user->get_prefs()['cloudview'] ?? []
+            $rcmail->user->get_prefs()['cloudview'] ?? []
         );
 
         // add include path for internal classes
@@ -68,7 +73,7 @@ class cloudview extends rcube_plugin
 
         // per-user plugin enable
         if ($this->pluginPrefs['cloudview_enabled']) {
-            if ($rcMail->action === 'show' || $rcMail->action === 'preview') {
+            if ($rcmail->action === 'show' || $rcmail->action === 'preview') {
                 $this->add_hook('message_load', [$this, 'messageLoad']);
                 $this->add_hook('template_object_messageattachments', [$this, 'attachmentListHook']);
             }
@@ -77,7 +82,7 @@ class cloudview extends rcube_plugin
         }
 
         // preference settings hooks
-        if ($rcMail->task === 'settings') {
+        if ($rcmail->task === 'settings') {
             $this->add_hook('settings_actions', [$this, 'settingsActions']);
             $this->register_action('plugin.cloudview', [$this, 'cloudviewInit']);
             $this->register_action('plugin.cloudview-save', [$this, 'cloudviewSave']);
@@ -161,6 +166,7 @@ class cloudview extends rcube_plugin
         $table = $objectTable->show();
         $form = html::div(['class' => 'boxcontent'], $table . $saveButton);
 
+        // responsive layout for the "elastic" skin
         if (CloudviewHelper::getBaseSkinName() === 'elastic') {
             $containerAttrs = ['class' => 'formcontent'];
         } else {
@@ -241,7 +247,7 @@ class cloudview extends rcube_plugin
      */
     public function attachmentListHook(array $p): array
     {
-        $rcMail = rcmail::get_instance();
+        $rcmail = rcmail::get_instance();
 
         $attachmentDatas = \array_filter(
             $this->attachmentDatas,
@@ -251,7 +257,7 @@ class cloudview extends rcube_plugin
         );
 
         if (!empty($attachmentDatas)) {
-            $rcMail->output->set_env('cloudview_attachmentInfos', $attachmentDatas, true);
+            $rcmail->output->set_env('cloudview_attachmentInfos', $attachmentDatas, true);
 
             $this->include_stylesheet($this->local_skin_path() . '/main.css');
             $this->include_script('js/main.min.js');
@@ -265,6 +271,8 @@ class cloudview extends rcube_plugin
      */
     public function viewDocument(): void
     {
+        $rcmail = rcmail::get_instance();
+
         $this->load_config();
 
         // get the post values
@@ -277,9 +285,6 @@ class cloudview extends rcube_plugin
 
         $documentInfo = \json_decode($jsonDocument, true);
 
-        // initialize the rcmail class
-        $rcMail = rcmail::get_instance();
-
         $fileSuffix = \strtolower(\pathinfo($documentInfo['document']['filename'], \PATHINFO_EXTENSION));
         $fileBaseName = \hash('md5', $jsonDocument . $this->config->get('hash_salt'));
         $tempFile = self::THIS_PLUGIN_DIR . "temp/{$fileBaseName}.{$fileSuffix}";
@@ -287,7 +292,7 @@ class cloudview extends rcube_plugin
 
         // save the attachment into temp directory
         if (!\is_file($tempFileFullPath)) {
-            $document = $rcMail->imap->get_message_part($uid, $documentInfo['document']['mime_id']);
+            $document = $rcmail->imap->get_message_part($uid, $documentInfo['document']['mime_id']);
             \file_put_contents($tempFileFullPath, $document);
         }
 
@@ -310,8 +315,8 @@ class cloudview extends rcube_plugin
             ]);
         }
 
-        $rcMail->output->command('plugin.cloudview-view', ['message' => ['url' => $viewUrl]]);
-        $rcMail->output->send();
+        $rcmail->output->command('plugin.cloudview-view', ['message' => ['url' => $viewUrl]]);
+        $rcmail->output->send();
     }
 
     /**
