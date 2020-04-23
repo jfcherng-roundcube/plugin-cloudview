@@ -9,6 +9,8 @@
 A Roundcube plugin which lets you view documents, spreadsheets, presentations and
 PDFs in the browser with cloud viewers like Google Docs or Microsoft Office Web.
 
+![demo](https://raw.githubusercontent.com/jfcherng-roundcube/plugin-cloudview/master/docs/screenshot/demo.png)
+
 ## Supported Attachment Formats
 
 ### Microsoft Office Formats
