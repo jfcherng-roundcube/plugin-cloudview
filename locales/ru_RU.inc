@@ -2,6 +2,7 @@
  
 $labels = [];
 $labels['open_document'] = 'Просмотреть';
+
 // settings page
 $labels['plugin_settings_title'] = 'Cloud View';
 $labels['plugin_enabled'] = 'Включить Cloud View';
