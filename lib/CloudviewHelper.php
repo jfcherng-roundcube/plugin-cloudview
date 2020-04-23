@@ -25,6 +25,29 @@ class CloudviewHelper
     }
 
     /**
+     * Get the lowercase base skin name for the current skin.
+     *
+     * @return string the base skin name
+     */
+    public static function getBaseSkinName(): string
+    {
+        static $base_skins = ['classic', 'larry', 'elastic'];
+
+        $rcube = rcube::get_instance();
+
+        // information about current skin and extended skins (if any)
+        $skins = (array) $rcube->output->skins;
+
+        foreach ($base_skins as $base_skin) {
+            if (isset($skins[$base_skin])) {
+                return $base_skin;
+            }
+        }
+
+        return $skins[0] ?? '';
+    }
+
+    /**
      * Assemble URL parts back to string URL.
      *
      * @param array $parts the parts

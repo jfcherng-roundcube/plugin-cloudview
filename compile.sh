@@ -20,8 +20,7 @@ LESS_FILES=(
 )
 
 JS_FILES=(
-    "js/appendAttachmentPreview.js"
-    "js/openDocument.js"
+    "js/main.js"
     "js/settings.js"
 )
 

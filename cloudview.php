@@ -161,7 +161,7 @@ class cloudview extends rcube_plugin
         $table = $objectTable->show();
         $form = html::div(['class' => 'boxcontent'], $table . $saveButton);
 
-        if ($this->getBaseSkinName() === 'elastic') {
+        if (CloudviewHelper::getBaseSkinName() === 'elastic') {
             $containerAttrs = ['class' => 'formcontent'];
         } else {
             $containerAttrs = [];
@@ -237,29 +237,25 @@ class cloudview extends rcube_plugin
     }
 
     /**
-     * Add a button to the plugin list.
+     * Add a button to the attachment list.
      */
     public function attachmentListHook(array $p): array
     {
-        $html = '';
-        $attachmentDatas = [];
+        $rcMail = rcmail::get_instance();
 
-        foreach ($this->attachmentDatas as $documentInfo) {
-            if (MimeHelper::isSupportedMimeType($documentInfo['mimetype'])) {
-                $attachmentDatas[] = $documentInfo;
+        $attachmentDatas = \array_filter(
+            $this->attachmentDatas,
+            function (array $documentInfo): bool {
+                return MimeHelper::isSupportedMimeType($documentInfo['mimetype']);
             }
-        }
+        );
 
         if (!empty($attachmentDatas)) {
-            $jsonData = \json_encode($attachmentDatas, \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES);
-            $html .= "<script>var cloudview_attachmentInfos = {$jsonData};</script>";
+            $rcMail->output->set_env('cloudview_attachmentInfos', $attachmentDatas, true);
 
             $this->include_stylesheet($this->local_skin_path() . '/main.css');
-            $this->include_script('js/appendAttachmentPreview.min.js');
-            $this->include_script('js/openDocument.min.js');
+            $this->include_script('js/main.min.js');
         }
-
-        $p['content'] .= $html;
 
         return $p;
     }
@@ -333,29 +329,6 @@ class cloudview extends rcube_plugin
         $mimeType = $mimeExts[$fileSuffix] ?? null;
 
         return MimeHelper::isSupportedMimeType($mimeType);
-    }
-
-    /**
-     * Get the lowercase base skin name for the current skin.
-     *
-     * @return string the base skin name
-     */
-    private function getBaseSkinName(): string
-    {
-        static $base_skins = ['classic', 'larry', 'elastic'];
-
-        $rcube = rcube::get_instance();
-
-        // information about current skin and extended skins (if any)
-        $skins = (array) $rcube->output->skins;
-
-        foreach ($base_skins as $base_skin) {
-            if (isset($skins[$base_skin])) {
-                return $base_skin;
-            }
-        }
-
-        return $skins[0] ?? '';
     }
 
     /**
