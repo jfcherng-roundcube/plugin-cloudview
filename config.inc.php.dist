@@ -10,9 +10,6 @@
 $config = [
     'hash_salt' => 'CHANGE_THIS_FIELD_INTO_A_RANDOM_STRING',
 
-    // 'viewer_url' => 'https://docs.google.com/viewer?embedded=true&url={DOCUMENT_URL}',
-    'viewer_url' => 'https://view.officeapps.live.com/op/view.aspx?src={DOCUMENT_URL}',
-
     // for localhost dev test purpose
     'is_dev_mode' => false,
     'dev_mode_file_base_url' => 'https://4272fd88.ngrok.io/',

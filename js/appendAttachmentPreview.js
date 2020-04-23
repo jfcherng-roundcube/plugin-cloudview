@@ -1,16 +1,14 @@
 const $ = global.$;
+const rcmail = global.rcmail;
 
-// from plugin
-let cloudview_attachmentInfos, cloudview_attachmentInfosById;
+// the "mime_id" mapped version of 'cloudview_attachmentInfos'
+global.cloudview_attachmentInfosById = {};
 
 $(() => {
-  cloudview_attachmentInfos = global.cloudview_attachmentInfos;
-
-  cloudview_attachmentInfosById = {};
-  cloudview_attachmentInfos.forEach((el) => {
-    cloudview_attachmentInfosById[el.mime_id] = el;
+  // 'cloudview_attachmentInfos' to generate 'cloudview_attachmentInfosById'
+  global.cloudview_attachmentInfos.forEach((el) => {
+    global.cloudview_attachmentInfosById[el.mime_id] = el;
   });
-  global.cloudview_attachmentInfosById = cloudview_attachmentInfosById;
 
   // add menu link for each attachment
   $('#attachment-list > li').each(function () {
@@ -23,14 +21,13 @@ function attachmentmenuAppend(item) {
   let $item = $(item);
   let attachmentId = parseInt($item.attr('id').replace(/^attach/g, ''));
 
-  if (!(attachmentId in cloudview_attachmentInfosById)) {
+  if (!(attachmentId in global.cloudview_attachmentInfosById)) {
     return;
   }
 
-  $item.addClass('with-preview');
-  $item.append(`
+  $item.addClass('with-preview').append(`
     <a
-      title="Preview"
+      title="${rcmail.labels['cloudview.open_document']}"
       href="#"
       onclick="plugin_cloudview_view_document({ document: cloudview_attachmentInfosById[${attachmentId}] })"
       class="cloudview-preview-link"

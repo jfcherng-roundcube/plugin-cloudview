@@ -1,1 +1,13 @@
-js/**/*.min.js
+# auto generated
+/public/build/
+/node_modules/
+/vendor/
+
+# git worktree
+/br-*/
+/branch-*/
+
+# ...
+/js/**/*.min.*
+/js/pdfjs-dist/
+/skins/**/*.min.*

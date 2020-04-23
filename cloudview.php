@@ -1,13 +1,21 @@
 <?php
-/**
- * @version $Id$
- * Add a button to open attachments online with Zoho or Pixlr web service
- *
- * @author Rene Kanzler <rk (at) cosmomill (dot) de>
- */
+
 class cloudview extends rcube_plugin
 {
     const THIS_PLUGIN_DIR = 'plugins/cloudview/';
+
+    const VIEWER_MICROSOFT_OFFICE_WEB = 'microsoft_office_web';
+    const VIEWER_GOOGLE_DOCS = 'google_docs';
+
+    /**
+     * Cloud viewer URLs.
+     *
+     * @var string[]
+     */
+    const VIEWER_URLS = [
+        self::VIEWER_GOOGLE_DOCS => 'https://docs.google.com/viewer?embedded=true&url={DOCUMENT_URL}',
+        self::VIEWER_MICROSOFT_OFFICE_WEB => 'https://view.officeapps.live.com/op/view.aspx?src={DOCUMENT_URL}',
+    ];
 
     /**
      * {@inheritdoc}
@@ -22,11 +30,9 @@ class cloudview extends rcube_plugin
     private $config;
 
     /**
-     * @var array
+     * @var array[]
      */
-    private $attachmentData = [];
-
-    private $message;
+    private $attachmentDatas = [];
 
     /**
      * Plugin initialization.
@@ -73,7 +79,7 @@ class cloudview extends rcube_plugin
         }
 
         // load localization and configuration
-        $this->add_texts('locales/', true);
+        $this->add_texts('locales/', false);
 
         // get disabled configuration parameters
         $dontOverride = $this->config->get('dont_override', []);
@@ -92,6 +98,33 @@ class cloudview extends rcube_plugin
             $args['blocks']['main']['options']['cloudview_enabled'] = [
                 'title' => html::label($fieldId, rcmail::Q($this->gettext('plugin_enabled'))),
                 'content' => $checkBox->show($isEnabled ? 1 : 0),
+            ];
+        }
+
+        // add cloud viewer select
+        if (!\in_array('cloudview_viewer', $dontOverride)) {
+            $fieldId = '_cloudview_viewer';
+
+            // get the current value
+            $viewerName = $this->config->get('cloudview_viewer', 'microsoft_web');
+
+            // crate the input field
+            $select = new html_select(['name' => $fieldId, 'id' => $fieldId]);
+            $select->add(
+                [
+                    $this->gettext('viewer_microsoft_office_web'),
+                    $this->gettext('viewer_google_docs'),
+                ],
+                [
+                    self::VIEWER_MICROSOFT_OFFICE_WEB,
+                    self::VIEWER_GOOGLE_DOCS,
+                ]
+            );
+
+            // add the new input filed to the argument list
+            $args['blocks']['main']['options']['cloudview_viewer'] = [
+                'title' => html::label($fieldId, rcmail::Q($this->gettext('select_viewer'))),
+                'content' => $select->show($viewerName),
             ];
         }
 
@@ -121,22 +154,28 @@ class cloudview extends rcube_plugin
             );
         }
 
+        // cloud viewer
+        if (!\in_array('cloudview_viewer', $dontOverride)) {
+            $args['prefs']['cloudview_viewer'] = \filter_var(
+                $_POST['_cloudview_viewer'],
+                \FILTER_SANITIZE_STRING
+            );
+        }
+
         return $args;
     }
 
     /**
      * Check message bodies and attachments for supported documents.
-     *
-     * @param mixed $p
      */
-    public function messageLoad($p): void
+    public function messageLoad(array $p): array
     {
         $this->message = $p['object'];
 
         // handle attachments
         foreach ((array) $this->message->attachments as $attachment) {
             if ($this->isSupportedDoc($attachment)) {
-                $this->attachmentData[] = [
+                $this->attachmentDatas[] = [
                     'mime_id' => $attachment->mime_id,
                     'mimetype' => $attachment->mimetype,
                     'filename' => $attachment->filename,
@@ -144,29 +183,31 @@ class cloudview extends rcube_plugin
             }
         }
 
-        if (!empty($this->attachmentData)) {
+        if (!empty($this->attachmentDatas)) {
             $this->add_texts('locales/', true);
         }
+
+        return $p;
     }
 
-    public function attachmentListHook($p)
+    public function attachmentListHook(array $p): array
     {
         $html = '';
-        $attachmentData = [];
+        $attachmentDatas = [];
 
-        foreach ($this->attachmentData as $documentInfo) {
+        foreach ($this->attachmentDatas as $documentInfo) {
             if (MimeHelper::isSupportedMimeType($documentInfo['mimetype'])) {
-                $attachmentData[] = $documentInfo;
+                $attachmentDatas[] = $documentInfo;
             }
         }
 
-        if (!empty($attachmentData)) {
-            $jsonData = \json_encode($attachmentData, \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES);
+        if (!empty($attachmentDatas)) {
+            $jsonData = \json_encode($attachmentDatas, \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES);
             $html .= "<script>var cloudview_attachmentInfos = {$jsonData};</script>";
 
             $this->include_stylesheet($this->local_skin_path() . '/main.css');
-            $this->include_script('js/openDocument.min.js');
             $this->include_script('js/appendAttachmentPreview.min.js');
+            $this->include_script('js/openDocument.min.js');
         }
 
         $p['content'] .= $html;
@@ -180,9 +221,6 @@ class cloudview extends rcube_plugin
     public function viewDocument(): void
     {
         $this->load_config();
-
-        // tell the plugin API where to search for texts
-        $this->add_texts('locales/', true);
 
         // get the post values
         $uid = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_POST);
@@ -215,13 +253,14 @@ class cloudview extends rcube_plugin
             $viewerUrl = CloudviewHelper::getSiteUrl() . self::THIS_PLUGIN_DIR . 'js/pdfjs-dist/web/viewer.html';
             $viewUrl = $viewerUrl . '?' . \http_build_query(['file' => $fileUrl]);
         }
-        // MS Office: external viewer
+        // Others: external cloud viewer
         else {
             if ($this->config->get('is_dev_mode')) {
                 $fileUrl = $this->config->get('dev_mode_file_base_url') . $tempFile;
             }
 
-            $viewUrl = \strtr($this->config->get('viewer_url'), [
+            $viewerUrl = self::VIEWER_URLS[$this->config->get('cloudview_viewer', 'microsoft_web')];
+            $viewUrl = \strtr($viewerUrl, [
                 '{DOCUMENT_URL}' => \urlencode($fileUrl),
             ]);
         }
@@ -232,10 +271,8 @@ class cloudview extends rcube_plugin
 
     /**
      * Check if specified attachment contains a supported document.
-     *
-     * @param mixed $attachment
      */
-    public function isSupportedDoc($attachment): bool
+    public function isSupportedDoc(rcube_message_part $attachment): bool
     {
         if (MimeHelper::isSupportedMimeType($attachment->mimetype)) {
             return MimeHelper::isSupportedMimeType($attachment->mimetype);

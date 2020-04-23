@@ -8,4 +8,6 @@
 /branch-*/
 
 # ...
-/js/*.min.js
+/js/**/*.min.*
+/js/pdfjs-dist/
+/skins/**/*.min.*

@@ -22,8 +22,8 @@
     "terser": "^4.1.2"
   },
   "scripts": {
-    "fix": "prettier --write ./js/**/*.js",
-    "lint": "eslint ./js/**/*.js"
+    "fix": "prettier --write *.md js/**/*.js skins/**/*.less",
+    "lint": "eslint *.md js/**/*.js skins/**/*.less"
   },
   "browserslist": "> 1%",
   "resolutions": {}
