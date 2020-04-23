@@ -19,6 +19,7 @@ LESS_FILES=(
 JS_FILES=(
     "js/appendAttachmentPreview.js"
     "js/openDocument.js"
+    "js/settings.js"
 )
 
 PATH=${PROJECT_ROOT}/node_modules/.bin:${PATH}

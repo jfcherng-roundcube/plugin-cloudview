@@ -3,7 +3,7 @@ const scrHeight = window.innerWidth;
 const scrWidth = window.innerHeight;
 
 // add 'plugin.cloudview' event listener
-rcmail.addEventListener('plugin.cloudview', (response) => {
+rcmail.addEventListener('plugin.cloudview-view', (response) => {
   let url = response.message.url;
   let popupId = new Date().getTime();
   let width = `width=${scrWidth}`;
@@ -23,7 +23,7 @@ global.plugin_cloudview_view_document = (documentInfo) => {
   let lock = rcmail.set_busy(true, 'loading');
 
   rcmail.http_post(
-    'plugin.cloudview',
+    'plugin.cloudview-view',
     `_uid=${rcmail.env.uid}&_mbox=${urlencode(rcmail.env.mailbox)}&_info=${urlencode(
       JSON.stringify(documentInfo)
     )}`,
