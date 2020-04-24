@@ -11,24 +11,24 @@ PDFs in the browser with cloud viewers like Google Docs or Microsoft Office Web.
 
 ![demo](https://raw.githubusercontent.com/jfcherng-roundcube/plugin-cloudview/master/docs/screenshot/demo.png)
 
-## Supported Attachment Formats
+## Supported Formats
 
-### Microsoft Office Formats
+### Office Formats
 
-- doc / docx - Microsoft Word
-- xls / xlsx - Microsoft Excel
-- ppt / pptx - Microsoft PowerPoint
+- **Text**: doc, docx, odt, ott
+- **Spreadsheet**: xls, xlsx, ods, ots
+- **Presentation**: ppt, pptx, odp, otp
 
 ### Other Formats
 
-- pdf - Adobe Portable Document Format
+- pdf
 
 ## Requirements
 
 This plugin is tested in the following environment.
 
 - Roundcube 1.4.0
-- PHP 7.1 and 7.4
+- PHP (min requirement) 7.1 and 7.4
 
 Different environments may work as well without guarantee.
 
