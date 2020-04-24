@@ -27,8 +27,9 @@ PDFs in the browser with cloud viewers like Google Docs or Microsoft Office Web.
 
 This plugin is tested in the following environment.
 
-- Roundcube 1.4.0
-- PHP (min requirement) 7.1 and 7.4
+- Roundcube: `1.4`
+- PHP: `7.1` (min requirement), `7.4`
+- Skin: `Classic`, `Larry`, `Elastic`
 
 Different environments may work as well without guarantee.
 
