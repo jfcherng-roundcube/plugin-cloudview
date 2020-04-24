@@ -9,3 +9,6 @@
   background-repeat: no-repeat;
   background-size: contain
 }
+.attachmentslist li.with-preview a.cloudview-preview-link:hover {
+  background-image: url(preview-hovered.png)
+}
