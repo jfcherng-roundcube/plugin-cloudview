@@ -11,3 +11,4 @@
 /js/**/*.min.*
 /js/pdfjs-dist/
 /skins/**/*.min.*
+/scripts/

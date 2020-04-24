@@ -24,13 +24,13 @@ rcmail.addEventListener('plugin.cloudview-view', (response) => {
 });
 
 // this function calls "viewDocument" in cloudview.php
-const plugin_cloudview_view_document = (documentInfo) => {
+const plugin_cloudview_view_document = (attachmentInfo) => {
   rcmail.http_post(
     'plugin.cloudview-view',
     buildQueryString({
       _uid: rcmail.env.uid,
       _mbox: rcmail.env.mailbox,
-      _info: JSON.stringify(documentInfo),
+      _info: JSON.stringify(attachmentInfo),
     }),
     rcmail.set_busy(true, 'loading')
   );

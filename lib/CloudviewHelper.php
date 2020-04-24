@@ -1,6 +1,6 @@
 <?php
 
-class CloudviewHelper
+final class CloudviewHelper
 {
     /**
      * Get the site url.

@@ -47,9 +47,11 @@ class cloudview extends rcube_plugin
     private $pluginPrefs;
 
     /**
+     * Information about attachments.
+     *
      * @var array[]
      */
-    private $attachmentDatas = [];
+    private $attachments = [];
 
     /**
      * Plugin initialization.
@@ -218,24 +220,25 @@ class cloudview extends rcube_plugin
     }
 
     /**
-     * Check message bodies and attachments for supported documents.
+     * Check message bodies and attachments.
      */
     public function messageLoad(array $p): array
     {
-        $this->message = $p['object'];
+        foreach ((array) $p['object']->attachments as $attachment) {
+            // Roundcube's mimetype detection seems to be less accurate
+            // (such as it detect "rtf" files as "application/msword" rather than "application/rtf")
+            // so we use the mimetype map from Apache to determine it by filename
+            $mimetype = MimeHelper::guessMimeTypeByFilename($attachment->filename) ?? $attachment->mimetype;
 
-        // handle attachments
-        foreach ((array) $this->message->attachments as $attachment) {
-            if ($this->isSupportedDoc($attachment)) {
-                $this->attachmentDatas[] = [
-                    'mime_id' => $attachment->mime_id,
-                    'mimetype' => $attachment->mimetype,
-                    'filename' => $attachment->filename,
-                ];
-            }
+            $this->attachments[] = [
+                'mime_id' => $attachment->mime_id,
+                'mimetype' => $mimetype,
+                'filename' => $attachment->filename,
+                'is_supported' => MimeHelper::isSupportedMimeType($mimetype),
+            ];
         }
 
-        if (!empty($this->attachmentDatas)) {
+        if (!empty($this->attachments)) {
             $this->add_texts('locales/', true);
         }
 
@@ -249,16 +252,16 @@ class cloudview extends rcube_plugin
     {
         $rcmail = rcmail::get_instance();
 
-        $attachmentDatas = \array_filter(
-            $this->attachmentDatas,
-            function (array $documentInfo): bool {
-                return MimeHelper::isSupportedMimeType($documentInfo['mimetype']);
+        $supportedAttachments = \array_filter(
+            $this->attachments,
+            function (array $attachment): bool {
+                return $attachment['is_supported'];
             }
         );
 
-        if (!empty($attachmentDatas)) {
-            $rcmail->output->set_env('cloudview_attachmentInfos', $attachmentDatas, true);
+        $rcmail->output->set_env('cloudview_attachments', $this->attachments, true);
 
+        if (!empty($supportedAttachments)) {
             $this->include_stylesheet($this->local_skin_path() . '/main.css');
             $this->include_script('js/main.min.js');
         }
@@ -272,44 +275,45 @@ class cloudview extends rcube_plugin
     public function viewDocument(): void
     {
         $rcmail = rcmail::get_instance();
-
         $this->load_config();
 
         // get the post values
         $uid = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_POST);
-        $jsonDocument = rcube_utils::get_input_value('_info', rcube_utils::INPUT_POST);
+        $info = rcube_utils::get_input_value('_info', rcube_utils::INPUT_POST);
 
-        if (!$uid || !$jsonDocument) {
+        if (!$uid || !$info) {
             return;
         }
 
-        $documentInfo = \json_decode($jsonDocument, true);
+        $attachment = \json_decode($info, true);
 
-        $fileSuffix = \strtolower(\pathinfo($documentInfo['document']['filename'], \PATHINFO_EXTENSION));
-        $fileBaseName = \hash('md5', $jsonDocument . $this->config->get('hash_salt'));
-        $tempFile = self::THIS_PLUGIN_DIR . "temp/{$fileBaseName}.{$fileSuffix}";
-        $tempFileFullPath = INSTALL_PATH . $tempFile;
+        $fileExt = \strtolower(\pathinfo($attachment['filename'], \PATHINFO_EXTENSION));
+        $tempFileBaseName = \hash('md5', $info . $this->config->get('hash_salt'));
+        $tempFilePath = self::THIS_PLUGIN_DIR . "temp/{$tempFileBaseName}.{$fileExt}";
+        $tempFileFullPath = INSTALL_PATH . $tempFilePath;
 
         // save the attachment into temp directory
         if (!\is_file($tempFileFullPath)) {
-            $document = $rcmail->imap->get_message_part($uid, $documentInfo['document']['mime_id']);
-            \file_put_contents($tempFileFullPath, $document);
+            \file_put_contents(
+                $tempFileFullPath,
+                $rcmail->imap->get_message_part($uid, $attachment['mime_id'])
+            );
         }
 
-        $fileUrl = CloudviewHelper::getSiteUrl() . $tempFile;
+        $fileUrl = CloudviewHelper::getSiteUrl() . $tempFilePath;
 
         // PDF: local site viewer
-        if ($fileSuffix === 'pdf') {
+        if ($fileExt === 'pdf') {
             $viewerUrl = CloudviewHelper::getSiteUrl() . self::THIS_PLUGIN_DIR . 'js/pdfjs-dist/web/viewer.html';
             $viewUrl = $viewerUrl . '?' . \http_build_query(['file' => $fileUrl]);
         }
         // Others: external cloud viewer
         else {
             if ($this->config->get('is_dev_mode')) {
-                $fileUrl = $this->config->get('dev_mode_file_base_url') . $tempFile;
+                $fileUrl = $this->config->get('dev_mode_file_base_url') . $tempFilePath;
             }
 
-            $viewerUrl = self::VIEWER_URLS[$this->pluginPrefs['cloudview_viewer']];
+            $viewerUrl = self::VIEWER_URLS[$this->pluginPrefs['cloudview_viewer']] ?? '';
             $viewUrl = \strtr($viewerUrl, [
                 '{DOCUMENT_URL}' => \urlencode($fileUrl),
             ]);
@@ -317,23 +321,6 @@ class cloudview extends rcube_plugin
 
         $rcmail->output->command('plugin.cloudview-view', ['message' => ['url' => $viewUrl]]);
         $rcmail->output->send();
-    }
-
-    /**
-     * Check if specified attachment contains a supported document.
-     */
-    public function isSupportedDoc(rcube_message_part $attachment): bool
-    {
-        if (MimeHelper::isSupportedMimeType($attachment->mimetype)) {
-            return MimeHelper::isSupportedMimeType($attachment->mimetype);
-        }
-
-        // use file name suffix with hard-coded mime-type map
-        $fileSuffix = \pathinfo($attachment->filename, \PATHINFO_EXTENSION);
-        $mimeExts = \is_file($mimeFile = RCMAIL_CONFIG_DIR . '/mimetypes.php') ? (require $mimeFile) : [];
-        $mimeType = $mimeExts[$fileSuffix] ?? null;
-
-        return MimeHelper::isSupportedMimeType($mimeType);
     }
 
     /**

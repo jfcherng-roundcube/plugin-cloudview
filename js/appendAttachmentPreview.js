@@ -2,7 +2,7 @@ const $ = global.$;
 const rcmail = global.rcmail;
 
 const cloudview_findAttachmentByMimeId = (mime_id) => {
-  let attachments = rcmail.env['cloudview_attachmentInfos'] || [];
+  let attachments = rcmail.env['cloudview_attachments'] || [];
 
   return attachments.find((attachment) => attachment.mime_id === String(mime_id));
 };
@@ -11,8 +11,9 @@ const cloudview_findAttachmentByMimeId = (mime_id) => {
 const attachmentmenuAppend = (item) => {
   let $item = $(item);
   let attachmentId = $item.attr('id').replace(/^attach/g, '');
+  let attachment = cloudview_findAttachmentByMimeId(attachmentId);
 
-  if (!global.cloudview_findAttachmentByMimeId(attachmentId)) {
+  if (!attachment || !attachment['is_supported']) {
     return;
   }
 
@@ -20,7 +21,7 @@ const attachmentmenuAppend = (item) => {
     <a
       title="${rcmail.labels['cloudview.open_document']}"
       href="#"
-      onclick="plugin_cloudview_view_document({ document: cloudview_findAttachmentByMimeId('${attachmentId}') })"
+      onclick="plugin_cloudview_view_document(cloudview_findAttachmentByMimeId('${attachmentId}'))"
       class="cloudview-preview-link"
     ></a>
   `);
