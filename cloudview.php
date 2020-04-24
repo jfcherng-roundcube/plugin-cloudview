@@ -89,7 +89,7 @@ class cloudview extends rcube_plugin
             $this->register_action('plugin.cloudview', [$this, 'cloudviewInit']);
             $this->register_action('plugin.cloudview-save', [$this, 'cloudviewSave']);
             $this->include_stylesheet($this->local_skin_path() . '/settings.css');
-            $this->include_script('js/settings.min.js');
+            $this->include_script('assets/settings.min.js');
         }
     }
 
@@ -263,7 +263,7 @@ class cloudview extends rcube_plugin
 
         if (!empty($supportedAttachments)) {
             $this->include_stylesheet($this->local_skin_path() . '/main.css');
-            $this->include_script('js/main.min.js');
+            $this->include_script('assets/main.min.js');
         }
 
         return $p;
@@ -304,7 +304,7 @@ class cloudview extends rcube_plugin
 
         // PDF: local site viewer
         if ($fileExt === 'pdf') {
-            $viewerUrl = CloudviewHelper::getSiteUrl() . self::THIS_PLUGIN_DIR . 'js/pdfjs-dist/web/viewer.html';
+            $viewerUrl = CloudviewHelper::getSiteUrl() . self::THIS_PLUGIN_DIR . 'assets/pdfjs-dist/web/viewer.html';
             $viewUrl = $viewerUrl . '?' . \http_build_query(['file' => $fileUrl]);
         }
         // Others: external cloud viewer

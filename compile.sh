@@ -20,8 +20,8 @@ LESS_FILES=(
 )
 
 JS_FILES=(
-    "js/main.js"
-    "js/settings.js"
+    "assets/main.js"
+    "assets/settings.js"
 )
 
 PATH=${PROJECT_ROOT}/node_modules/.bin:${PATH}

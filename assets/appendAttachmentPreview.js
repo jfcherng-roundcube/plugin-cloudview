@@ -21,7 +21,7 @@ const attachmentmenuAppend = (item) => {
     <a
       title="${rcmail.labels['cloudview.open_document']}"
       href="#"
-      onclick="plugin_cloudview_view_document(cloudview_findAttachmentByMimeId('${attachmentId}'))"
+      onclick="cloudview_viewDocument(cloudview_findAttachmentByMimeId('${attachmentId}'))"
       class="cloudview-preview-link"
     ></a>
   `);

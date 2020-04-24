@@ -8,7 +8,7 @@
 /branch-*/
 
 # ...
-/js/**/*.min.*
-/js/pdfjs-dist/
+/assets/**/*.min.*
+/assets/pdfjs-dist/
 /skins/**/*.min.*
 /scripts/

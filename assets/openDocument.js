@@ -24,7 +24,7 @@ rcmail.addEventListener('plugin.cloudview-view', (response) => {
 });
 
 // this function calls "viewDocument" in cloudview.php
-const plugin_cloudview_view_document = (attachmentInfo) => {
+const cloudview_viewDocument = (attachmentInfo) => {
   rcmail.http_post(
     'plugin.cloudview-view',
     buildQueryString({
@@ -45,4 +45,4 @@ const buildQueryString = (params) => {
 };
 
 // globals
-global.plugin_cloudview_view_document = plugin_cloudview_view_document;
+global.cloudview_viewDocument = cloudview_viewDocument;
