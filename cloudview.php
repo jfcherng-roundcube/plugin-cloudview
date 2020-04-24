@@ -1,9 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 class cloudview extends rcube_plugin
 {
-    const THIS_PLUGIN_DIR = 'plugins/' . __CLASS__ . '/';
-
     const VIEWER_GOOGLE_DOCS = 'google_docs';
     const VIEWER_MICROSOFT_OFFICE_WEB = 'microsoft_office_web';
 
@@ -44,7 +44,7 @@ class cloudview extends rcube_plugin
      *
      * @var array
      */
-    private $pluginPrefs;
+    private $prefs;
 
     /**
      * Information about attachments.
@@ -54,6 +54,18 @@ class cloudview extends rcube_plugin
     private $attachments = [];
 
     /**
+     * {@inheritdoc}
+     */
+    public function __construct(rcube_plugin_api $api)
+    {
+        parent::__construct($api);
+
+        // add include path for internal classes
+        $includePaths = [\ini_get('include_path'), __DIR__ . '/lib'];
+        \set_include_path(\implode(\PATH_SEPARATOR, $includePaths));
+    }
+
+    /**
      * Plugin initialization.
      */
     public function init(): void
@@ -61,21 +73,16 @@ class cloudview extends rcube_plugin
         $rcmail = rcmail::get_instance();
 
         $this->loadPluginConfig();
-        $this->add_texts('locales/', false);
 
-        $this->pluginPrefs = \array_merge(
+        $this->prefs = \array_merge(
             self::PREFS_DEFAULT,
             $rcmail->user->get_prefs()['cloudview'] ?? []
         );
 
-        // add include path for internal classes
-        $includePath = $this->home . '/lib' . \PATH_SEPARATOR;
-        $includePath .= \ini_get('include_path');
-        \set_include_path($includePath);
-
         // per-user plugin enable
-        if ($this->pluginPrefs['cloudview_enabled']) {
+        if ($this->prefs['cloudview_enabled']) {
             if ($rcmail->action === 'show' || $rcmail->action === 'preview') {
+                $this->add_texts('locales/', true); // expose translation to frontend
                 $this->add_hook('message_load', [$this, 'messageLoad']);
                 $this->add_hook('template_object_messageattachments', [$this, 'attachmentListHook']);
             }
@@ -85,6 +92,7 @@ class cloudview extends rcube_plugin
 
         // preference settings hooks
         if ($rcmail->task === 'settings') {
+            $this->add_texts('locales/', false);
             $this->add_hook('settings_actions', [$this, 'settingsActions']);
             $this->register_action('plugin.cloudview', [$this, 'cloudviewInit']);
             $this->register_action('plugin.cloudview-save', [$this, 'cloudviewSave']);
@@ -99,10 +107,10 @@ class cloudview extends rcube_plugin
     public function settingsActions(array $args): array
     {
         $args['actions'][] = [
-            'action' => 'plugin.' . __CLASS__,
-            'class' => __CLASS__,
+            'action' => 'plugin.' . $this->ID,
+            'class' => $this->ID,
             'label' => 'plugin_settings_title',
-            'domain' => __CLASS__,
+            'domain' => $this->ID,
         ];
 
         return $args;
@@ -126,7 +134,6 @@ class cloudview extends rcube_plugin
     public function cloudviewForm(): string
     {
         $rcmail = rcmail::get_instance();
-        $this->add_texts('locales/', false);
 
         $boxTitle = html::div(['class' => 'boxtitle'], rcmail::Q($this->gettext('plugin_settings_title')));
 
@@ -148,7 +155,7 @@ class cloudview extends rcube_plugin
             'value' => 1,
         ]);
         $objectTable->add('title', html::label('_cloudview_enabled', rcmail::Q($this->gettext('plugin_enabled'))));
-        $objectTable->add('', $objectCloudviewEnabled->show($this->pluginPrefs['cloudview_enabled'] ? 1 : 0));
+        $objectTable->add('', $objectCloudviewEnabled->show($this->prefs['cloudview_enabled'] ? 1 : 0));
 
         // option: choose cloud viewer
         $objectCloudviewViewer = new html_select(['name' => '_cloudview_viewer', 'id' => '_cloudview_viewer']);
@@ -163,7 +170,7 @@ class cloudview extends rcube_plugin
             ]
         );
         $objectTable->add('title', html::label('_cloudview_viewer', rcmail::Q($this->gettext('select_viewer'))));
-        $objectTable->add('', $objectCloudviewViewer->show($this->pluginPrefs['cloudview_viewer']));
+        $objectTable->add('', $objectCloudviewViewer->show($this->prefs['cloudview_viewer']));
 
         $table = $objectTable->show();
         $form = html::div(['class' => 'boxcontent'], $table . $saveButton);
@@ -195,13 +202,12 @@ class cloudview extends rcube_plugin
     public function cloudviewSave(): void
     {
         $rcmail = rcmail::get_instance();
-        $this->add_texts('locales/', false);
 
         $this->register_handler('plugin.body', [$this, 'cloudviewForm']);
         $rcmail->output->set_pagetitle($this->gettext('plugin_settings_title'));
 
         $prefs = $rcmail->user->get_prefs();
-        $this->pluginPrefs = $prefs['cloudview'] = \array_merge(
+        $this->prefs = $prefs['cloudview'] = \array_merge(
             $prefs['cloudview'] ?? [],
             [
                 'cloudview_enabled' => (int) rcube_utils::get_input_value('_cloudview_enabled', rcube_utils::INPUT_POST),
@@ -236,10 +242,6 @@ class cloudview extends rcube_plugin
                 'filename' => $attachment->filename,
                 'is_supported' => MimeHelper::isSupportedMimeType($mimetype),
             ];
-        }
-
-        if (!empty($this->attachments)) {
-            $this->add_texts('locales/', true);
         }
 
         return $p;
@@ -289,7 +291,7 @@ class cloudview extends rcube_plugin
 
         $fileExt = \strtolower(\pathinfo($attachment['filename'], \PATHINFO_EXTENSION));
         $tempFileBaseName = \hash('md5', $info . $this->config->get('hash_salt'));
-        $tempFilePath = self::THIS_PLUGIN_DIR . "temp/{$tempFileBaseName}.{$fileExt}";
+        $tempFilePath = $this->url("temp/{$tempFileBaseName}.{$fileExt}");
         $tempFileFullPath = INSTALL_PATH . $tempFilePath;
 
         // save the attachment into temp directory
@@ -304,7 +306,7 @@ class cloudview extends rcube_plugin
 
         // PDF: local site viewer
         if ($fileExt === 'pdf') {
-            $viewerUrl = CloudviewHelper::getSiteUrl() . self::THIS_PLUGIN_DIR . 'assets/pdfjs-dist/web/viewer.html';
+            $viewerUrl = CloudviewHelper::getSiteUrl() . $this->url('assets/pdfjs-dist/web/viewer.html');
             $viewUrl = $viewerUrl . '?' . \http_build_query(['file' => $fileUrl]);
         }
         // Others: external cloud viewer
@@ -313,7 +315,7 @@ class cloudview extends rcube_plugin
                 $fileUrl = $this->config->get('dev_mode_file_base_url') . $tempFilePath;
             }
 
-            $viewerUrl = self::VIEWER_URLS[$this->pluginPrefs['cloudview_viewer']] ?? '';
+            $viewerUrl = self::VIEWER_URLS[$this->prefs['cloudview_viewer']] ?? '';
             $viewUrl = \strtr($viewerUrl, [
                 '{DOCUMENT_URL}' => \urlencode($fileUrl),
             ]);
