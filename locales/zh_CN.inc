@@ -1,5 +1,5 @@
 <?php
- 
+
 $labels = [];
 $labels['open_document'] = '查看文件';
 
