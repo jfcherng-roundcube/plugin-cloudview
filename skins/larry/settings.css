@@ -1,3 +1,6 @@
+#settings-sections .listitem.cloudview.selected a {
+  background-image: url(settings-icon-selected.png)
+}
 #settings-sections .listitem.cloudview a {
   background-image: url(settings-icon.png);
   background-size: 20px;
