@@ -4,7 +4,7 @@ const rcmail = global.rcmail;
 const cloudview_findAttachmentByMimeId = (mime_id) => {
   let attachments = rcmail.env['cloudview_attachmentInfos'] || [];
 
-  return attachments.find((attachment) => attachment.mime_id === mime_id);
+  return attachments.find((attachment) => attachment.mime_id === String(mime_id));
 };
 
 // append drop-icon to attachments list item (to invoke attachment menu)
