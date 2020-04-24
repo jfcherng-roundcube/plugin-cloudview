@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+include __DIR__ . '/src/vendor/autoload.php';
+
 use Jfcherng\Roundcube\Plugin\CloudView\CloudviewHelper;
 use Jfcherng\Roundcube\Plugin\CloudView\MimeHelper;
 
@@ -55,16 +57,6 @@ class cloudview extends rcube_plugin
      * @var array[]
      */
     private $attachments = [];
-
-    /**
-     * {@inheritdoc}
-     */
-    public function __construct(rcube_plugin_api $api)
-    {
-        parent::__construct($api);
-
-        include __DIR__ . '/lib/vendor/autoload.php';
-    }
 
     /**
      * Plugin initialization.
