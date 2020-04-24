@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+use Jfcherng\Roundcube\Plugin\CloudView\CloudviewHelper;
+use Jfcherng\Roundcube\Plugin\CloudView\MimeHelper;
+
 class cloudview extends rcube_plugin
 {
     const VIEWER_GOOGLE_DOCS = 'google_docs';
@@ -60,9 +63,7 @@ class cloudview extends rcube_plugin
     {
         parent::__construct($api);
 
-        // add include path for internal classes
-        $includePaths = [\ini_get('include_path'), __DIR__ . '/lib'];
-        \set_include_path(\implode(\PATH_SEPARATOR, $includePaths));
+        include __DIR__ . '/lib/vendor/autoload.php';
     }
 
     /**
