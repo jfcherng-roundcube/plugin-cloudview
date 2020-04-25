@@ -247,52 +247,60 @@ final class cloudview extends rcube_plugin
      */
     public function attachmentListHook(array $p): array
     {
-        $supportedCount = 0;
+        $rcmail = rcmail::get_instance();
 
-        $p['content'] = \preg_replace_callback(
-            '/<li (?:.*?)<\/li>/uS',
-            function (array $matches) use (&$supportedCount): string {
-                $li = $matches[0];
+        $this->add_button_attachmentmenu([
+            '_id' => $this->ID,
+            'label' => "{$this->ID}.open_document",
+            'href' => '#',
+            'prop' => '',
+            'command' => 'plugin.cloudview-open-attachment',
+        ]);
 
-                if (!\preg_match('/ id="attach([0-9]+)"/uS', $li, $attachmentId)) {
-                    return $li;
-                }
-
-                $attachmentId = $attachmentId[1];
-                $attachment = $this->attachments[$attachmentId] ?? ['is_supported' => false];
-
-                if (!$attachment['is_supported']) {
-                    return $li;
-                }
-
-                $attachmentJson = \json_encode($attachment, \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE);
-                $button = html::a(
-                    [
-                        'href' => '#',
-                        'class' => 'cloudview-preview-link',
-                        'title' => rcmail::Q($this->gettext('open_document')),
-                        'onclick' => "cloudview_viewDocument({$attachmentJson})",
-                    ],
-                    ''
-                );
-
-                // append the button into the <li> tag
-                $ret = \substr($li, 0, -5) . $button . '</li>';
-                $ret = \str_replace('<li ', '<li data-with-preview ', $ret);
-
-                ++$supportedCount;
-
-                return $ret;
-            },
-            $p['content']
-        );
-
-        if ($supportedCount > 0) {
-            $this->include_stylesheet($this->local_skin_path() . '/main.css');
-            $this->include_script('assets/main.min.js');
-        }
+        $rcmail->output->set_env('cloudview.attachments', $this->attachments);
+        $this->include_stylesheet($this->local_skin_path() . '/main.css');
+        $this->include_script('assets/main.min.js');
 
         return $p;
+    }
+
+    /**
+     * Add a button to "attachmentmenu".
+     *
+     * @todo refactor this method into another helper class
+     *
+     * @param array $btn the button
+     */
+    public function add_button_attachmentmenu(array $btn): void
+    {
+        $btn['_id'] = $btn['_id'] ?? 'WTF_NO_BASE_ID';
+        $btn['class'] = $btn['class'] ?? '';
+        $btn['classact'] = $btn['classact'] ?? '';
+        $btn['innerclass'] = $btn['innerclass'] ?? '';
+
+        $btn['type'] = 'link-menuitem';
+        $btn['id'] = "attachmenu{$btn['_id']}";
+
+        switch (CloudviewHelper::getBaseSkinName()) {
+            case 'classic':
+                $btn['class'] .= " {$btn['_id']}link";
+                $btn['classact'] .= " {$btn['_id']}link active";
+                $btn['innerclass'] .= " {$btn['_id']}link";
+                break;
+            case 'elastic':
+                $btn['class'] .= " {$btn['_id']} disabled";
+                $btn['classact'] .= " {$btn['_id']} active";
+                break;
+            case 'larry':
+                $btn['class'] .= ' icon';
+                $btn['classact'] .= " icon active";
+                $btn['innerclass'] .= " icon {$btn['_id']}";
+                break;
+            default:
+                break;
+        }
+
+        $this->add_button($btn, 'attachmentmenu');
     }
 
     /**
@@ -344,6 +352,7 @@ final class cloudview extends rcube_plugin
             ]);
         }
 
+        // trigger the frontend command to open the cloud viewer window
         $rcmail->output->command('plugin.cloudview-view', ['message' => ['url' => $viewUrl]]);
         $rcmail->output->send();
     }

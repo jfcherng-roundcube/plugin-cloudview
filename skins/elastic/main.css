@@ -1,14 +1,3 @@
-.attachmentslist li[data-with-preview] a.cloudview-preview-link {
-  cursor: pointer;
-  margin: 2px;
-  padding: 0;
-  display: inline-block;
-  height: 1.5rem;
-  width: 1.5rem;
-  background-image: url(preview.png);
-  background-repeat: no-repeat;
-  background-size: contain
-}
-.attachmentslist li[data-with-preview] a.cloudview-preview-link:hover {
-  background-image: url(preview-hovered.png)
+.menu a.cloudview:before {
+  content: '\f06e'
 }
