@@ -6,5 +6,5 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Jfcherng\\Roundcube\\Plugin\\CloudView\\' => array($baseDir . '/'),
+    'Jfcherng\\Roundcube\\Plugin\\CloudView\\' => array($baseDir . '/../src'),
 );

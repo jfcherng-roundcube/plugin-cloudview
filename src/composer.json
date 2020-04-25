@@ -1,7 +1,0 @@
-{
-    "autoload": {
-        "psr-4": {
-            "Jfcherng\\Roundcube\\Plugin\\CloudView\\": ""
-        }
-    }
-}

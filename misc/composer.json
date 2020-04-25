@@ -1,0 +1,11 @@
+{
+    "autoload": {
+        "classmap": [
+            "../lib/RoundcubeHelper.php",
+            "../lib/RoundcubePluginTrait.php"
+        ],
+        "psr-4": {
+            "Jfcherng\\Roundcube\\Plugin\\CloudView\\": "../src"
+        }
+    }
+}

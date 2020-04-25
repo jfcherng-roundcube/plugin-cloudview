@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Jfcherng\Roundcube\Plugin\CloudView;
+namespace Jfcherng\Roundcube;
 
 use rcube;
 
-final class CloudviewHelper
+final class RoundcubeHelper
 {
     /**
      * Get the site url.

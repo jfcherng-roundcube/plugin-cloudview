@@ -2,13 +2,16 @@
 
 declare(strict_types=1);
 
-include __DIR__ . '/src/vendor/autoload.php';
+include __DIR__ . '/misc/vendor/autoload.php';
 
-use Jfcherng\Roundcube\Plugin\CloudView\CloudviewHelper;
 use Jfcherng\Roundcube\Plugin\CloudView\MimeHelper;
+use Jfcherng\Roundcube\RoundcubeHelper;
+use Jfcherng\Roundcube\RoundcubePluginTrait;
 
 final class cloudview extends rcube_plugin
 {
+    use RoundcubePluginTrait;
+
     const VIEWER_GOOGLE_DOCS = 'google_docs';
     const VIEWER_MICROSOFT_OFFICE_WEB = 'microsoft_office_web';
 
@@ -171,7 +174,7 @@ final class cloudview extends rcube_plugin
         $form = html::div(['class' => 'boxcontent'], $table . $saveButton);
 
         // responsive layout for the "elastic" skin
-        if (CloudviewHelper::getBaseSkinName() === 'elastic') {
+        if (RoundcubeHelper::getBaseSkinName() === 'elastic') {
             $containerAttrs = ['class' => 'formcontent'];
         } else {
             $containerAttrs = [];
@@ -265,45 +268,6 @@ final class cloudview extends rcube_plugin
     }
 
     /**
-     * Add a button to "attachmentmenu".
-     *
-     * @todo refactor this method into another helper class
-     *
-     * @param array $btn the button
-     */
-    public function add_button_attachmentmenu(array $btn): void
-    {
-        $btn['_id'] = $btn['_id'] ?? 'WTF_NO_BASE_ID';
-        $btn['class'] = $btn['class'] ?? '';
-        $btn['classact'] = $btn['classact'] ?? '';
-        $btn['innerclass'] = $btn['innerclass'] ?? '';
-
-        $btn['type'] = 'link-menuitem';
-        $btn['id'] = "attachmenu{$btn['_id']}";
-
-        switch (CloudviewHelper::getBaseSkinName()) {
-            case 'classic':
-                $btn['class'] .= " {$btn['_id']}link";
-                $btn['classact'] .= " {$btn['_id']}link active";
-                $btn['innerclass'] .= " {$btn['_id']}link";
-                break;
-            case 'elastic':
-                $btn['class'] .= " {$btn['_id']} disabled";
-                $btn['classact'] .= " {$btn['_id']} active";
-                break;
-            case 'larry':
-                $btn['class'] .= ' icon';
-                $btn['classact'] .= " icon active";
-                $btn['innerclass'] .= " icon {$btn['_id']}";
-                break;
-            default:
-                break;
-        }
-
-        $this->add_button($btn, 'attachmentmenu');
-    }
-
-    /**
      * Handler for request action.
      */
     public function viewDocument(): void
@@ -333,11 +297,11 @@ final class cloudview extends rcube_plugin
             );
         }
 
-        $fileUrl = CloudviewHelper::getSiteUrl() . $tempFilePath;
+        $fileUrl = RoundcubeHelper::getSiteUrl() . $tempFilePath;
 
         // PDF: local site viewer
         if ($fileExt === 'pdf') {
-            $viewerUrl = CloudviewHelper::getSiteUrl() . $this->url('assets/pdfjs-dist/web/viewer.html');
+            $viewerUrl = RoundcubeHelper::getSiteUrl() . $this->url('assets/pdfjs-dist/web/viewer.html');
             $viewUrl = $viewerUrl . '?' . \http_build_query(['file' => $fileUrl]);
         }
         // Others: external cloud viewer
