@@ -23,7 +23,7 @@ with cloud viewers like Google Docs or Microsoft Office Web.
 
 ### Other Formats
 
-- pdf
+- pdf (via [PDF.js](https://github.com/mozilla/pdf.js/))
 
 ## Requirements
 
