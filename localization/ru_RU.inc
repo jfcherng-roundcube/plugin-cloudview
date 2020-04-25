@@ -1,9 +1,9 @@
 <?php
 
 $labels = [];
-$labels['cloud_view_document'] = 'Облачный просмотр';
+$labels['cloud_view_document'] = 'Просмотреть';
 
-// settings page
+// страница настроек
 $labels['plugin_settings_title'] = 'Cloud View';
 $labels['plugin_enabled'] = 'Включить Cloud View';
 $labels['select_viewer'] = 'Предпочитаемый сервис просмотра';
