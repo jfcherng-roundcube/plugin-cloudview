@@ -270,7 +270,6 @@ final class cloudview extends rcube_plugin
     public function viewDocument(): void
     {
         $rcmail = rcmail::get_instance();
-        $this->load_config();
 
         // get the post values
         $uid = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_POST);
