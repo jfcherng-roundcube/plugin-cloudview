@@ -80,7 +80,7 @@ final class cloudview extends rcube_plugin
         // per-user plugin enable
         if ($this->prefs['cloudview_enabled']) {
             if ($rcmail->action === 'show' || $rcmail->action === 'preview') {
-                $this->add_texts('localization/', true); // expose translation to frontend
+                $this->add_texts('localization/', false);
                 $this->add_hook('message_load', [$this, 'messageLoad']);
                 $this->add_hook('template_object_messageattachments', [$this, 'attachmentListHook']);
             }
