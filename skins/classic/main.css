@@ -1,7 +1,7 @@
-#attachment-list li.with-preview a.filename {
+#attachment-list li[data-with-preview] a.filename {
   padding-right: 0
 }
-#attachment-list li.with-preview a.cloudview-preview-link {
+#attachment-list li[data-with-preview] a.cloudview-preview-link {
   cursor: pointer;
   padding: 0;
   margin-left: 3px;
@@ -13,6 +13,6 @@
   background-repeat: no-repeat;
   background-size: contain
 }
-#attachment-list li.with-preview a.cloudview-preview-link:hover {
+#attachment-list li[data-with-preview] a.cloudview-preview-link:hover {
   background-image: url(preview-hovered.png)
 }

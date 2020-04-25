@@ -54,7 +54,9 @@ final class cloudview extends rcube_plugin
     /**
      * Information about attachments.
      *
-     * @var array[]
+     * key: attachment ID, value: attachment info
+     *
+     * @var array<string,array>
      */
     private $attachments = [];
 
@@ -229,7 +231,7 @@ final class cloudview extends rcube_plugin
             // so we use the mimetype map from Apache to determine it by filename
             $mimetype = MimeHelper::guessMimeTypeByFilename($attachment->filename) ?? $attachment->mimetype;
 
-            $this->attachments[] = [
+            $this->attachments[$attachment->mime_id] = [
                 'mime_id' => $attachment->mime_id,
                 'mimetype' => $mimetype,
                 'filename' => $attachment->filename,
@@ -245,18 +247,47 @@ final class cloudview extends rcube_plugin
      */
     public function attachmentListHook(array $p): array
     {
-        $rcmail = rcmail::get_instance();
+        $supportedCount = 0;
 
-        $supportedAttachments = \array_filter(
-            $this->attachments,
-            function (array $attachment): bool {
-                return $attachment['is_supported'];
-            }
+        $p['content'] = \preg_replace_callback(
+            '/<li (?:.*?)<\/li>/uS',
+            function (array $matches) use (&$supportedCount): string {
+                $li = $matches[0];
+
+                if (!\preg_match('/ id="attach([0-9]+)"/uS', $li, $attachmentId)) {
+                    return $li;
+                }
+
+                $attachmentId = $attachmentId[1];
+                $attachment = $this->attachments[$attachmentId] ?? ['is_supported' => false];
+
+                if (!$attachment['is_supported']) {
+                    return $li;
+                }
+
+                $attachmentJson = \json_encode($attachment, \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE);
+                $button = html::a(
+                    [
+                        'href' => '#',
+                        'class' => 'cloudview-preview-link',
+                        'title' => rcmail::Q($this->gettext('open_document')),
+                        'onclick' => "cloudview_viewDocument({$attachmentJson})",
+                    ],
+                    ''
+                );
+
+                // append the button into the <li> tag
+                $ret = \substr($li, 0, -5) . $button . '</li>';
+                $ret = \str_replace('<li ', '<li data-with-preview ', $ret);
+
+                ++$supportedCount;
+
+                return $ret;
+            },
+            $p['content']
         );
 
-        $rcmail->output->set_env('cloudview_attachments', $this->attachments, true);
-
-        if (!empty($supportedAttachments)) {
+        if ($supportedCount > 0) {
             $this->include_stylesheet($this->local_skin_path() . '/main.css');
             $this->include_script('assets/main.min.js');
         }
