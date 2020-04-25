@@ -8,7 +8,7 @@ const cloudview_findAttachmentByMimeId = (mime_id) => {
 };
 
 // append drop-icon to attachments list item (to invoke attachment menu)
-const attachmentmenuAppend = (item) => {
+const attachmentMenuAppend = (item) => {
   let $item = $(item);
   let attachmentId = $item.attr('id').replace(/^attach/g, '');
   let attachment = cloudview_findAttachmentByMimeId(attachmentId);
@@ -29,9 +29,7 @@ const attachmentmenuAppend = (item) => {
 
 $(() => {
   // add menu link for each attachment
-  $('#attachment-list > li').each(function () {
-    attachmentmenuAppend(this);
-  });
+  $('#attachment-list > li').each((_idx, el) => attachmentMenuAppend(el));
 });
 
 // globals
