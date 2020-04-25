@@ -72,7 +72,6 @@ final class MimeHelper
             'application/vnd.sun.xml.calc' => true,
             'application/x-excel' => true,
             'application/x-msexcel' => true,
-            'text/csv' => true,
         ];
 
         return isset($spreadsheetMimeTypes[$mimeType]);
