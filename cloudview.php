@@ -7,7 +7,7 @@ include __DIR__ . '/src/vendor/autoload.php';
 use Jfcherng\Roundcube\Plugin\CloudView\CloudviewHelper;
 use Jfcherng\Roundcube\Plugin\CloudView\MimeHelper;
 
-class cloudview extends rcube_plugin
+final class cloudview extends rcube_plugin
 {
     const VIEWER_GOOGLE_DOCS = 'google_docs';
     const VIEWER_MICROSOFT_OFFICE_WEB = 'microsoft_office_web';
