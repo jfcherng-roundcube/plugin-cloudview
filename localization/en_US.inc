@@ -1,7 +1,7 @@
 <?php
 
 $labels = [];
-$labels['open_document'] = 'View document';
+$labels['cloud_view_document'] = 'Cloud View';
 
 // settings page
 $labels['plugin_settings_title'] = 'Cloud View';

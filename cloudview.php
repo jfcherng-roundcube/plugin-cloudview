@@ -254,7 +254,7 @@ final class cloudview extends rcube_plugin
 
         $this->add_button_attachmentmenu([
             '_id' => $this->ID,
-            'label' => "{$this->ID}.open_document",
+            'label' => "{$this->ID}.cloud_view_document",
             'href' => '#',
             'prop' => '',
             'command' => 'plugin.cloudview-open-attachment',

@@ -1,7 +1,7 @@
 <?php
 
 $labels = [];
-$labels['open_document'] = '查看文件';
+$labels['cloud_view_document'] = '云浏览';
 
 // settings page
 $labels['plugin_settings_title'] = '云文件浏览器';
