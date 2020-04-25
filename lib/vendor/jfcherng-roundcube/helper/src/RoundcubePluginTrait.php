@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Jfcherng\Roundcube;
+namespace Jfcherng\Roundcube\Plugin\Helper;
 
 trait RoundcubePluginTrait
 {

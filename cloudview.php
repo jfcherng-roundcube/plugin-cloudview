@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-include __DIR__ . '/misc/vendor/autoload.php';
+include __DIR__ . '/lib/vendor/autoload.php';
 
 use Jfcherng\Roundcube\Plugin\CloudView\MimeHelper;
-use Jfcherng\Roundcube\RoundcubeHelper;
-use Jfcherng\Roundcube\RoundcubePluginTrait;
+use Jfcherng\Roundcube\Plugin\Helper\RoundcubeHelper;
+use Jfcherng\Roundcube\Plugin\Helper\RoundcubePluginTrait;
 
 final class cloudview extends rcube_plugin
 {

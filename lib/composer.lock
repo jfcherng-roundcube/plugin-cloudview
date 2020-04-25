@@ -1,0 +1,63 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "793271c41243b2fa47a0b78903d43989",
+    "packages": [
+        {
+            "name": "jfcherng-roundcube/helper",
+            "version": "0.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jfcherng-roundcube/plugin-helper.git",
+                "reference": "a94ce9dc8e9c9ba86b3f24fb5cd827ea6abef5fd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jfcherng-roundcube/plugin-helper/zipball/a94ce9dc8e9c9ba86b3f24fb5cd827ea6abef5fd",
+                "reference": "a94ce9dc8e9c9ba86b3f24fb5cd827ea6abef5fd",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1.3"
+            },
+            "replace": {
+                "symfony/polyfill-php56": "*",
+                "symfony/polyfill-php70": "*",
+                "symfony/polyfill-php71": "*"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^2.16"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Jfcherng\\Roundcube\\Plugin\\Helper\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jack Cherng",
+                    "email": "jfcherng@gmail.com"
+                }
+            ],
+            "description": "Some helpers to help develop a Roundcube plugin.",
+            "time": "2020-04-25T16:49:14+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "1.1.0"
+}
