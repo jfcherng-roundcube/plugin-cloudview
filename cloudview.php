@@ -5,8 +5,8 @@ declare(strict_types=1);
 include __DIR__ . '/lib/vendor/autoload.php';
 
 use Jfcherng\Roundcube\Plugin\CloudView\MimeHelper;
-use Jfcherng\Roundcube\Plugin\Helper\RoundcubeHelper;
-use Jfcherng\Roundcube\Plugin\Helper\RoundcubePluginTrait;
+use Jfcherng\Roundcube\Plugin\CloudView\RoundcubeHelper;
+use Jfcherng\Roundcube\Plugin\CloudView\RoundcubePluginTrait;
 
 final class cloudview extends rcube_plugin
 {
@@ -252,12 +252,14 @@ final class cloudview extends rcube_plugin
     {
         $rcmail = rcmail::get_instance();
 
-        $this->add_button_attachmentmenu([
-            '_id' => $this->ID,
-            'label' => "{$this->ID}.cloud_view_document",
-            'href' => '#',
-            'prop' => '',
-            'command' => 'plugin.cloudview-open-attachment',
+        $this->add_buttons_attachmentmenu([
+            [
+                '_id' => $this->ID,
+                'label' => "{$this->ID}.cloud_view_document",
+                'href' => '#',
+                'prop' => '',
+                'command' => 'plugin.cloudview-open-attachment',
+            ],
         ]);
 
         $rcmail->output->set_env('cloudview.attachments', $this->attachments);

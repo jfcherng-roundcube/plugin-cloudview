@@ -3,8 +3,5 @@
         "psr-4": {
             "Jfcherng\\Roundcube\\Plugin\\CloudView\\": "../src/"
         }
-    },
-    "require": {
-        "jfcherng-roundcube/helper": "^0.0.2"
     }
 }

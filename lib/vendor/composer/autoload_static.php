@@ -4,21 +4,16 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit93c46be64326906fdc2e64b1f2f451e2
+class ComposerStaticInit77f9c8e9078b4604557d80f833802565
 {
     public static $prefixLengthsPsr4 = array (
         'J' => 
         array (
-            'Jfcherng\\Roundcube\\Plugin\\Helper\\' => 33,
             'Jfcherng\\Roundcube\\Plugin\\CloudView\\' => 36,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'Jfcherng\\Roundcube\\Plugin\\Helper\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/jfcherng-roundcube/helper/src',
-        ),
         'Jfcherng\\Roundcube\\Plugin\\CloudView\\' => 
         array (
             0 => __DIR__ . '/../..' . '/../src',
@@ -28,8 +23,8 @@ class ComposerStaticInit93c46be64326906fdc2e64b1f2f451e2
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit93c46be64326906fdc2e64b1f2f451e2::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit93c46be64326906fdc2e64b1f2f451e2::$prefixDirsPsr4;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit77f9c8e9078b4604557d80f833802565::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit77f9c8e9078b4604557d80f833802565::$prefixDirsPsr4;
 
         }, null, ClassLoader::class);
     }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Jfcherng\Roundcube\Plugin\Helper;
+namespace Jfcherng\Roundcube\Plugin\CloudView;
 
 use rcube;
 
