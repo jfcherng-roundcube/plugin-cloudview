@@ -6,8 +6,8 @@
 [![GitHub stars](https://img.shields.io/github/stars/jfcherng-roundcube/plugin-cloudview?style=flat-square&logo=github)](https://github.com/jfcherng-roundcube/plugin-cloudview/stargazers)
 [![Donate to this project using Paypal](https://img.shields.io/badge/paypal-donate-blue.svg?style=flat-square&logo=paypal)](https://www.paypal.me/jfcherng/5usd)
 
-A Roundcube plugin which lets you view documents, spreadsheets, presentations and
-PDFs in the browser with cloud viewers like Google Docs or Microsoft Office Web.
+A Roundcube plugin which lets you directly view mail attachments in the browser
+with cloud viewers like Google Docs or Microsoft Office Web.
 
 ![demo](https://raw.githubusercontent.com/jfcherng-roundcube/plugin-cloudview/master/docs/screenshot/demo.png)
 
@@ -15,9 +15,11 @@ PDFs in the browser with cloud viewers like Google Docs or Microsoft Office Web.
 
 ### Office Formats
 
-- **Text**: doc, docx, odt, ott
-- **Spreadsheet**: xls, xlsx, ods, ots
-- **Presentation**: ppt, pptx, odp, otp
+- **Text**: doc, docx, odt<sup>[1]</sup>, ott<sup>[1]</sup>
+- **Spreadsheet**: xls, xlsx, ods<sup>[1]</sup>, ots<sup>[1]</sup>
+- **Presentation**: ppt, pptx, odp<sup>[1]</sup>, otp<sup>[1]</sup>
+
+<sup>[1]</sup>: only available in Microsoft Office Web
 
 ### Other Formats
 
