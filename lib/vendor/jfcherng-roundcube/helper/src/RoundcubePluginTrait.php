@@ -7,6 +7,16 @@ namespace Jfcherng\Roundcube\Plugin\Helper;
 trait RoundcubePluginTrait
 {
     /**
+     * Append a button to a certain container.
+     *
+     * @param array  $p         Hash array with named parameters (as used in skin templates)
+     * @param string $container Container name where the buttons should be added to
+     *
+     * @see rcube_remplate::button()
+     */
+    abstract public function add_button(array $p, string $container);
+
+    /**
      * Add a button to "attachmentmenu".
      *
      * @todo refactor this method into another helper class

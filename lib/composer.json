@@ -5,6 +5,6 @@
         }
     },
     "require": {
-        "jfcherng-roundcube/helper": "^0.0.1"
+        "jfcherng-roundcube/helper": "^0.0.2"
     }
 }

@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit87b88877555d2a22f5950c96aef81ce3
+class ComposerStaticInit93c46be64326906fdc2e64b1f2f451e2
 {
     public static $prefixLengthsPsr4 = array (
         'J' => 
@@ -25,18 +25,11 @@ class ComposerStaticInit87b88877555d2a22f5950c96aef81ce3
         ),
     );
 
-    public static $classMap = array (
-        'Jfcherng\\Roundcube\\Plugin\\CloudView\\MimeHelper' => __DIR__ . '/../..' . '/../src/MimeHelper.php',
-        'Jfcherng\\Roundcube\\Plugin\\Helper\\RoundcubeHelper' => __DIR__ . '/..' . '/jfcherng-roundcube/helper/src/RoundcubeHelper.php',
-        'Jfcherng\\Roundcube\\Plugin\\Helper\\RoundcubePluginTrait' => __DIR__ . '/..' . '/jfcherng-roundcube/helper/src/RoundcubePluginTrait.php',
-    );
-
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit87b88877555d2a22f5950c96aef81ce3::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit87b88877555d2a22f5950c96aef81ce3::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit87b88877555d2a22f5950c96aef81ce3::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit93c46be64326906fdc2e64b1f2f451e2::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit93c46be64326906fdc2e64b1f2f451e2::$prefixDirsPsr4;
 
         }, null, ClassLoader::class);
     }

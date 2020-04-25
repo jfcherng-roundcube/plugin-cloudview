@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "793271c41243b2fa47a0b78903d43989",
+    "content-hash": "202098470e0ae518b8ed94666564aa55",
     "packages": [
         {
             "name": "jfcherng-roundcube/helper",
-            "version": "0.0.1",
+            "version": "0.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jfcherng-roundcube/plugin-helper.git",
-                "reference": "a94ce9dc8e9c9ba86b3f24fb5cd827ea6abef5fd"
+                "reference": "b55818c7a1d0ff1a504d33351f13c8df343dfa10"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jfcherng-roundcube/plugin-helper/zipball/a94ce9dc8e9c9ba86b3f24fb5cd827ea6abef5fd",
-                "reference": "a94ce9dc8e9c9ba86b3f24fb5cd827ea6abef5fd",
+                "url": "https://api.github.com/repos/jfcherng-roundcube/plugin-helper/zipball/b55818c7a1d0ff1a504d33351f13c8df343dfa10",
+                "reference": "b55818c7a1d0ff1a504d33351f13c8df343dfa10",
                 "shasum": ""
             },
             "require": {
@@ -48,7 +48,7 @@
                 }
             ],
             "description": "Some helpers to help develop a Roundcube plugin.",
-            "time": "2020-04-25T16:49:14+00:00"
+            "time": "2020-04-25T17:10:33+00:00"
         }
     ],
     "packages-dev": [],
