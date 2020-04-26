@@ -81,19 +81,19 @@ final class cloudview extends rcube_plugin
         if ($this->prefs['cloudview_enabled']) {
             if ($rcmail->action === 'show' || $rcmail->action === 'preview') {
                 $this->add_texts('localization/', false);
-                $this->add_hook('message_load', [$this, 'messageLoad']);
-                $this->add_hook('template_object_messageattachments', [$this, 'attachmentListHook']);
+                $this->add_hook('message_load', [$this, 'messageLoadHook']);
+                $this->add_hook('template_object_messageattachments', [$this, 'messageattachmentsHook']);
             }
 
-            $this->register_action('plugin.cloudview-view', [$this, 'viewDocument']);
+            $this->register_action('plugin.cloudview.view', [$this, 'viewAction']);
         }
 
         // preference settings hooks
         if ($rcmail->task === 'settings') {
             $this->add_texts('localization/', false);
-            $this->add_hook('settings_actions', [$this, 'settingsActions']);
-            $this->register_action('plugin.cloudview', [$this, 'cloudviewInit']);
-            $this->register_action('plugin.cloudview-save', [$this, 'cloudviewSave']);
+            $this->add_hook('settings_actions', [$this, 'settingsActionsHook']);
+            $this->register_action('plugin.cloudview.settings', [$this, 'settingsAction']);
+            $this->register_action('plugin.cloudview.settings-save', [$this, 'settingsSaveAction']);
             $this->include_stylesheet($this->local_skin_path() . '/settings.css');
             $this->include_script('assets/settings.min.js');
         }
@@ -102,10 +102,10 @@ final class cloudview extends rcube_plugin
     /**
      * Register an entry for the settings page.
      */
-    public function settingsActions(array $args): array
+    public function settingsActionsHook(array $args): array
     {
         $args['actions'][] = [
-            'action' => 'plugin.' . $this->ID,
+            'action' => 'plugin.cloudview.settings',
             'class' => $this->ID,
             'label' => 'plugin_settings_title',
             'domain' => $this->ID,
@@ -115,11 +115,57 @@ final class cloudview extends rcube_plugin
     }
 
     /**
-     * The settings page.
+     * Check message bodies and attachments.
      */
-    public function cloudviewInit(): void
+    public function messageLoadHook(array $p): array
     {
-        $this->register_handler('plugin.body', [$this, 'cloudviewForm']);
+        foreach ((array) $p['object']->attachments as $attachment) {
+            // Roundcube's mimetype detection seems to be less accurate
+            // (such as it detect "rtf" files as "application/msword" rather than "application/rtf")
+            // so we use the mimetype map from Apache to determine it by filename
+            $mimetype = MimeHelper::guessMimeTypeByFilename($attachment->filename) ?? $attachment->mimetype;
+
+            $this->attachments[$attachment->mime_id] = [
+                'mime_id' => $attachment->mime_id,
+                'mimetype' => $mimetype,
+                'filename' => $attachment->filename,
+                'is_supported' => MimeHelper::isSupportedMimeType($mimetype),
+            ];
+        }
+
+        return $p;
+    }
+
+    /**
+     * Add a button to the attachment popup menu.
+     */
+    public function messageattachmentsHook(array $p): array
+    {
+        $rcmail = rcmail::get_instance();
+
+        $this->add_buttons_attachmentmenu([
+            [
+                '_id' => $this->ID,
+                'label' => "{$this->ID}.cloud_view_document",
+                'href' => '#',
+                'prop' => '',
+                'command' => 'plugin.cloudview.open-attachment',
+            ],
+        ]);
+
+        $rcmail->output->set_env('cloudview.attachments', $this->attachments);
+        $this->include_stylesheet($this->local_skin_path() . '/main.css');
+        $this->include_script('assets/main.min.js');
+
+        return $p;
+    }
+
+    /**
+     * Handler for plugin's "settings" action.
+     */
+    public function settingsAction(): void
+    {
+        $this->register_handler('plugin.body', [$this, 'settingsForm']);
 
         $rcmail = rcmail::get_instance();
         $rcmail->output->set_pagetitle($this->gettext('plugin_settings_title'));
@@ -127,9 +173,38 @@ final class cloudview extends rcube_plugin
     }
 
     /**
+     * Handler for plugin's "settings-save" action.
+     */
+    public function settingsSaveAction(): void
+    {
+        $rcmail = rcmail::get_instance();
+
+        $this->register_handler('plugin.body', [$this, 'settingsForm']);
+        $rcmail->output->set_pagetitle($this->gettext('plugin_settings_title'));
+
+        $prefs = $rcmail->user->get_prefs();
+        $this->prefs = $prefs['cloudview'] = \array_merge(
+            $prefs['cloudview'] ?? [],
+            [
+                'cloudview_enabled' => (int) rcube_utils::get_input_value('_cloudview_enabled', rcube_utils::INPUT_POST),
+                'cloudview_viewer' => (string) rcube_utils::get_input_value('_cloudview_viewer', rcube_utils::INPUT_POST),
+            ]
+        );
+
+        if ($rcmail->user->save_prefs($prefs)) {
+            $rcmail->output->command('display_message', $this->gettext('successfullysaved'), 'confirmation');
+        } else {
+            $rcmail->output->command('display_message', $this->gettext('unsuccessfullysaved'), 'error');
+        }
+
+        $rcmail->overwrite_action('plugin.cloudview.settings');
+        $rcmail->output->send('plugin');
+    }
+
+    /**
      * Output the plugin preferences form.
      */
-    public function cloudviewForm(): string
+    public function settingsForm(): string
     {
         $rcmail = rcmail::get_instance();
 
@@ -140,7 +215,7 @@ final class cloudview extends rcube_plugin
             [
                 'type' => 'input',
                 'class' => 'btn button submit mainaction',
-                'onclick' => "return rcmail.command('plugin.cloudview-save', '', this, event)",
+                'onclick' => "return rcmail.command('plugin.cloudview.settings-save', '', this, event)",
             ]
         );
 
@@ -188,95 +263,21 @@ final class cloudview extends rcube_plugin
                 'name' => 'cloudview-form',
                 'method' => 'post',
                 'class' => 'propform',
-                'action' => './?_task=settings&_action=plugin.cloudview-save',
+                'action' => './?_task=settings&_action=plugin.cloudview.settings-save',
             ],
             html::div(['class' => 'box'], $boxTitle . $form)
         ));
     }
 
     /**
-     * Called when the user saves plugin preferences.
+     * Handler for plugin's "view" action.
      */
-    public function cloudviewSave(): void
-    {
-        $rcmail = rcmail::get_instance();
-
-        $this->register_handler('plugin.body', [$this, 'cloudviewForm']);
-        $rcmail->output->set_pagetitle($this->gettext('plugin_settings_title'));
-
-        $prefs = $rcmail->user->get_prefs();
-        $this->prefs = $prefs['cloudview'] = \array_merge(
-            $prefs['cloudview'] ?? [],
-            [
-                'cloudview_enabled' => (int) rcube_utils::get_input_value('_cloudview_enabled', rcube_utils::INPUT_POST),
-                'cloudview_viewer' => (string) rcube_utils::get_input_value('_cloudview_viewer', rcube_utils::INPUT_POST),
-            ]
-        );
-
-        if ($rcmail->user->save_prefs($prefs)) {
-            $rcmail->output->command('display_message', $this->gettext('successfullysaved'), 'confirmation');
-        } else {
-            $rcmail->output->command('display_message', $this->gettext('unsuccessfullysaved'), 'error');
-        }
-
-        $rcmail->overwrite_action('plugin.cloudview');
-        $rcmail->output->send('plugin');
-    }
-
-    /**
-     * Check message bodies and attachments.
-     */
-    public function messageLoad(array $p): array
-    {
-        foreach ((array) $p['object']->attachments as $attachment) {
-            // Roundcube's mimetype detection seems to be less accurate
-            // (such as it detect "rtf" files as "application/msword" rather than "application/rtf")
-            // so we use the mimetype map from Apache to determine it by filename
-            $mimetype = MimeHelper::guessMimeTypeByFilename($attachment->filename) ?? $attachment->mimetype;
-
-            $this->attachments[$attachment->mime_id] = [
-                'mime_id' => $attachment->mime_id,
-                'mimetype' => $mimetype,
-                'filename' => $attachment->filename,
-                'is_supported' => MimeHelper::isSupportedMimeType($mimetype),
-            ];
-        }
-
-        return $p;
-    }
-
-    /**
-     * Add a button to the attachment list.
-     */
-    public function attachmentListHook(array $p): array
-    {
-        $rcmail = rcmail::get_instance();
-
-        $this->add_buttons_attachmentmenu([
-            [
-                '_id' => $this->ID,
-                'label' => "{$this->ID}.cloud_view_document",
-                'href' => '#',
-                'prop' => '',
-                'command' => 'plugin.cloudview-open-attachment',
-            ],
-        ]);
-
-        $rcmail->output->set_env('cloudview.attachments', $this->attachments);
-        $this->include_stylesheet($this->local_skin_path() . '/main.css');
-        $this->include_script('assets/main.min.js');
-
-        return $p;
-    }
-
-    /**
-     * Handler for request action.
-     */
-    public function viewDocument(): void
+    public function viewAction(): void
     {
         $rcmail = rcmail::get_instance();
 
         // get the post values
+        $callback = rcube_utils::get_input_value('_callback', rcube_utils::INPUT_POST);
         $uid = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_POST);
         $info = rcube_utils::get_input_value('_info', rcube_utils::INPUT_POST);
 
@@ -318,8 +319,8 @@ final class cloudview extends rcube_plugin
             ]);
         }
 
-        // trigger the frontend command to open the cloud viewer window
-        $rcmail->output->command('plugin.cloudview-view', ['message' => ['url' => $viewUrl]]);
+        // trigger the frontend callback to open the cloud viewer window
+        $callback && $rcmail->output->command($callback, ['message' => ['url' => $viewUrl]]);
         $rcmail->output->send();
     }
 

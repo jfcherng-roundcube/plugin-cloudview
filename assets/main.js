@@ -15,16 +15,16 @@ const getAttachmentInfo = (attachmentId) => {
 rcmail.addEventListener('init', (evt) => {
   // register the main command
   rcmail.register_command(
-    'plugin.cloudview-open-attachment',
+    'plugin.cloudview.open-attachment',
     () => {
       let attachmentId = rcmail.env['cloudview.target-attachment-id'];
       let attachment = getAttachmentInfo(attachmentId);
 
       rcmail.http_post(
-        'plugin.cloudview-view',
+        'plugin.cloudview.view',
         {
+          _callback: 'plugin.cloudview.view-callback',
           _uid: rcmail.env.uid,
-          _mbox: rcmail.env.mailbox,
           _info: JSON.stringify(attachment),
         },
         rcmail.set_busy(true, 'loading')
@@ -41,11 +41,11 @@ rcmail.addEventListener('init', (evt) => {
     let attachment = getAttachmentInfo(evt.props.id);
 
     rcmail.set_env('cloudview.target-attachment-id', attachmentId);
-    rcmail.enable_command('plugin.cloudview-open-attachment', attachment['is_supported']);
+    rcmail.enable_command('plugin.cloudview.open-attachment', attachment['is_supported']);
   });
 
   // open the cloud viewer window
-  rcmail.addEventListener('plugin.cloudview-view', (response) => {
+  rcmail.addEventListener('plugin.cloudview.view-callback', (response) => {
     let windowSpecs = {
       width: window.innerWidth,
       height: window.innerHeight,
