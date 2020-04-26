@@ -12,6 +12,23 @@ const getAttachmentInfo = (attachmentId) => {
   return attachments[attachmentId] || null;
 };
 
+/**
+ * Open the attachment with cloud viewer.
+ *
+ * @param {?Object.<string, any>} attachmentInfo The attachment information
+ */
+const cloudview_openAttachment = (attachmentInfo) => {
+  rcmail.http_post(
+    'plugin.cloudview.view',
+    {
+      _callback: 'plugin.cloudview.view-callback',
+      _uid: rcmail.env.uid,
+      _info: JSON.stringify(attachmentInfo),
+    },
+    rcmail.set_busy(true, 'loading')
+  );
+};
+
 rcmail.addEventListener('init', (evt) => {
   // register the main command
   rcmail.register_command(
@@ -20,15 +37,7 @@ rcmail.addEventListener('init', (evt) => {
       let attachmentId = rcmail.env['cloudview.target-attachment-id'];
       let attachment = getAttachmentInfo(attachmentId);
 
-      rcmail.http_post(
-        'plugin.cloudview.view',
-        {
-          _callback: 'plugin.cloudview.view-callback',
-          _uid: rcmail.env.uid,
-          _info: JSON.stringify(attachment),
-        },
-        rcmail.set_busy(true, 'loading')
-      );
+      cloudview_openAttachment(attachment);
     },
     false // disabled by default
   );
@@ -67,3 +76,6 @@ rcmail.addEventListener('init', (evt) => {
     );
   });
 });
+
+// expose
+global.cloudview_openAttachment = cloudview_openAttachment;

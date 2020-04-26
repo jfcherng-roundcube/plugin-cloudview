@@ -1,5 +1,24 @@
+.attachmentslist li[data-with-preview] a.filename {
+  padding-right: 45px
+}
+.attachmentslist li[data-with-preview] a.cloudview-preview-link {
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  right: 20px;
+  padding: 0;
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  background-image: url(images/preview.png);
+  background-repeat: no-repeat;
+  background-size: contain
+}
+.attachmentslist li[data-with-preview] a.cloudview-preview-link:hover {
+  background-image: url(images/preview-hovered.png)
+}
 ul.toolbarmenu li span.icon.cloudview {
-  background-image: url(toolbarmenu-cloudview-icon.png);
+  background-image: url(images/toolbarmenu-cloudview-icon.png);
   background-position: 3px;
   background-repeat: no-repeat;
   background-size: 14px

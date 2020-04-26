@@ -15,6 +15,9 @@ final class cloudview extends rcube_plugin
     const VIEWER_GOOGLE_DOCS = 1;
     const VIEWER_MICROSOFT_OFFICE_WEB = 2;
 
+    const VIEW_BUTTON_IN_ATTACHMENTSLIST = 1;
+    const VIEW_BUTTON_IN_ATTACHMENTOPTIONSMENU = 2;
+
     /**
      * Cloud viewer URLs.
      *
@@ -129,15 +132,13 @@ final class cloudview extends rcube_plugin
     {
         $rcmail = rcmail::get_instance();
 
-        $this->add_buttons_attachmentmenu([
-            [
-                '_id' => $this->ID,
-                'label' => "{$this->ID}.cloud_view_document",
-                'href' => '#',
-                'prop' => '',
-                'command' => 'plugin.cloudview.open-attachment',
-            ],
-        ]);
+        if (\in_array(self::VIEW_BUTTON_IN_ATTACHMENTOPTIONSMENU, $this->prefs['view_button_layouts'])) {
+            $this->addButton_BUTTON_IN_ATTACHMENTOPTIONSMENU($p);
+        }
+
+        if (\in_array(self::VIEW_BUTTON_IN_ATTACHMENTSLIST, $this->prefs['view_button_layouts'])) {
+            $this->addButton_BUTTON_IN_ATTACHMENTSLIST($p);
+        }
 
         $rcmail->output->set_env('cloudview.attachments', $this->attachments);
         $this->include_stylesheet($this->local_skin_path() . '/main.css');
@@ -169,11 +170,21 @@ final class cloudview extends rcube_plugin
         $rcmail->output->set_pagetitle($this->gettext('plugin_settings_title'));
 
         $prefs = $rcmail->user->get_prefs();
-        $this->prefs = $prefs['cloudview'] = \array_merge(
-            $prefs['cloudview'] ?? [],
+        $prefs['cloudview'] = $this->prefs = \array_merge(
+            $this->prefs,
             [
-                'enabled' => (int) rcube_utils::get_input_value('_cloudview_enabled', rcube_utils::INPUT_POST),
-                'viewer' => (string) rcube_utils::get_input_value('_cloudview_viewer', rcube_utils::INPUT_POST),
+                'enabled' => (int) rcube_utils::get_input_value(
+                    '_cloudview_enabled',
+                    rcube_utils::INPUT_POST
+                ),
+                'viewer' => (string) rcube_utils::get_input_value(
+                    '_cloudview_viewer',
+                    rcube_utils::INPUT_POST
+                ),
+                'view_button_layouts' => (array) rcube_utils::get_input_value(
+                    '_cloudview_view_button_layouts',
+                    rcube_utils::INPUT_POST
+                ),
             ]
         );
 
@@ -230,6 +241,42 @@ final class cloudview extends rcube_plugin
         );
         $objectTable->add('title', html::label('_cloudview_viewer', rcmail::Q($this->gettext('select_viewer'))));
         $objectTable->add('', $objectCloudviewViewer->show($this->prefs['viewer']));
+
+        // option: view button layouts
+        $buttonLayoutCheckboxes = [];
+        $buttonLayoutCheckboxes[] =
+            (new html_checkbox([
+                'name' => '_cloudview_view_button_layouts[]',
+                'id' => '_cloudview_view_button_layout_in_attachmentslist',
+                'value' => self::VIEW_BUTTON_IN_ATTACHMENTSLIST,
+            ]))->show(
+                \in_array(self::VIEW_BUTTON_IN_ATTACHMENTSLIST, $this->prefs['view_button_layouts'])
+                    ? self::VIEW_BUTTON_IN_ATTACHMENTSLIST : -1
+            ) . html::label(
+                '_cloudview_view_button_layout_in_attachmentslist',
+                rcmail::Q($this->gettext('view_button_layout_in_attachmentslist'))
+            );
+        $buttonLayoutCheckboxes[] =
+            (new html_checkbox([
+                'name' => '_cloudview_view_button_layouts[]',
+                'id' => '_cloudview_view_button_layout_in_attachmentoptionsmenu',
+                'value' => self::VIEW_BUTTON_IN_ATTACHMENTOPTIONSMENU,
+            ]))->show(
+                \in_array(self::VIEW_BUTTON_IN_ATTACHMENTOPTIONSMENU, $this->prefs['view_button_layouts'])
+                    ? self::VIEW_BUTTON_IN_ATTACHMENTOPTIONSMENU : -1
+            ) . html::label(
+                '_cloudview_view_button_layout_in_attachmentoptionsmenu',
+                rcmail::Q($this->gettext('view_button_layout_in_attachmentoptionsmenu'))
+            );
+        $objectTable->add('title', html::label(null, rcmail::Q($this->gettext('select_view_button_layouts'))));
+        $objectTable->add(
+            '',
+            // wrap every checkbox in a <div>
+            \implode('', \array_map(
+                function (string $checkbox): string { return html::div(null, $checkbox); },
+                $buttonLayoutCheckboxes,
+            ))
+        );
 
         $table = $objectTable->show();
         $form = html::div(['class' => 'boxcontent'], $table . $saveButton);
@@ -311,6 +358,64 @@ final class cloudview extends rcube_plugin
     }
 
     /**
+     * Add a button in "attachmentoptionsmenu".
+     */
+    private function addButton_BUTTON_IN_ATTACHMENTOPTIONSMENU(array &$p): void
+    {
+        $this->add_buttons_attachmentmenu([
+            [
+                '_id' => $this->ID,
+                'label' => "{$this->ID}.cloud_view_document",
+                'href' => '#',
+                'prop' => '',
+                'command' => 'plugin.cloudview.open-attachment',
+            ],
+        ]);
+    }
+
+    /**
+     * Add a button in "attachmentslist".
+     */
+    private function addButton_BUTTON_IN_ATTACHMENTSLIST(array &$p): void
+    {
+        $p['content'] = \preg_replace_callback(
+            '/<li (?:.*?)<\/li>/uS',
+            function (array $matches): string {
+                $li = $matches[0];
+
+                if (!\preg_match('/ id="attach([0-9]+)"/uS', $li, $attachmentId)) {
+                    return $li;
+                }
+
+                $attachmentId = $attachmentId[1];
+                $attachment = $this->attachments[$attachmentId] ?? ['is_supported' => false];
+
+                if (!$attachment['is_supported']) {
+                    return $li;
+                }
+
+                $attachmentJson = \json_encode($attachment, \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE);
+                $button = html::a(
+                    [
+                        'href' => '#',
+                        'class' => 'cloudview-preview-link',
+                        'title' => rcmail::Q($this->gettext('cloud_view_document')),
+                        'onclick' => "cloudview_openAttachment({$attachmentJson})",
+                    ],
+                    ''
+                );
+
+                // append the button into the <li> tag
+                $ret = \substr($li, 0, -5) . $button . '</li>';
+                $ret = \str_replace('<li ', '<li data-with-preview ', $ret);
+
+                return $ret;
+            },
+            $p['content']
+        );
+    }
+
+    /**
      * Load plugin configuration.
      */
     private function loadPluginConfig(): void
@@ -333,6 +438,7 @@ final class cloudview extends rcube_plugin
         $prefsDefault = [
             'enabled' => 1,
             'viewer' => $this->config->get('default_viewer'),
+            'view_button_layouts' => [self::VIEW_BUTTON_IN_ATTACHMENTSLIST],
         ];
 
         $prefsUser = $rcmail->user->get_prefs()['cloudview'] ?? [];
