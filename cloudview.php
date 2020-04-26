@@ -12,8 +12,8 @@ final class cloudview extends rcube_plugin
 {
     use RoundcubePluginTrait;
 
-    const VIEWER_GOOGLE_DOCS = 'google_docs';
-    const VIEWER_MICROSOFT_OFFICE_WEB = 'microsoft_office_web';
+    const VIEWER_GOOGLE_DOCS = 1;
+    const VIEWER_MICROSOFT_OFFICE_WEB = 2;
 
     /**
      * Cloud viewer URLs.
@@ -23,16 +23,6 @@ final class cloudview extends rcube_plugin
     const VIEWER_URLS = [
         self::VIEWER_GOOGLE_DOCS => 'https://docs.google.com/viewer?embedded=true&url={DOCUMENT_URL}',
         self::VIEWER_MICROSOFT_OFFICE_WEB => 'https://view.officeapps.live.com/op/view.aspx?src={DOCUMENT_URL}',
-    ];
-
-    /**
-     * The default user plugin preferences.
-     *
-     * @var array
-     */
-    const PREFS_DEFAULT = [
-        'cloudview_enabled' => 1,
-        'cloudview_viewer' => self::VIEWER_MICROSOFT_OFFICE_WEB,
     ];
 
     /**
@@ -71,11 +61,7 @@ final class cloudview extends rcube_plugin
         $rcmail = rcmail::get_instance();
 
         $this->loadPluginConfig();
-
-        $this->prefs = \array_merge(
-            self::PREFS_DEFAULT,
-            $rcmail->user->get_prefs()['cloudview'] ?? []
-        );
+        $this->loadPluginPrefs();
 
         // per-user plugin enable
         if ($this->prefs['cloudview_enabled']) {
@@ -335,5 +321,22 @@ final class cloudview extends rcube_plugin
         $this->load_config('config.inc.php');
 
         $this->config = $rcmail->config;
+    }
+
+    /**
+     * Load user plugin preferences.
+     */
+    private function loadPluginPrefs(): void
+    {
+        $rcmail = rcmail::get_instance();
+
+        $prefsDefault = [
+            'cloudview_enabled' => 1,
+            'cloudview_viewer' => $this->config->get('default_viewer'),
+        ];
+
+        $prefsUser = $rcmail->user->get_prefs()['cloudview'] ?? [];
+
+        $this->prefs = \array_merge($prefsDefault, $prefsUser);
     }
 }
