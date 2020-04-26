@@ -64,7 +64,7 @@ final class cloudview extends rcube_plugin
         $this->loadPluginPrefs();
 
         // per-user plugin enable
-        if ($this->prefs['cloudview_enabled']) {
+        if ($this->prefs['enabled']) {
             if ($rcmail->action === 'show' || $rcmail->action === 'preview') {
                 $this->add_texts('localization/', false);
                 $this->add_hook('message_load', [$this, 'messageLoadHook']);
@@ -172,8 +172,8 @@ final class cloudview extends rcube_plugin
         $this->prefs = $prefs['cloudview'] = \array_merge(
             $prefs['cloudview'] ?? [],
             [
-                'cloudview_enabled' => (int) rcube_utils::get_input_value('_cloudview_enabled', rcube_utils::INPUT_POST),
-                'cloudview_viewer' => (string) rcube_utils::get_input_value('_cloudview_viewer', rcube_utils::INPUT_POST),
+                'enabled' => (int) rcube_utils::get_input_value('_cloudview_enabled', rcube_utils::INPUT_POST),
+                'viewer' => (string) rcube_utils::get_input_value('_cloudview_viewer', rcube_utils::INPUT_POST),
             ]
         );
 
@@ -214,7 +214,7 @@ final class cloudview extends rcube_plugin
             'value' => 1,
         ]);
         $objectTable->add('title', html::label('_cloudview_enabled', rcmail::Q($this->gettext('plugin_enabled'))));
-        $objectTable->add('', $objectCloudviewEnabled->show($this->prefs['cloudview_enabled'] ? 1 : 0));
+        $objectTable->add('', $objectCloudviewEnabled->show($this->prefs['enabled'] ? 1 : 0));
 
         // option: choose cloud viewer
         $objectCloudviewViewer = new html_select(['name' => '_cloudview_viewer', 'id' => '_cloudview_viewer']);
@@ -229,7 +229,7 @@ final class cloudview extends rcube_plugin
             ]
         );
         $objectTable->add('title', html::label('_cloudview_viewer', rcmail::Q($this->gettext('select_viewer'))));
-        $objectTable->add('', $objectCloudviewViewer->show($this->prefs['cloudview_viewer']));
+        $objectTable->add('', $objectCloudviewViewer->show($this->prefs['viewer']));
 
         $table = $objectTable->show();
         $form = html::div(['class' => 'boxcontent'], $table . $saveButton);
@@ -299,7 +299,7 @@ final class cloudview extends rcube_plugin
                 $fileUrl = $this->config->get('dev_mode_file_base_url') . $tempFilePath;
             }
 
-            $viewerUrl = self::VIEWER_URLS[$this->prefs['cloudview_viewer']] ?? '';
+            $viewerUrl = self::VIEWER_URLS[$this->prefs['viewer']] ?? '';
             $viewUrl = \strtr($viewerUrl, [
                 '{DOCUMENT_URL}' => \urlencode($fileUrl),
             ]);
@@ -331,8 +331,8 @@ final class cloudview extends rcube_plugin
         $rcmail = rcmail::get_instance();
 
         $prefsDefault = [
-            'cloudview_enabled' => 1,
-            'cloudview_viewer' => $this->config->get('default_viewer'),
+            'enabled' => 1,
+            'viewer' => $this->config->get('default_viewer'),
         ];
 
         $prefsUser = $rcmail->user->get_prefs()['cloudview'] ?? [];
