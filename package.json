@@ -1,8 +1,4 @@
 {
-  "author": {
-    "name": "Jack Cherng",
-    "email": "jfcherng@gmail.com"
-  },
   "dependencies": {},
   "devDependencies": {
     "@babel/core": "^7.5.4",
