@@ -43,7 +43,7 @@ This plugin has been published on [Packagist](https://packagist.org) by the name
 
 1. Go to your `ROUNDCUBE_HOME` (i.e., the root directory of your Roundcube).
 2. Run `composer require jfcherng-roundcube/cloudview`.
-3. You may edit the `config.inc.php` under this plugin's directory if you want to do some configurations.
+3. Copy `config.inc.php.dist` to `config.inc.php` and edit `config.inc.php` if you want.
 
 ### Install manually
 
