@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "17e7d193733dbe7e41b2430347f3391a",
+    "content-hash": "b1b7e6d7dbdab9a9595c560d5c8b9fc4",
     "packages": [
         {
             "name": "roundcube/plugin-installer",
@@ -1432,7 +1432,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": "^7.1.3"
+        "php": ">=7.1.3"
     },
     "platform-dev": [],
     "plugin-api-version": "1.1.0"
