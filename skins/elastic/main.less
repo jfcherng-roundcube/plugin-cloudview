@@ -1,21 +1,29 @@
 // BUTTON_IN_ATTACHMENTSLIST
-.attachmentslist li[data-with-preview] {
-  a.cloudview-preview-link {
-    &:hover {
-      background-image: url(images/preview-hovered.png);
+.attachmentslist li {
+  &[data-with-cloudview] {
+    a.cloudview-preview-link {
+      display: none;
     }
+  }
 
-    cursor: pointer;
-    margin: 2px;
-    padding: 0;
+  &[data-with-cloudview='1'] {
+    a.cloudview-preview-link {
+      &:hover {
+        background-image: url(images/preview-hovered.png);
+      }
 
-    display: inline-block;
-    height: 1.5rem;
-    width: 1.5rem;
+      cursor: pointer;
+      margin: 2px;
+      padding: 0;
 
-    background-image: url(images/preview.png);
-    background-repeat: no-repeat;
-    background-size: contain;
+      display: inline-block;
+      height: 1.5rem;
+      width: 1.5rem;
+
+      background-image: url(images/preview.png);
+      background-repeat: no-repeat;
+      background-size: contain;
+    }
   }
 }
 

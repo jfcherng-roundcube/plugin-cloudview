@@ -6,20 +6,30 @@
  * To use your customized config, you should copied this file into
  * "config.inc.php" and modify config in it.
  */
+$config = [];
 
-$config = [
-    /**
-     * The default viewer if the user has not set one.
-     *
-     * @value cloudview::VIEWER_GOOGLE_DOCS
-     * @value cloudview::VIEWER_MICROSOFT_OFFICE_WEB
-     */
-    'default_viewer' => cloudview::VIEWER_MICROSOFT_OFFICE_WEB,
+/**
+ * The default viewer if the user has not set one.
+ *
+ * @type int
+ *
+ * @value cloudview::VIEWER_GOOGLE_DOCS
+ * @value cloudview::VIEWER_MICROSOFT_OFFICE_WEB
+ */
+$config['viewer'] = cloudview::VIEWER_MICROSOFT_OFFICE_WEB;
 
-    // the salt added for hashing purpose
-    'hash_salt' => 'CHANGE_THIS_FIELD_INTO_A_RANDOM_STRING',
-
-    // for localhost dev test purpose
-    'is_dev_mode' => false,
-    'dev_mode_file_base_url' => 'https://4272fd88.ngrok.io/',
+/**
+ * The default view button layouts if the user has not set one.
+ *
+ * @type int[]
+ *
+ * @values cloudview::VIEW_BUTTON_IN_ATTACHMENTSLIST
+ * @values cloudview::VIEW_BUTTON_IN_ATTACHMENTOPTIONSMENU
+ */
+$config['view_button_layouts'] = [
+    cloudview::VIEW_BUTTON_IN_ATTACHMENTSLIST,
 ];
+
+// for localhost dev test purpose
+$config['is_dev_mode'] = false;
+$config['dev_mode_file_base_url'] = 'https://4272fd88.ngrok.io/';

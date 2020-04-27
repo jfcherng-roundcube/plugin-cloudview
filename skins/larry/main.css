@@ -1,7 +1,10 @@
-.attachmentslist li[data-with-preview] a.filename {
+.attachmentslist li[data-with-cloudview] a.cloudview-preview-link {
+  display: none
+}
+.attachmentslist li[data-with-cloudview='1'] a.filename {
   padding-right: 45px
 }
-.attachmentslist li[data-with-preview] a.cloudview-preview-link {
+.attachmentslist li[data-with-cloudview='1'] a.cloudview-preview-link {
   cursor: pointer;
   position: absolute;
   top: 0;
@@ -14,7 +17,7 @@
   background-repeat: no-repeat;
   background-size: contain
 }
-.attachmentslist li[data-with-preview] a.cloudview-preview-link:hover {
+.attachmentslist li[data-with-cloudview='1'] a.cloudview-preview-link:hover {
   background-image: url(images/preview-hovered.png)
 }
 ul.toolbarmenu li span.icon.cloudview {

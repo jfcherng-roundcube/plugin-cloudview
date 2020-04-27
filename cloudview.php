@@ -34,18 +34,29 @@ final class cloudview extends rcube_plugin
     public $task = 'mail|settings';
 
     /**
-     * The loaded configuration.
+     * Plugin actions and handlers.
      *
-     * @var rcube_config
+     * @var array<string,string>
      */
-    private $config;
+    public $actions = [
+        'settings' => 'settingsAction',
+        'settings-save' => 'settingsSaveAction',
+        'view' => 'viewAction',
+    ];
 
     /**
-     * The user plugin preferences.
+     * The plugin configuration.
      *
      * @var array
      */
-    private $prefs;
+    private $config = [];
+
+    /**
+     * The plugin user preferences.
+     *
+     * @var array
+     */
+    private $prefs = [];
 
     /**
      * Information about attachments.
@@ -63,28 +74,28 @@ final class cloudview extends rcube_plugin
     {
         $rcmail = rcmail::get_instance();
 
-        $this->loadPluginConfig();
-        $this->loadPluginPrefs();
+        $this->loadPluginConfigurations();
+        $this->loadPluginPreferences();
+        $this->registerPluginActions();
 
-        // per-user plugin enable
-        if ($this->prefs['enabled']) {
-            if ($rcmail->action === 'show' || $rcmail->action === 'preview') {
-                $this->add_texts('localization/', false);
-                $this->add_hook('message_load', [$this, 'messageLoadHook']);
-                $this->add_hook('template_object_messageattachments', [$this, 'messageattachmentsHook']);
-            }
-
-            $this->register_action('plugin.cloudview.view', [$this, 'viewAction']);
-        }
+        $this->add_texts('localization/', false);
 
         // preference settings hooks
         if ($rcmail->task === 'settings') {
-            $this->add_texts('localization/', false);
             $this->add_hook('settings_actions', [$this, 'settingsActionsHook']);
-            $this->register_action('plugin.cloudview.settings', [$this, 'settingsAction']);
-            $this->register_action('plugin.cloudview.settings-save', [$this, 'settingsSaveAction']);
             $this->include_stylesheet($this->local_skin_path() . '/settings.css');
             $this->include_script('assets/settings.min.js');
+        }
+
+        if (!$this->prefs['enabled']) {
+            return;
+        }
+
+        if ($rcmail->action === 'show' || $rcmail->action === 'preview') {
+            $this->add_hook('message_load', [$this, 'messageLoadHook']);
+            $this->add_hook('template_object_messageattachments', [$this, 'messageattachmentsHook']);
+            $this->include_stylesheet($this->local_skin_path() . '/main.css');
+            $this->include_script('assets/main.min.js');
         }
     }
 
@@ -108,6 +119,8 @@ final class cloudview extends rcube_plugin
      */
     public function messageLoadHook(array $p): array
     {
+        $rcmail = rcmail::get_instance();
+
         foreach ((array) $p['object']->attachments as $attachment) {
             // Roundcube's mimetype detection seems to be less accurate
             // (such as it detect "rtf" files as "application/msword" rather than "application/rtf")
@@ -115,12 +128,15 @@ final class cloudview extends rcube_plugin
             $mimetype = MimeHelper::guessMimeTypeByFilename($attachment->filename) ?? $attachment->mimetype;
 
             $this->attachments[$attachment->mime_id] = [
-                'mime_id' => $attachment->mime_id,
-                'mimetype' => $mimetype,
                 'filename' => $attachment->filename,
                 'is_supported' => MimeHelper::isSupportedMimeType($mimetype),
+                'mime_id' => $attachment->mime_id,
+                'mimetype' => $mimetype,
+                'size' => $attachment->size,
             ];
         }
+
+        $rcmail->output->set_env("{$this->ID}.attachments", $this->attachments);
 
         return $p;
     }
@@ -130,8 +146,6 @@ final class cloudview extends rcube_plugin
      */
     public function messageattachmentsHook(array $p): array
     {
-        $rcmail = rcmail::get_instance();
-
         if (\in_array(self::VIEW_BUTTON_IN_ATTACHMENTOPTIONSMENU, $this->prefs['view_button_layouts'])) {
             $this->addButton_BUTTON_IN_ATTACHMENTOPTIONSMENU($p);
         }
@@ -139,10 +153,6 @@ final class cloudview extends rcube_plugin
         if (\in_array(self::VIEW_BUTTON_IN_ATTACHMENTSLIST, $this->prefs['view_button_layouts'])) {
             $this->addButton_BUTTON_IN_ATTACHMENTSLIST($p);
         }
-
-        $rcmail->output->set_env('cloudview.attachments', $this->attachments);
-        $this->include_stylesheet($this->local_skin_path() . '/main.css');
-        $this->include_script('assets/main.min.js');
 
         return $p;
     }
@@ -321,16 +331,17 @@ final class cloudview extends rcube_plugin
         $attachment = \json_decode($info, true);
 
         $fileExt = \strtolower(\pathinfo($attachment['filename'], \PATHINFO_EXTENSION));
-        $tempFileBaseName = \hash('md5', $info . $this->config->get('hash_salt'));
-        $tempFilePath = $this->url("temp/{$tempFileBaseName}.{$fileExt}");
+        $tempFileBaseName = \hash('md5', $info . $rcmail->user->ID);
+        $tempFilePath = $this->url("temp/{$rcmail->user->ID}/{$tempFileBaseName}.{$fileExt}");
         $tempFileFullPath = INSTALL_PATH . $tempFilePath;
 
         // save the attachment into temp directory
         if (!\is_file($tempFileFullPath)) {
-            \file_put_contents(
-                $tempFileFullPath,
-                $rcmail->imap->get_message_part($uid, $attachment['mime_id'])
-            );
+            @\mkdir(\dirname($tempFileFullPath), 0777, true);
+
+            $fp = \fopen($tempFileFullPath, 'w');
+            $rcmail->imap->get_message_part($uid, $attachment['mime_id'], null, null, $fp);
+            \fclose($fp);
         }
 
         $fileUrl = RoundcubeHelper::getSiteUrl() . $tempFilePath;
@@ -342,8 +353,8 @@ final class cloudview extends rcube_plugin
         }
         // Others: external cloud viewer
         else {
-            if ($this->config->get('is_dev_mode')) {
-                $fileUrl = $this->config->get('dev_mode_file_base_url') . $tempFilePath;
+            if ($this->config['is_dev_mode']) {
+                $fileUrl = $this->config['dev_mode_file_base_url'] . $tempFilePath;
             }
 
             $viewerUrl = self::VIEWER_URLS[$this->prefs['viewer']] ?? '';
@@ -389,12 +400,8 @@ final class cloudview extends rcube_plugin
 
                 $attachmentId = $attachmentId[1];
                 $attachment = $this->attachments[$attachmentId] ?? ['is_supported' => false];
-
-                if (!$attachment['is_supported']) {
-                    return $li;
-                }
-
                 $attachmentJson = \json_encode($attachment, \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE);
+
                 $button = html::a(
                     [
                         'href' => '#',
@@ -405,44 +412,15 @@ final class cloudview extends rcube_plugin
                     ''
                 );
 
-                // append the button into the <li> tag
-                $ret = \substr($li, 0, -5) . $button . '</li>';
-                $ret = \str_replace('<li ', '<li data-with-preview ', $ret);
+                // add "data-with-cloudview" attribute to the <li> tag
+                $li = '<li data-with-cloudview="' . ($attachment['is_supported'] ? 1 : 0) . '"' . \substr($li, 3);
 
-                return $ret;
+                // append the button into the <li> tag
+                $li = \substr($li, 0, -5) . $button . '</li>';
+
+                return $li;
             },
             $p['content']
         );
-    }
-
-    /**
-     * Load plugin configuration.
-     */
-    private function loadPluginConfig(): void
-    {
-        $rcmail = rcmail::get_instance();
-
-        $this->load_config('config.inc.php.dist');
-        $this->load_config('config.inc.php');
-
-        $this->config = $rcmail->config;
-    }
-
-    /**
-     * Load user plugin preferences.
-     */
-    private function loadPluginPrefs(): void
-    {
-        $rcmail = rcmail::get_instance();
-
-        $prefsDefault = [
-            'enabled' => 1,
-            'viewer' => $this->config->get('default_viewer'),
-            'view_button_layouts' => [self::VIEW_BUTTON_IN_ATTACHMENTSLIST],
-        ];
-
-        $prefsUser = $rcmail->user->get_prefs()['cloudview'] ?? [];
-
-        $this->prefs = \array_merge($prefsDefault, $prefsUser);
     }
 }
