@@ -73,8 +73,8 @@ delete them.
 For example, execute `crontab -e` and add the following job
 
 ```text
-# delete temporary files every day
-0 0 * * * rm -f PATH_TO_ROUNDCUBE/plugins/cloudview/temp/*
+# delete temporary files on 03:00 AM every day
+0 3 * * * rm -rf PATH_TO_ROUNDCUBE/plugins/cloudview/temp/*/
 ```
 
 ## Acknowledgement
