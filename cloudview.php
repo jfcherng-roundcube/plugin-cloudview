@@ -331,8 +331,9 @@ final class cloudview extends rcube_plugin
         $attachment = \json_decode($info, true);
 
         $fileExt = \strtolower(\pathinfo($attachment['filename'], \PATHINFO_EXTENSION));
+        $fileDotExt = $fileExt ? ".{$fileExt}" : '';
         $tempFileBaseName = \hash('md5', $info . $rcmail->user->ID);
-        $tempFilePath = $this->url("temp/{$rcmail->user->ID}/{$tempFileBaseName}.{$fileExt}");
+        $tempFilePath = $this->url("temp/{$rcmail->user->ID}/{$tempFileBaseName}{$fileDotExt}");
         $tempFileFullPath = INSTALL_PATH . $tempFilePath;
 
         // save the attachment into temp directory
