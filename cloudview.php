@@ -338,7 +338,11 @@ final class cloudview extends rcube_plugin
 
         // save the attachment into temp directory
         if (!\is_file($tempFileFullPath)) {
-            @\mkdir(\dirname($tempFileFullPath), 0777, true);
+            $tempDir = \dirname($tempFileFullPath);
+
+            @\mkdir($tempDir, 0777, true);
+            // put an index.html to prevent from potential directory traversal
+            @\file_put_contents("{$tempDir}/index.html", '', \LOCK_EX);
 
             $fp = \fopen($tempFileFullPath, 'w');
             $rcmail->imap->get_message_part($uid, $attachment['mime_id'], null, null, $fp);

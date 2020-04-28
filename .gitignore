@@ -15,4 +15,4 @@
 config.inc.php
 /log/
 /temp/*
-!/temp/.gitignore
+!/temp/index.html
