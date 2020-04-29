@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 include __DIR__ . '/lib/vendor/autoload.php';
 
+use Jfcherng\Roundcube\Plugin\CloudView\AbstractRoundcubePlugin;
 use Jfcherng\Roundcube\Plugin\CloudView\MimeHelper;
 use Jfcherng\Roundcube\Plugin\CloudView\RoundcubeHelper;
-use Jfcherng\Roundcube\Plugin\CloudView\RoundcubePluginTrait;
 
-final class cloudview extends rcube_plugin
+final class cloudview extends AbstractRoundcubePlugin
 {
-    use RoundcubePluginTrait;
-
     const VIEWER_GOOGLE_DOCS = 1;
     const VIEWER_MICROSOFT_OFFICE_WEB = 2;
 
@@ -34,9 +32,7 @@ final class cloudview extends rcube_plugin
     public $task = 'mail|settings';
 
     /**
-     * Plugin actions and handlers.
-     *
-     * @var array<string,string>
+     * {@inheritdoc}
      */
     public $actions = [
         'settings' => 'settingsAction',
@@ -45,18 +41,13 @@ final class cloudview extends rcube_plugin
     ];
 
     /**
-     * The plugin configuration.
-     *
-     * @var array
+     * {@inheritdoc}
      */
-    private $config = [];
-
-    /**
-     * The plugin user preferences.
-     *
-     * @var array
-     */
-    private $prefs = [];
+    public $hooks = [
+        'message_load' => 'messageLoadHook',
+        'settings_actions' => 'settingsActionsHook',
+        'template_object_messageattachments' => 'messageattachmentsHook',
+    ];
 
     /**
      * Information about attachments.
@@ -72,18 +63,13 @@ final class cloudview extends rcube_plugin
      */
     public function init(): void
     {
+        parent::init();
+
         $rcmail = rcmail::get_instance();
-
-        $this->loadPluginConfigurations();
-        $this->loadPluginPreferences();
-        $this->registerPluginActions();
-
-        $this->add_texts('localization/', false);
 
         // preference settings hooks
         if ($rcmail->task === 'settings') {
-            $this->add_hook('settings_actions', [$this, 'settingsActionsHook']);
-            $this->include_stylesheet($this->local_skin_path() . '/settings.css');
+            $this->include_stylesheet("{$this->skinPath}/settings.css");
             $this->include_script('assets/settings.min.js');
         }
 
@@ -92,9 +78,7 @@ final class cloudview extends rcube_plugin
         }
 
         if ($rcmail->action === 'show' || $rcmail->action === 'preview') {
-            $this->add_hook('message_load', [$this, 'messageLoadHook']);
-            $this->add_hook('template_object_messageattachments', [$this, 'messageattachmentsHook']);
-            $this->include_stylesheet($this->local_skin_path() . '/main.css');
+            $this->include_stylesheet("{$this->skinPath}/main.css");
             $this->include_script('assets/main.min.js');
         }
     }
