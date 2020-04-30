@@ -1,0 +1,42 @@
+// BUTTON_IN_ATTACHMENTSLIST
+.attachmentslist li {
+  &[data-with-cloudview] {
+    a.cloudview-preview-link {
+      display: none;
+    }
+  }
+
+  &[data-with-cloudview='1'] {
+    a.filename {
+      padding-right: 45px;
+    }
+
+    a.cloudview-preview-link {
+      &:hover {
+        background-image: url("@{images-path}/preview-hovered.png");
+      }
+
+      cursor: pointer;
+      position: absolute;
+      top: 0;
+      right: 20px;
+      padding: 0;
+
+      display: inline-block;
+      width: 22px;
+      height: 22px;
+
+      background-image: url("@{images-path}/preview.png");
+      background-repeat: no-repeat;
+      background-size: contain;
+    }
+  }
+}
+
+// BUTTON_IN_ATTACHMENTOPTIONSMENU
+ul.toolbarmenu li span.icon.cloudview {
+  background-image: url("@{images-path}/toolbarmenu-cloudview-icon.png");
+  background-position: 3px;
+  background-repeat: no-repeat;
+  background-size: 14px;
+}

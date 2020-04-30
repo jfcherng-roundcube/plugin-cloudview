@@ -59,6 +59,13 @@ abstract class AbstractRoundcubePlugin extends rcube_plugin
     protected $skinName = '';
 
     /**
+     * Get the default plugin preferences.
+     *
+     * @return array the default plugin preferences
+     */
+    abstract public function getDefaultPluginPreferences(): array;
+
+    /**
      * The initiator method for child classes.
      *
      * This should be called in the very beginning of chile class' init() method.
@@ -67,6 +74,7 @@ abstract class AbstractRoundcubePlugin extends rcube_plugin
     {
         $this->loadPluginConfigurations();
         $this->loadPluginPreferences();
+        $this->exposePluginPreferences();
         $this->registerPluginActions();
         $this->registerPluginHooks();
 
@@ -275,15 +283,10 @@ abstract class AbstractRoundcubePlugin extends rcube_plugin
     {
         $rcmail = rcmail::get_instance();
 
-        $prefsDefault = [
-            'enabled' => 1,
-            'viewer' => $this->config['viewer'],
-            'view_button_layouts' => $this->config['view_button_layouts'],
-        ];
-
-        $prefsUser = $rcmail->user->get_prefs()[$this->ID] ?? [];
-
-        $this->prefs = \array_merge($prefsDefault, $prefsUser);
+        $this->prefs = \array_merge(
+            $this->getDefaultPluginPreferences(),
+            $rcmail->user->get_prefs()[$this->ID] ?? []
+        );
     }
 
     /**
@@ -300,11 +303,32 @@ abstract class AbstractRoundcubePlugin extends rcube_plugin
         } else {
             $config = [];
             foreach ($keys as $key) {
-                $config[$key] = $this->config[$key];
+                $config[$key] = $this->config[$key] ?? null;
             }
         }
 
         $rcmail->output->set_env("{$this->ID}.config", $config);
+    }
+
+    /**
+     * Expose plugin preferences.
+     *
+     * @param null|array $keys the keys which will be exposed, null will expose all
+     */
+    protected function exposePluginPreferences(?array $keys = null): void
+    {
+        $rcmail = rcmail::get_instance();
+
+        if (null === $keys) {
+            $prefs = $this->prefs;
+        } else {
+            $prefs = [];
+            foreach ($keys as $key) {
+                $prefs[$key] = $this->prefs[$key] ?? null;
+            }
+        }
+
+        $rcmail->output->set_env("{$this->ID}.prefs", $prefs);
     }
 
     /**

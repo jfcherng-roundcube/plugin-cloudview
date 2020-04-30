@@ -12,16 +12,12 @@ PROJECT_ROOT=${SCRIPT_DIR}
 
 LESS_FILES=(
     "skins/classic/main.less"
-    "skins/classic/settings.less"
     "skins/elastic/main.less"
-    "skins/elastic/settings.less"
     "skins/larry/main.less"
-    "skins/larry/settings.less"
 )
 
 JS_FILES=(
     "assets/main.js"
-    "assets/settings.js"
 )
 
 PATH=${PROJECT_ROOT}/node_modules/.bin:${PATH}

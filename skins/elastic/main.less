@@ -1,33 +1,3 @@
-// BUTTON_IN_ATTACHMENTSLIST
-.attachmentslist li {
-  &[data-with-cloudview] {
-    a.cloudview-preview-link {
-      display: none;
-    }
-  }
-
-  &[data-with-cloudview='1'] {
-    a.cloudview-preview-link {
-      &:hover {
-        background-image: url(images/preview-hovered.png);
-      }
-
-      cursor: pointer;
-      margin: 2px;
-      padding: 0;
-
-      display: inline-block;
-      height: 1.5rem;
-      width: 1.5rem;
-
-      background-image: url(images/preview.png);
-      background-repeat: no-repeat;
-      background-size: contain;
-    }
-  }
-}
-
-// BUTTON_IN_ATTACHMENTOPTIONSMENU
-.menu a.cloudview:before {
-  content: '\f06e';
-}
+@import '_variables';
+@import 'pages/settings';
+@import 'pages/mail';

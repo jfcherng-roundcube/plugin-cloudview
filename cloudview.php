@@ -65,22 +65,20 @@ final class cloudview extends AbstractRoundcubePlugin
     {
         parent::init();
 
-        $rcmail = rcmail::get_instance();
+        $this->include_stylesheet("{$this->skinPath}/main.css");
+        $this->include_script('assets/main.min.js');
+    }
 
-        // preference settings hooks
-        if ($rcmail->task === 'settings') {
-            $this->include_stylesheet("{$this->skinPath}/settings.css");
-            $this->include_script('assets/settings.min.js');
-        }
-
-        if (!$this->prefs['enabled']) {
-            return;
-        }
-
-        if ($rcmail->action === 'show' || $rcmail->action === 'preview') {
-            $this->include_stylesheet("{$this->skinPath}/main.css");
-            $this->include_script('assets/main.min.js');
-        }
+    /**
+     * {@inheritdoc}
+     */
+    public function getDefaultPluginPreferences(): array
+    {
+        return [
+            'enabled' => 1,
+            'viewer' => $this->config['viewer'],
+            'view_button_layouts' => $this->config['view_button_layouts'],
+        ];
     }
 
     /**
@@ -130,6 +128,10 @@ final class cloudview extends AbstractRoundcubePlugin
      */
     public function messageattachmentsHook(array $p): array
     {
+        if (!$this->prefs['enabled']) {
+            return $p;
+        }
+
         if (\in_array(self::VIEW_BUTTON_IN_ATTACHMENTOPTIONSMENU, $this->prefs['view_button_layouts'])) {
             $this->addButton_BUTTON_IN_ATTACHMENTOPTIONSMENU($p);
         }
