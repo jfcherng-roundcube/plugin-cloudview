@@ -1,5 +1,7 @@
 const rcmail = global.rcmail;
-// const prefs = rcmail.env['cloudview.prefs'] || {};
+
+const config = rcmail.env['cloudview.config'] || {};
+const prefs = rcmail.env['cloudview.prefs'] || {};
 
 /**
  * Get the attachment information by given ID.
@@ -7,11 +9,8 @@ const rcmail = global.rcmail;
  * @param  {string} attachmentId The attachment identifier
  * @return {?Object.<string, any>} The attachment information.
  */
-const getAttachmentInfo = (attachmentId) => {
-  let attachments = rcmail.env['cloudview.attachments'] || {};
-
-  return attachments[attachmentId] || null;
-};
+const getAttachmentInfo = (attachmentId) =>
+  rcmail.env?.['cloudview.attachments']?.[attachmentId] || null;
 
 /**
  * Open the attachment with cloud viewer.
