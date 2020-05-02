@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "38f7ac17f342282c6c7017b131282f04",
+    "content-hash": "e7d846d1138ba1005299fa3e7d6ef630",
     "packages": [
         {
             "name": "roundcube/plugin-installer",
