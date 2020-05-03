@@ -1,5 +1,6 @@
 # Roundcube Plugin: Cloud View
 
+[![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/jfcherng-roundcube/plugin-cloudview/main/master?style=flat-square)](https://github.com/jfcherng-roundcube/plugin-cloudview/actions)
 [![Packagist](https://img.shields.io/packagist/dt/jfcherng-roundcube/cloudview?style=flat-square)](https://packagist.org/packages/jfcherng-roundcube/cloudview)
 [![Packagist Version](https://img.shields.io/packagist/v/jfcherng-roundcube/cloudview?style=flat-square)](https://packagist.org/packages/jfcherng-roundcube/cloudview)
 [![Project license](https://img.shields.io/github/license/jfcherng-roundcube/plugin-cloudview?style=flat-square)](https://github.com/jfcherng-roundcube/plugin-cloudview/blob/master/LICENSE)
