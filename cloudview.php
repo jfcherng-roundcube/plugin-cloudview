@@ -96,6 +96,8 @@ final class cloudview extends AbstractRoundcubePlugin
     public function messageLoadHook(array $p): array
     {
         $rcmail = rcmail::get_instance();
+        /** @var rcmail_output_html */
+        $output = $rcmail->output;
 
         foreach ((array) $p['object']->attachments as $rcAttachment) {
             // Roundcube's mimetype detection seems to be less accurate
@@ -118,7 +120,7 @@ final class cloudview extends AbstractRoundcubePlugin
             $this->attachments[$attachment->getId()] = $attachment;
         }
 
-        $rcmail->output->set_env("{$this->ID}.attachments", $this->attachments);
+        $output->set_env("{$this->ID}.attachments", $this->attachments);
 
         return $p;
     }
@@ -148,11 +150,14 @@ final class cloudview extends AbstractRoundcubePlugin
      */
     public function settingsAction(): void
     {
+        $rcmail = rcmail::get_instance();
+        /** @var rcmail_output_html */
+        $output = $rcmail->output;
+
         $this->register_handler('plugin.body', [$this, 'settingsForm']);
 
-        $rcmail = rcmail::get_instance();
-        $rcmail->output->set_pagetitle($this->gettext('plugin_settings_title'));
-        $rcmail->output->send('plugin');
+        $output->set_pagetitle($this->gettext('plugin_settings_title'));
+        $output->send('plugin');
     }
 
     /**
@@ -161,9 +166,11 @@ final class cloudview extends AbstractRoundcubePlugin
     public function settingsSaveAction(): void
     {
         $rcmail = rcmail::get_instance();
+        /** @var rcmail_output_html */
+        $output = $rcmail->output;
 
         $this->register_handler('plugin.body', [$this, 'settingsForm']);
-        $rcmail->output->set_pagetitle($this->gettext('plugin_settings_title'));
+        $output->set_pagetitle($this->gettext('plugin_settings_title'));
 
         $prefs = $rcmail->user->get_prefs();
         $prefs['cloudview'] = $this->prefs = \array_merge(
@@ -188,13 +195,13 @@ final class cloudview extends AbstractRoundcubePlugin
         );
 
         if ($rcmail->user->save_prefs($prefs)) {
-            $rcmail->output->command('display_message', $this->gettext('successfullysaved'), 'confirmation');
+            $output->command('display_message', $this->gettext('successfullysaved'), 'confirmation');
         } else {
-            $rcmail->output->command('display_message', $this->gettext('unsuccessfullysaved'), 'error');
+            $output->command('display_message', $this->gettext('unsuccessfullysaved'), 'error');
         }
 
         $rcmail->overwrite_action('plugin.cloudview.settings');
-        $rcmail->output->send('plugin');
+        $output->send('plugin');
     }
 
     /**
@@ -203,6 +210,8 @@ final class cloudview extends AbstractRoundcubePlugin
     public function settingsForm(): string
     {
         $rcmail = rcmail::get_instance();
+        /** @var rcmail_output_html */
+        $output = $rcmail->output;
 
         $boxTitle = html::div(['class' => 'boxtitle'], rcmail::Q($this->gettext('plugin_settings_title')));
 
@@ -287,9 +296,9 @@ final class cloudview extends AbstractRoundcubePlugin
             $containerAttrs = [];
         }
 
-        $rcmail->output->add_gui_object('cloudview-form', 'cloudview-form');
+        $output->add_gui_object('cloudview-form', 'cloudview-form');
 
-        return html::div($containerAttrs, $rcmail->output->form_tag(
+        return html::div($containerAttrs, $output->form_tag(
             [
                 'id' => 'cloudview-form',
                 'name' => 'cloudview-form',
@@ -307,6 +316,8 @@ final class cloudview extends AbstractRoundcubePlugin
     public function viewAction(): void
     {
         $rcmail = rcmail::get_instance();
+        /** @var rcmail_output_json */
+        $output = $rcmail->output;
 
         // get the post values
         $callback = rcube_utils::get_input_value('_callback', rcube_utils::INPUT_POST);
@@ -354,8 +365,8 @@ final class cloudview extends AbstractRoundcubePlugin
         }
 
         // trigger the frontend callback to open the cloud viewer window
-        $callback && $rcmail->output->command($callback, ['message' => ['url' => $viewUrl]]);
-        $rcmail->output->send();
+        $callback && $output->command($callback, ['message' => ['url' => $viewUrl]]);
+        $output->send();
     }
 
     /**
