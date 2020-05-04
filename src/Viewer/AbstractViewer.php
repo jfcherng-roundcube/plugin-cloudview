@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Jfcherng\Roundcube\Plugin\CloudView\Viewer;
 
+use Jfcherng\Roundcube\Plugin\CloudView\Attachment;
 use rcube_plugin;
 
 abstract class AbstractViewer implements ViewerInterface
@@ -40,9 +41,9 @@ abstract class AbstractViewer implements ViewerInterface
     /**
      * {@inheritdoc}
      */
-    public static function isSupportedAttachment(array $attachment): bool
+    public static function isSupportedAttachment(Attachment $attachment): bool
     {
-        return isset(static::SUPPORTED_MIME_TYPES[$attachment['mimetype']]);
+        return isset(static::SUPPORTED_MIME_TYPES[$attachment->getMimeType()]);
     }
 
     /**

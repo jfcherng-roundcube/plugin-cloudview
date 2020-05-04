@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Jfcherng\Roundcube\Plugin\CloudView\Viewer;
 
+use Jfcherng\Roundcube\Plugin\CloudView\Attachment;
+
 interface ViewerInterface
 {
     /**
@@ -18,7 +20,7 @@ interface ViewerInterface
     /**
      * Determine whether the attachment is supported.
      *
-     * @param array $attachment the attachment information
+     * @param Attachment $attachment the attachment
      */
-    public static function isSupportedAttachment(array $attachment): bool;
+    public static function isSupportedAttachment(Attachment $attachment): bool;
 }

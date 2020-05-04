@@ -50,7 +50,7 @@ rcmail.addEventListener('init', (evt) => {
     let attachment = getAttachmentInfo(evt.props.id);
 
     rcmail.set_env('cloudview.target-attachment-id', attachmentId);
-    rcmail.enable_command('plugin.cloudview.open-attachment', attachment['is_supported']);
+    rcmail.enable_command('plugin.cloudview.open-attachment', attachment.isSupported);
   });
 
   // open the cloud viewer window

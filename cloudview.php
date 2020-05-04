@@ -5,6 +5,7 @@ declare(strict_types=1);
 include __DIR__ . '/lib/vendor/autoload.php';
 
 use Jfcherng\Roundcube\Plugin\CloudView\AbstractRoundcubePlugin;
+use Jfcherng\Roundcube\Plugin\CloudView\Attachment;
 use Jfcherng\Roundcube\Plugin\CloudView\Factory\ViewerFactory;
 use Jfcherng\Roundcube\Plugin\CloudView\MimeHelper;
 use Jfcherng\Roundcube\Plugin\CloudView\RoundcubeHelper;
@@ -45,9 +46,9 @@ final class cloudview extends AbstractRoundcubePlugin
     /**
      * Information about attachments.
      *
-     * key: attachment ID, value: attachment info
+     * key: attachment ID, value: attachment object
      *
-     * @var array<string,array>
+     * @var array<string,Attachment>
      */
     private $attachments = [];
 
@@ -96,24 +97,25 @@ final class cloudview extends AbstractRoundcubePlugin
     {
         $rcmail = rcmail::get_instance();
 
-        foreach ((array) $p['object']->attachments as $attachment) {
+        foreach ((array) $p['object']->attachments as $rcAttachment) {
             // Roundcube's mimetype detection seems to be less accurate
             // (such as it detect "rtf" files as "application/msword" rather than "application/rtf")
-            // so we use the mimetype map from Apache to determine it by filename
-            $mimetype = MimeHelper::guessMimeTypeByFilename($attachment->filename) ?? $attachment->mimetype;
+            // so we use the mimetype map from Apache to determine it by filename if possible
+            $mimeType = MimeHelper::guessMimeTypeByFilename($rcAttachment->filename) ?? $rcAttachment->mimetype;
 
-            $_attachment = [
-                'filename' => $attachment->filename,
-                'mime_id' => $attachment->mime_id,
-                'mimetype' => $mimetype,
-                'size' => $attachment->size,
-            ];
-            $_attachment['is_supported'] = null !== $this->getSuggestedViewerIdForAttachment(
-                $_attachment,
-                (int) $this->prefs['viewer']
+            $attachment = Attachment::fromArray([]);
+            $attachment->setId($rcAttachment->mime_id);
+            $attachment->setFilename($rcAttachment->filename);
+            $attachment->setMimeType($mimeType);
+            $attachment->setSize($rcAttachment->size);
+            $attachment->setIsSupported(
+                null !== $this->getSuggestedViewerIdForAttachment(
+                    $attachment,
+                    (int) $this->prefs['viewer']
+                )
             );
 
-            $this->attachments[$attachment->mime_id] = $_attachment;
+            $this->attachments[$attachment->getId()] = $attachment;
         }
 
         $rcmail->output->set_env("{$this->ID}.attachments", $this->attachments);
@@ -315,9 +317,9 @@ final class cloudview extends AbstractRoundcubePlugin
             return;
         }
 
-        $attachment = \json_decode($info, true);
+        $attachment = Attachment::fromArray(\json_decode($info, true) ?? []);
 
-        $fileExt = \strtolower(\pathinfo($attachment['filename'], \PATHINFO_EXTENSION));
+        $fileExt = \strtolower(\pathinfo($attachment->getFilename(), \PATHINFO_EXTENSION));
         $fileDotExt = $fileExt ? ".{$fileExt}" : '';
         $tempFileBaseName = \hash('md5', $info . $rcmail->user->ID);
         $tempFilePath = $this->url("temp/{$rcmail->user->ID}/{$tempFileBaseName}{$fileDotExt}");
@@ -332,7 +334,7 @@ final class cloudview extends AbstractRoundcubePlugin
             @\file_put_contents("{$tempDir}/index.html", '', \LOCK_EX);
 
             $fp = \fopen($tempFileFullPath, 'w');
-            $rcmail->imap->get_message_part($uid, $attachment['mime_id'], null, null, $fp);
+            $rcmail->imap->get_message_part($uid, $attachment->getId(), null, null, $fp);
             \fclose($fp);
         }
 
@@ -359,12 +361,12 @@ final class cloudview extends AbstractRoundcubePlugin
     /**
      * Get the suggested viewer ID for attachment.
      *
-     * @param array    $attachment  the attachment information
-     * @param null|int $preferredId the preferred viewer ID
+     * @param Attachment $attachment  the attachment
+     * @param null|int   $preferredId the preferred viewer ID
      *
      * @return null|int the viewer ID or null if no suitable one
      */
-    private function getSuggestedViewerIdForAttachment(array $attachment, ?int $preferredId = null): ?int
+    private function getSuggestedViewerIdForAttachment(Attachment $attachment, ?int $preferredId = null): ?int
     {
         foreach ($this->getPreferredViewerIdSequence($preferredId) as $viewerId) {
             if (null === ($viewerFqcn = ViewerFactory::getViewerFqcnById($viewerId))) {
@@ -445,7 +447,7 @@ final class cloudview extends AbstractRoundcubePlugin
                 }
 
                 $attachmentId = $attachmentId[1];
-                $attachment = $this->attachments[$attachmentId] ?? ['is_supported' => false];
+                $attachment = $this->attachments[$attachmentId] ?? Attachment::fromArray([]);
                 $attachmentJson = \json_encode($attachment, \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE);
 
                 $button = html::a(
@@ -459,7 +461,7 @@ final class cloudview extends AbstractRoundcubePlugin
                 );
 
                 // add "data-with-cloudview" attribute to the <li> tag
-                $li = '<li data-with-cloudview="' . ($attachment['is_supported'] ? 1 : 0) . '"' . \substr($li, 3);
+                $li = '<li data-with-cloudview="' . (int) $attachment->getIsSupported() . '"' . \substr($li, 3);
 
                 // append the button into the <li> tag
                 $li = \substr($li, 0, -5) . $button . '</li>';
