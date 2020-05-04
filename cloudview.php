@@ -40,7 +40,7 @@ final class cloudview extends AbstractRoundcubePlugin
     public $hooks = [
         'message_load' => 'messageLoadHook',
         'settings_actions' => 'settingsActionsHook',
-        'template_object_messageattachments' => 'messageattachmentsHook',
+        'template_object_messageattachments' => 'templateObjectMessageattachmentsHook',
     ];
 
     /**
@@ -128,7 +128,7 @@ final class cloudview extends AbstractRoundcubePlugin
     /**
      * Add a button to the attachment popup menu.
      */
-    public function messageattachmentsHook(array $p): array
+    public function templateObjectMessageattachmentsHook(array $p): array
     {
         if (!$this->prefs['enabled']) {
             return $p;
