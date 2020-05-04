@@ -1,0 +1,74 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Jfcherng\Roundcube\Plugin\CloudView\Viewer;
+
+use rcube_plugin;
+
+abstract class AbstractViewer implements ViewerInterface
+{
+    /**
+     * Supported MIME types.
+     *
+     * @var array<string,bool>
+     */
+    const SUPPORTED_MIME_TYPES = [];
+
+    /**
+     * Does this viewer support viewing CORS files?
+     *
+     * Pure frontend viewers should not support viewing files across domain.
+     *
+     * @var bool
+     */
+    const IS_SUPPORT_CORS_FILE = true;
+
+    /**
+     * @var rcube_plugin
+     */
+    protected $rcubePlugin;
+
+    /**
+     * Set the rcube_plugin instance.
+     */
+    public function setRcubePlugin(rcube_plugin $rcubePlugin): void
+    {
+        $this->rcubePlugin = $rcubePlugin;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function isSupportedAttachment(array $attachment): bool
+    {
+        return isset(static::SUPPORTED_MIME_TYPES[$attachment['mimetype']]);
+    }
+
+    /**
+     * Format the string with variable context.
+     *
+     * This will replace each "{context_key}" with "context_value" in the string.
+     *
+     * @param string $str     the string
+     * @param array  $context the context
+     */
+    protected function formatString(string $str, array $context): string
+    {
+        foreach ($context as $key => $value) {
+            $str = \str_replace("{{$key}}", $value, $str);
+        }
+
+        return $str;
+    }
+
+    /**
+     * Determine whether the specified string is string fully formatted.
+     *
+     * @param string $str the string
+     */
+    protected function isStringFullyFormatted(string $str): bool
+    {
+        return false === \strpbrk($str, '{}');
+    }
+}

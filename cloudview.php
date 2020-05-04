@@ -5,6 +5,7 @@ declare(strict_types=1);
 include __DIR__ . '/lib/vendor/autoload.php';
 
 use Jfcherng\Roundcube\Plugin\CloudView\AbstractRoundcubePlugin;
+use Jfcherng\Roundcube\Plugin\CloudView\Factory\ViewerFactory;
 use Jfcherng\Roundcube\Plugin\CloudView\MimeHelper;
 use Jfcherng\Roundcube\Plugin\CloudView\RoundcubeHelper;
 
@@ -12,19 +13,10 @@ final class cloudview extends AbstractRoundcubePlugin
 {
     const VIEWER_GOOGLE_DOCS = 1;
     const VIEWER_MICROSOFT_OFFICE_WEB = 2;
+    const VIEWER_PDF_JS = 3;
 
     const VIEW_BUTTON_IN_ATTACHMENTSLIST = 1;
     const VIEW_BUTTON_IN_ATTACHMENTOPTIONSMENU = 2;
-
-    /**
-     * Cloud viewer URLs.
-     *
-     * @var string[]
-     */
-    const VIEWER_URLS = [
-        self::VIEWER_GOOGLE_DOCS => 'https://docs.google.com/viewer?embedded=true&url={DOCUMENT_URL}',
-        self::VIEWER_MICROSOFT_OFFICE_WEB => 'https://view.officeapps.live.com/op/view.aspx?src={DOCUMENT_URL}',
-    ];
 
     /**
      * {@inheritdoc}
@@ -109,13 +101,18 @@ final class cloudview extends AbstractRoundcubePlugin
             // so we use the mimetype map from Apache to determine it by filename
             $mimetype = MimeHelper::guessMimeTypeByFilename($attachment->filename) ?? $attachment->mimetype;
 
-            $this->attachments[$attachment->mime_id] = [
+            $_attachment = [
                 'filename' => $attachment->filename,
-                'is_supported' => MimeHelper::isSupportedMimeType($mimetype),
                 'mime_id' => $attachment->mime_id,
                 'mimetype' => $mimetype,
                 'size' => $attachment->size,
             ];
+            $_attachment['is_supported'] = null !== $this->getSuggestedViewerIdForAttachment(
+                $_attachment,
+                (int) $this->prefs['viewer']
+            );
+
+            $this->attachments[$attachment->mime_id] = $_attachment;
         }
 
         $rcmail->output->set_env("{$this->ID}.attachments", $this->attachments);
@@ -173,13 +170,16 @@ final class cloudview extends AbstractRoundcubePlugin
                     '_cloudview_enabled',
                     rcube_utils::INPUT_POST
                 ),
-                'viewer' => (string) rcube_utils::get_input_value(
+                'viewer' => (int) rcube_utils::get_input_value(
                     '_cloudview_viewer',
                     rcube_utils::INPUT_POST
                 ),
-                'view_button_layouts' => (array) rcube_utils::get_input_value(
-                    '_cloudview_view_button_layouts',
-                    rcube_utils::INPUT_POST
+                'view_button_layouts' => \array_map(
+                    'intval',
+                    (array) rcube_utils::get_input_value(
+                        '_cloudview_view_button_layouts',
+                        rcube_utils::INPUT_POST
+                    )
                 ),
             ]
         );
@@ -335,28 +335,82 @@ final class cloudview extends AbstractRoundcubePlugin
             \fclose($fp);
         }
 
-        $fileUrl = RoundcubeHelper::getSiteUrl() . $tempFilePath;
+        $viewerId = $this->getSuggestedViewerIdForAttachment($attachment, (int) $this->prefs['viewer']);
 
-        // PDF: local site viewer
-        if ($fileExt === 'pdf') {
-            $viewerUrl = RoundcubeHelper::getSiteUrl() . $this->url('assets/pdfjs-dist/web/viewer.html');
-            $viewUrl = $viewerUrl . '?' . \http_build_query(['file' => $fileUrl]);
-        }
-        // Others: external cloud viewer
-        else {
-            if ($this->config['is_dev_mode']) {
-                $fileUrl = $this->config['dev_mode_file_base_url'] . $tempFilePath;
-            }
+        if (null === $viewerId) {
+            $viewUrl = '';
+        } else {
+            $viewer = ViewerFactory::make($viewerId);
+            $viewer->setRcubePlugin($this);
 
-            $viewerUrl = self::VIEWER_URLS[$this->prefs['viewer']] ?? '';
-            $viewUrl = \strtr($viewerUrl, [
-                '{DOCUMENT_URL}' => \urlencode($fileUrl),
-            ]);
+            $fileUrl = $this->config['is_dev_mode'] && $viewer::IS_SUPPORT_CORS_FILE
+                ? $this->config['dev_mode_file_base_url'] . $tempFilePath
+                : $fileUrl = RoundcubeHelper::getSiteUrl() . $tempFilePath;
+
+            $viewUrl = $viewer->getViewableUrl(['document_url' => \urlencode($fileUrl)]) ?? '';
         }
 
         // trigger the frontend callback to open the cloud viewer window
         $callback && $rcmail->output->command($callback, ['message' => ['url' => $viewUrl]]);
         $rcmail->output->send();
+    }
+
+    /**
+     * Get the suggested viewer ID for attachment.
+     *
+     * @param array    $attachment  the attachment information
+     * @param null|int $preferredId the preferred viewer ID
+     *
+     * @return null|int the viewer ID or null if no suitable one
+     */
+    private function getSuggestedViewerIdForAttachment(array $attachment, ?int $preferredId = null): ?int
+    {
+        foreach ($this->getPreferredViewerIdSequence($preferredId) as $viewerId) {
+            if (null === ($viewerFqcn = ViewerFactory::getViewerFqcnById($viewerId))) {
+                continue;
+            }
+
+            if ($viewerFqcn::isSupportedAttachment($attachment)) {
+                return $viewerId;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Get the preferred viewer identifier sequence.
+     *
+     * @param null|int $preferredId the preferred viewer ID
+     *
+     * @return array the viewer ID sequence
+     */
+    private function getPreferredViewerIdSequence(?int $preferredId = null): array
+    {
+        $viewerIds = \array_keys(ViewerFactory::VIEWER_TABLE);
+
+        if (null === $preferredId) {
+            return $viewerIds;
+        }
+
+        // let the preferred viewer be the first to be tried
+        \usort($viewerIds, function (int $a, int $b) use ($preferredId): int {
+            if ($a === $b) {
+                return 0;
+            }
+
+            if ($a === $preferredId) {
+                return -1;
+            }
+
+            if ($b === $preferredId) {
+                return 1;
+            }
+
+            return 0;
+        });
+
+        return $viewerIds;
     }
 
     /**
