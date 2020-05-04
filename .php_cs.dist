@@ -65,10 +65,13 @@ $config = PhpCsFixer\Config::create()
     ->setFinder(
         PhpCsFixer\Finder::create()
             ->in(__DIR__)
+            // both localization and php files
+            ->name('/\.(inc|php)$/')
             // git worktree
             ->notPath('/branch-[^\\/]+/')
             // symfony
             ->exclude('bin')
+            ->exclude('lib')
             ->exclude('var')
             ->exclude('vendor')
     )
