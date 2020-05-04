@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Loading...</title>
+    <script src="assets/jquery.min.js"></script>
+  </head>
+
+  <xmp theme="united" style="display: none;"></xmp>
+
+  <script>
+    $.urlParam = function (name) {
+      var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+      if (results == null) {
+        return null;
+      } else {
+        return results[1] || 0;
+      }
+    };
+    url = $.urlParam('url');
+
+    if (url.indexOf('%3A%2F%2F') != -1) url = decodeURIComponent(url);
+
+    if (url.indexOf('dropbox.com') != -1 && url.indexOf('?dl=0') != -1)
+      url = url.replace('dl=0', 'dl=1');
+
+    // Fat ugly hack for old Safari
+    if (url.indexOf('https') == 0) {
+      ua = navigator.userAgent;
+      if (ua.indexOf('Safari') != -1 && ua.indexOf('Chrome') == -1) {
+        if (
+          ua.indexOf('Version/9.') > 0 ||
+          ua.indexOf('Version/8.') > 0 ||
+          ua.indexOf('Version/7.') > 0
+        ) {
+          url = url.replace('https', 'http');
+          console.log('Ugly hack for: ' + ua);
+        }
+      }
+    }
+
+    theme = $.urlParam('theme');
+    if (theme != null) {
+      $('xmp').attr('theme', theme);
+    }
+
+    errorHandler = function () {
+      alert('error loading ' + url);
+    };
+
+    jqXHR = $.get(/*'//cors-anywhere.herokuapp.com/' + */url, function (response) {
+      $('xmp').html(response);
+      if (0 == response.indexOf('<!')) errorHandler();
+      else {
+        title = url;
+        p = title.lastIndexOf('/');
+        if (p > 0) title = title.substring(p + 1);
+        p = title.indexOf('?');
+        if (p > 0) title = title.substring(0, p);
+        $('title').html(title);
+
+        $('head').append('<script src="assets/strapdown.min.js"><\/script>');
+      }
+    });
+    jqXHR.fail(errorHandler);
+  </script>
+</html>

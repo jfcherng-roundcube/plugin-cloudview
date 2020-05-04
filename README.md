@@ -26,7 +26,8 @@ This plugin will auto fallback to other viewers if the preferred one doesn't sup
 
 ### Other Formats
 
-- pdf (via [PDF.js](https://github.com/mozilla/pdf.js/))
+- md (Markdown, via [strapdown-zeta](https://github.com/chaitin/strapdown-zeta))
+- pdf (PDF, via [PDF.js](https://github.com/mozilla/pdf.js/))
 
 ## Requirements
 

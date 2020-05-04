@@ -1,0 +1,6 @@
+https://github.com/chaitin/strapdown-zeta
+
+Before building, note that
+
+- "jquery.min.js" needs to be replaced with a version 3.x.x one.
+- you may want to comment out image display as block in "strapdown.css"

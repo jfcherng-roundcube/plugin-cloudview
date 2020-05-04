@@ -7,6 +7,15 @@ namespace Jfcherng\Roundcube\Plugin\CloudView;
 final class MimeHelper
 {
     /**
+     * Extra MIME types that is not in Apache's list.
+     *
+     * @var array<string,string[]>
+     */
+    const EXTRA_MIME_MAP = [
+        'md' => ['text/markdown'],
+    ];
+
+    /**
      * Guess mimetype by the given filename.
      *
      * @param string $filename the filename
@@ -15,7 +24,11 @@ final class MimeHelper
     {
         static $mimeMap;
 
-        $mimeMap = $mimeMap ?? require __DIR__ . '/mime.types.php';
+        $mimeMap = $mimeMap ?? \array_merge(
+            (require __DIR__ . '/mime.types.php'),
+            self::EXTRA_MIME_MAP
+        );
+
         $ext = \pathinfo($filename, \PATHINFO_EXTENSION);
         $mimes = $mimeMap[$ext] ?? [];
 
