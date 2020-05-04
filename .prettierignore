@@ -9,6 +9,6 @@
 
 # ...
 /assets/**/*.min.*
-/assets/pdfjs-dist/
+/assets/vendor/
 /skins/**/*.min.*
 /scripts/

@@ -39,7 +39,7 @@ final class MarkdownJsViewer extends AbstractViewer
     public static function getViewerUrl(rcube_plugin $rcubePlugin): string
     {
         return RoundcubeHelper::getSiteUrl()
-            . $rcubePlugin->url('assets/strapdown-zeta/index.html')
+            . $rcubePlugin->url('assets/vendor/markdown-js/index.html')
             . '?url={document_url}';
     }
 }
