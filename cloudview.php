@@ -238,6 +238,7 @@ final class cloudview extends AbstractRoundcubePlugin
         // option: choose cloud viewer
         $objectCloudviewViewer = new html_select(['name' => '_cloudview_viewer', 'id' => '_cloudview_viewer']);
         $objectCloudviewViewer->add(
+            /** @todo ideally show all viewers with a sortable HTML list like https://jqueryui.com/sortable */
             [
                 rcmail::Q($this->gettext('viewer_microsoft_office_web')),
                 rcmail::Q($this->gettext('viewer_google_docs')),
@@ -359,7 +360,7 @@ final class cloudview extends AbstractRoundcubePlugin
 
             $fileUrl = $this->config['is_dev_mode'] && $viewer::IS_SUPPORT_CORS_FILE
                 ? $this->config['dev_mode_file_base_url'] . $tempFilePath
-                : $fileUrl = RoundcubeHelper::getSiteUrl() . $tempFilePath;
+                : RoundcubeHelper::getSiteUrl() . $tempFilePath;
 
             $viewUrl = $viewer->getViewableUrl(['document_url' => \urlencode($fileUrl)]) ?? '';
         }
