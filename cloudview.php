@@ -270,7 +270,7 @@ final class cloudview extends AbstractRoundcubePlugin
             // wrap every checkbox in a <div>
             \implode('', \array_map(
                 function (string $checkbox): string { return html::div(null, $checkbox); },
-                $buttonLayoutCheckboxes,
+                $buttonLayoutCheckboxes
             ))
         );
 
