@@ -14,6 +14,8 @@ with cloud viewers like Google Docs or Microsoft Office Web.
 
 ## Supported Formats
 
+This plugin will auto fallback to other viewers if the preferred one doesn't support the target format.
+
 ### Office Formats
 
 - **Text**: doc, docx, odt<sup>[1]</sup>, ott<sup>[1]</sup>
