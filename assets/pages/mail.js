@@ -15,15 +15,14 @@ const getAttachmentInfo = (attachmentId) =>
 /**
  * Open the attachment with cloud viewer.
  *
- * @param {?Object.<string, any>} attachmentInfo The attachment information
+ * @param {?Object.<string, any>} attachment The attachment information
  */
-const cloudview_openAttachment = (attachmentInfo) => {
+const cloudview_openAttachment = (attachment) => {
   rcmail.http_post(
     'plugin.cloudview.view',
     {
       _callback: 'plugin.cloudview.view-callback',
-      _uid: rcmail.env.uid,
-      _info: JSON.stringify(attachmentInfo),
+      _attachment: JSON.stringify(attachment),
     },
     rcmail.set_busy(true, 'loading')
   );

@@ -18,6 +18,7 @@ final class Attachment implements ArrayAccess, JsonSerializable
      */
     const JSON_SERIALIZE_PROPERTIES = [
         'id',
+        'uid',
         'filename',
         'mimeType',
         'size',
@@ -25,11 +26,18 @@ final class Attachment implements ArrayAccess, JsonSerializable
     ];
 
     /**
-     * The attachment ID.
+     * The attachment ID (unique if and only if in a message).
      *
      * @var string
      */
     private $id = '';
+
+    /**
+     * The global unique message ID.
+     *
+     * @var string
+     */
+    private $uid = '';
 
     /**
      * The attachment MIME type.
@@ -60,9 +68,15 @@ final class Attachment implements ArrayAccess, JsonSerializable
     private $isSupported = false;
 
     /**
+     * Return a string representation of the object.
+     */
+    public function __toString()
+    {
+        return \json_encode($this, \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
      * Set the ID.
-     *
-     * @param string $id The new value
      */
     public function setId(string $id): void
     {
@@ -78,9 +92,23 @@ final class Attachment implements ArrayAccess, JsonSerializable
     }
 
     /**
+     * Set the unique message ID.
+     */
+    public function setUid(string $uid): void
+    {
+        $this->uid = $uid;
+    }
+
+    /**
+     * Get the unique message ID.
+     */
+    public function getUid(): string
+    {
+        return $this->uid;
+    }
+
+    /**
      * Set the MIME type.
-     *
-     * @param string $mimeType the MIME type
      */
     public function setMimeType(string $mimeType): void
     {
@@ -97,8 +125,6 @@ final class Attachment implements ArrayAccess, JsonSerializable
 
     /**
      * Set the filename.
-     *
-     * @param string $filename the filename
      */
     public function setFilename(string $filename): void
     {
@@ -115,8 +141,6 @@ final class Attachment implements ArrayAccess, JsonSerializable
 
     /**
      * Set the file size in bytes.
-     *
-     * @param int $size the size
      */
     public function setSize(int $size): void
     {
@@ -133,8 +157,6 @@ final class Attachment implements ArrayAccess, JsonSerializable
 
     /**
      * Set whether this file is supported by this plugin.
-     *
-     * @param bool $isSupported indicate if supported
      */
     public function setIsSupported(bool $isSupported): void
     {

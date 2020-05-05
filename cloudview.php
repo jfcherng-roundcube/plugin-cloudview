@@ -96,7 +96,7 @@ final class cloudview extends AbstractRoundcubePlugin
     public function getDefaultPluginPreferences(): array
     {
         return [
-            'enabled' => 1,
+            'enabled' => true,
             'view_button_layouts' => $this->config['view_button_layouts'],
             'viewer_order' => $this->config['viewer_order'],
         ];
@@ -126,6 +126,8 @@ final class cloudview extends AbstractRoundcubePlugin
         /** @var rcmail_output_html */
         $output = $rcmail->output;
 
+        $uid = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_GET) ?? '';
+
         foreach ((array) $p['object']->attachments as $rcAttachment) {
             // Roundcube's mimetype detection seems to be less accurate
             // (such as it detect "rtf" files as "application/msword" rather than "application/rtf")
@@ -134,11 +136,12 @@ final class cloudview extends AbstractRoundcubePlugin
 
             $attachment = Attachment::fromArray([]);
             $attachment->setId($rcAttachment->mime_id);
+            $attachment->setUid($uid);
             $attachment->setFilename($rcAttachment->filename);
             $attachment->setMimeType($mimeType);
             $attachment->setSize($rcAttachment->size);
             $attachment->setIsSupported(
-                null !== $this->getSuggestedViewerIdForAttachment(
+                null !== $this->getAttachmentSuggestedViewerId(
                     $attachment,
                     $this->getViewerOrderArray()
                 )
@@ -181,7 +184,7 @@ final class cloudview extends AbstractRoundcubePlugin
         /** @var rcmail_output_html */
         $output = $rcmail->output;
 
-        $this->register_handler('plugin.body', [$this, 'settingsForm']);
+        $this->register_handler('plugin.body', [$this, 'getSettingsForm']);
 
         $output->set_pagetitle($this->gettext('plugin_settings_title'));
         $output->send('plugin');
@@ -196,14 +199,14 @@ final class cloudview extends AbstractRoundcubePlugin
         /** @var rcmail_output_html */
         $output = $rcmail->output;
 
-        $this->register_handler('plugin.body', [$this, 'settingsForm']);
+        $this->register_handler('plugin.body', [$this, 'getSettingsForm']);
         $output->set_pagetitle($this->gettext('plugin_settings_title'));
 
         $prefs = $rcmail->user->get_prefs();
         $prefs['cloudview'] = $this->prefs = \array_merge(
             $this->prefs,
             [
-                'enabled' => (int) rcube_utils::get_input_value(
+                'enabled' => (bool) (int) rcube_utils::get_input_value(
                     '_cloudview_enabled',
                     rcube_utils::INPUT_POST
                 ),
@@ -236,24 +239,44 @@ final class cloudview extends AbstractRoundcubePlugin
     }
 
     /**
-     * Output the plugin preferences form.
+     * Handler for plugin's "view" action.
      */
-    public function settingsForm(): string
+    public function viewAction(): void
+    {
+        $rcmail = rcmail::get_instance();
+        /** @var rcmail_output_json */
+        $output = $rcmail->output;
+
+        // get the post values
+        $callback = rcube_utils::get_input_value('_callback', rcube_utils::INPUT_POST);
+        $attachmentInfo = rcube_utils::get_input_value('_attachment', rcube_utils::INPUT_POST);
+
+        if (!$attachmentInfo) {
+            return;
+        }
+
+        $attachment = Attachment::fromArray(\json_decode($attachmentInfo, true) ?? []);
+        $this->saveAttachmentToLocal($attachment);
+
+        // trigger the frontend callback to open the cloud viewer window
+        $callback && $output->command($callback, [
+            'message' => [
+                'url' => $this->getAttachmentViewableUrl($attachment),
+            ],
+        ]);
+        $output->send();
+    }
+
+    /**
+     * Get the plugin settings form.
+     */
+    public function getSettingsForm(): string
     {
         $rcmail = rcmail::get_instance();
         /** @var rcmail_output_html */
         $output = $rcmail->output;
 
         $boxTitle = html::div(['class' => 'boxtitle'], rcmail::Q($this->gettext('plugin_settings_title')));
-
-        $saveButton = (new html_button())->show(
-            rcmail::Q($this->gettext('save')),
-            [
-                'type' => 'input',
-                'class' => 'btn button submit mainaction',
-                'onclick' => "return rcmail.command('plugin.cloudview.settings-save', '', this, event)",
-            ]
-        );
 
         $objectTable = new html_table(['cols' => 2, 'class' => 'propform']);
 
@@ -314,6 +337,14 @@ final class cloudview extends AbstractRoundcubePlugin
         );
 
         $table = $objectTable->show();
+        $saveButton = (new html_button())->show(
+            rcmail::Q($this->gettext('save')),
+            [
+                'type' => 'input',
+                'class' => 'btn button submit mainaction',
+                'onclick' => "return rcmail.command('plugin.cloudview.settings-save', '', this, event)",
+            ]
+        );
         $form = html::div(['class' => 'boxcontent'], $table . $saveButton);
 
         // responsive layout for the "elastic" skin
@@ -338,64 +369,59 @@ final class cloudview extends AbstractRoundcubePlugin
     }
 
     /**
-     * Handler for plugin's "view" action.
+     * Save an attachment to local.
+     *
+     * @param Attachment $attachment the attachment
      */
-    public function viewAction(): void
+    private function saveAttachmentToLocal(Attachment $attachment): void
     {
         $rcmail = rcmail::get_instance();
-        /** @var rcmail_output_json */
-        $output = $rcmail->output;
 
-        // get the post values
-        $callback = rcube_utils::get_input_value('_callback', rcube_utils::INPUT_POST);
-        $uid = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_POST);
-        $info = rcube_utils::get_input_value('_info', rcube_utils::INPUT_POST);
-
-        if (!$uid || !$info) {
-            return;
-        }
-
-        $attachment = Attachment::fromArray(\json_decode($info, true) ?? []);
-
-        $fileExt = \strtolower(\pathinfo($attachment->getFilename(), \PATHINFO_EXTENSION));
-        $fileDotExt = $fileExt ? ".{$fileExt}" : '';
-        $tempFileBaseName = \hash('md5', $info . $rcmail->user->ID);
-        $tempFilePath = $this->url("temp/{$rcmail->user->ID}/{$tempFileBaseName}{$fileDotExt}");
+        $fileFullPath = INSTALL_PATH . $this->getAttachmentTempPath($attachment);
 
         // save the attachment into temp directory
-        if (!\is_file($tempFileFullPath = INSTALL_PATH . $tempFilePath)) {
-            $tempDir = \dirname($tempFileFullPath);
+        if (!\is_file($fileFullPath)) {
+            $tempDir = \dirname($fileFullPath);
 
             @\mkdir($tempDir, 0777, true);
             // put an index.html to prevent from potential directory traversal
             @\file_put_contents("{$tempDir}/index.html", '', \LOCK_EX);
 
-            $fp = \fopen($tempFileFullPath, 'w');
-            $rcmail->imap->get_message_part($uid, $attachment->getId(), null, null, $fp);
+            $fp = \fopen($fileFullPath, 'w');
+            $rcmail->imap->get_message_part($attachment->getUid(), $attachment->getId(), null, null, $fp);
             \fclose($fp);
         }
+    }
 
-        // trigger the frontend callback to open the cloud viewer window
-        $callback && $output->command($callback, [
-            'message' => [
-                'url' => $this->getViewableUrlForAttachment($attachment, $tempFilePath),
-            ],
-        ]);
-        $output->send();
+    /**
+     * Get the temporary path for attachment.
+     *
+     * @param Attachment $attachment The attachment
+     *
+     * @return string the temporary path for attachment
+     */
+    private function getAttachmentTempPath(Attachment $attachment): string
+    {
+        $rcmail = rcmail::get_instance();
+
+        $fileExt = \strtolower(\pathinfo($attachment->getFilename(), \PATHINFO_EXTENSION));
+        $fileDotExt = $fileExt ? ".{$fileExt}" : '';
+        $fileBaseName = \hash('md5', (string) $attachment);
+
+        return $this->url("temp/{$rcmail->user->ID}/{$fileBaseName}{$fileDotExt}");
     }
 
     /**
      * Get the viewable URL for the attachment.
      *
-     * @param Attachment $attachment   the attachment
-     * @param string     $resourcePath the resource path (like plugins/cloudview/...)
+     * @param Attachment $attachment the attachment
      *
      * @return string the viewable URL for the attachment
      */
-    private function getViewableUrlForAttachment(Attachment $attachment, string $resourcePath): string
+    private function getAttachmentViewableUrl(Attachment $attachment): string
     {
         try {
-            $viewerId = $this->getSuggestedViewerIdForAttachment($attachment, $this->getViewerOrderArray());
+            $viewerId = $this->getAttachmentSuggestedViewerId($attachment, $this->getViewerOrderArray());
             $viewer = ViewerFactory::make($viewerId);
             $viewer->setRcubePlugin($this);
 
@@ -403,7 +429,7 @@ final class cloudview extends AbstractRoundcubePlugin
                 ? $this->config['dev_mode_file_base_url']
                 : RoundcubeHelper::getSiteUrl();
 
-            $fileUrl = $siteUrl . $resourcePath;
+            $fileUrl = $siteUrl . $this->getAttachmentTempPath($attachment);
 
             return $viewer->getViewableUrl(['document_url' => \urlencode($fileUrl)]) ?? '';
         } catch (ViewerNotFoundException $e) {
@@ -439,7 +465,7 @@ final class cloudview extends AbstractRoundcubePlugin
      *
      * @return null|int the viewer ID or null if no suitable one
      */
-    private function getSuggestedViewerIdForAttachment(Attachment $attachment, ?array $viewerOrder = []): ?int
+    private function getAttachmentSuggestedViewerId(Attachment $attachment, ?array $viewerOrder = []): ?int
     {
         foreach ($this->calculatePreferredViewerOrder($viewerOrder) as $viewerId) {
             if (ViewerFactory::getViewerFqcnById($viewerId)::canSupportAttachment($attachment)) {
