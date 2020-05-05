@@ -16,6 +16,7 @@ final class cloudview extends AbstractRoundcubePlugin
     const VIEWER_MICROSOFT_OFFICE_WEB = 2;
     const VIEWER_PDF_JS = 3;
     const VIEWER_MARKDOWN_JS = 4;
+    const VIEWER_STACK_EDIT = 5;
 
     const VIEW_BUTTON_IN_ATTACHMENTSLIST = 1;
     const VIEW_BUTTON_IN_ATTACHMENTOPTIONSMENU = 2;
@@ -391,6 +392,7 @@ final class cloudview extends AbstractRoundcubePlugin
             self::VIEWER_GOOGLE_DOCS => $this->gettext('viewer_google_docs'),
             self::VIEWER_PDF_JS => $this->gettext('viewer_pdf_js'),
             self::VIEWER_MARKDOWN_JS => $this->gettext('viewer_markdown_js'),
+            self::VIEWER_STACK_EDIT => $this->gettext('viewer_stack_edit'),
         ];
     }
 
