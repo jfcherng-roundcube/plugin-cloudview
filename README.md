@@ -10,19 +10,20 @@
 A Roundcube plugin which lets you directly view mail attachments in the browser
 with cloud viewers like Google Docs or Microsoft Office Web.
 
-![demo](https://raw.githubusercontent.com/jfcherng-roundcube/plugin-cloudview/master/docs/screenshot/demo.png)
+![cover](https://raw.githubusercontent.com/jfcherng-roundcube/plugin-cloudview/master/docs/screenshot/cover.png)
+
+<details>
+  <summary>Click me to see user settings page</summary>
+  <img src="https://raw.githubusercontent.com/jfcherng-roundcube/plugin-cloudview/master/docs/screenshot/settings.png">
+</details>
 
 ## Supported Formats
 
-This plugin will auto fallback to other viewers if the preferred one doesn't support the target format.
-
 ### Office Formats
 
-- **Text**: doc, docx, odt<sup>[1]</sup>, ott<sup>[1]</sup>
-- **Spreadsheet**: xls, xlsx, ods<sup>[1]</sup>, ots<sup>[1]</sup>
-- **Presentation**: ppt, pptx, odp<sup>[1]</sup>, otp<sup>[1]</sup>
-
-<sup>[1]</sup>: only available in Microsoft Office Web
+- **Text**: doc, docx, odt, ott
+- **Spreadsheet**: xls, xlsx, ods, ots
+- **Presentation**: ppt, pptx, odp, otp
 
 ### Other Formats
 
@@ -84,4 +85,4 @@ For example, execute `crontab -e` and add the following job
 ## Acknowledgement
 
 - The basic idea comes from https://github.com/brestows/cloudview-roundcube
-- This plugin is sponsored by [@Galandrix](https://github.com/Galandrix).
+- This plugin is initially sponsored by [@Galandrix](https://github.com/Galandrix).
