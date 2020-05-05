@@ -6,6 +6,7 @@ include __DIR__ . '/lib/vendor/autoload.php';
 
 use Jfcherng\Roundcube\Plugin\CloudView\AbstractRoundcubePlugin;
 use Jfcherng\Roundcube\Plugin\CloudView\Attachment;
+use Jfcherng\Roundcube\Plugin\CloudView\Exception\ViewerNotFoundException;
 use Jfcherng\Roundcube\Plugin\CloudView\Factory\ViewerFactory;
 use Jfcherng\Roundcube\Plugin\CloudView\MimeHelper;
 use Jfcherng\Roundcube\Plugin\CloudView\RoundcubeHelper;
@@ -20,6 +21,19 @@ final class cloudview extends AbstractRoundcubePlugin
 
     const VIEW_BUTTON_IN_ATTACHMENTSLIST = 1;
     const VIEW_BUTTON_IN_ATTACHMENTOPTIONSMENU = 2;
+
+    /**
+     * The viewer HTML localization information.
+     *
+     * @return array<int,string> [ viewer ID => localization key ]
+     */
+    const VIEWER_HTML_LOCALIZATIONS = [
+        self::VIEWER_MICROSOFT_OFFICE_WEB => 'viewer_microsoft_office_web',
+        self::VIEWER_GOOGLE_DOCS => 'viewer_google_docs',
+        self::VIEWER_PDF_JS => 'viewer_pdf_js',
+        self::VIEWER_MARKDOWN_JS => 'viewer_markdown_js',
+        self::VIEWER_STACK_EDIT => 'viewer_stack_edit',
+    ];
 
     /**
      * {@inheritdoc}
@@ -253,8 +267,8 @@ final class cloudview extends AbstractRoundcubePlugin
         // option: cloud viewer order
         $viewersSortable = '<h5>' . rcmail::Q($this->gettext('viewers_tried_from_top_to_buttom')) . '</h5>';
         $viewersSortable .= '<ol id="_cloudview_viewer_order" data-sortable>';
-        foreach ($this->getViewerHtmlInformation() as $vid => $vname) {
-            $viewersSortable .= '<li data-id="' . $vid . '">' . rcmail::Q($vname) . '</li>';
+        foreach ($this->getViewerHtmlInformation() as $viewerId => $viewerName) {
+            $viewersSortable .= '<li data-id="' . $viewerId . '">' . rcmail::Q($viewerName) . '</li>';
         }
         $viewersSortable .= '</ol>';
 
@@ -345,10 +359,9 @@ final class cloudview extends AbstractRoundcubePlugin
         $fileDotExt = $fileExt ? ".{$fileExt}" : '';
         $tempFileBaseName = \hash('md5', $info . $rcmail->user->ID);
         $tempFilePath = $this->url("temp/{$rcmail->user->ID}/{$tempFileBaseName}{$fileDotExt}");
-        $tempFileFullPath = INSTALL_PATH . $tempFilePath;
 
         // save the attachment into temp directory
-        if (!\is_file($tempFileFullPath)) {
+        if (!\is_file($tempFileFullPath = INSTALL_PATH . $tempFilePath)) {
             $tempDir = \dirname($tempFileFullPath);
 
             @\mkdir($tempDir, 0777, true);
@@ -360,24 +373,40 @@ final class cloudview extends AbstractRoundcubePlugin
             \fclose($fp);
         }
 
-        $viewerId = $this->getSuggestedViewerIdForAttachment($attachment, $this->getViewerOrderArray());
+        // trigger the frontend callback to open the cloud viewer window
+        $callback && $output->command($callback, [
+            'message' => [
+                'url' => $this->getViewableUrlForAttachment($attachment, $tempFilePath),
+            ],
+        ]);
+        $output->send();
+    }
 
-        if (null === $viewerId) {
-            $viewUrl = '';
-        } else {
+    /**
+     * Get the viewable URL for the attachment.
+     *
+     * @param Attachment $attachment   the attachment
+     * @param string     $resourcePath the resource path (like plugins/cloudview/...)
+     *
+     * @return string the viewable URL for the attachment
+     */
+    private function getViewableUrlForAttachment(Attachment $attachment, string $resourcePath): string
+    {
+        try {
+            $viewerId = $this->getSuggestedViewerIdForAttachment($attachment, $this->getViewerOrderArray());
             $viewer = ViewerFactory::make($viewerId);
             $viewer->setRcubePlugin($this);
 
-            $fileUrl = $this->config['is_dev_mode'] && $viewer::IS_SUPPORT_CORS_FILE
-                ? $this->config['dev_mode_file_base_url'] . $tempFilePath
-                : RoundcubeHelper::getSiteUrl() . $tempFilePath;
+            $siteUrl = $this->config['is_dev_mode'] && $viewer::IS_SUPPORT_CORS_FILE
+                ? $this->config['dev_mode_file_base_url']
+                : RoundcubeHelper::getSiteUrl();
 
-            $viewUrl = $viewer->getViewableUrl(['document_url' => \urlencode($fileUrl)]) ?? '';
+            $fileUrl = $siteUrl . $resourcePath;
+
+            return $viewer->getViewableUrl(['document_url' => \urlencode($fileUrl)]) ?? '';
+        } catch (ViewerNotFoundException $e) {
+            return '';
         }
-
-        // trigger the frontend callback to open the cloud viewer window
-        $callback && $output->command($callback, ['message' => ['url' => $viewUrl]]);
-        $output->send();
     }
 
     /**
@@ -387,13 +416,7 @@ final class cloudview extends AbstractRoundcubePlugin
      */
     private function getViewerHtmlInformation(): array
     {
-        return [
-            self::VIEWER_MICROSOFT_OFFICE_WEB => $this->gettext('viewer_microsoft_office_web'),
-            self::VIEWER_GOOGLE_DOCS => $this->gettext('viewer_google_docs'),
-            self::VIEWER_PDF_JS => $this->gettext('viewer_pdf_js'),
-            self::VIEWER_MARKDOWN_JS => $this->gettext('viewer_markdown_js'),
-            self::VIEWER_STACK_EDIT => $this->gettext('viewer_stack_edit'),
-        ];
+        return \array_map([$this, 'gettext'], self::VIEWER_HTML_LOCALIZATIONS);
     }
 
     /**

@@ -44,7 +44,7 @@ final class PdfJsViewer extends AbstractViewer
     public static function getViewerUrl(rcube_plugin $rcubePlugin): string
     {
         return RoundcubeHelper::getSiteUrl()
-            . $rcubePlugin->url('assets/vendor/pdfjs-dist/web/viewer.html')
+            . $rcubePlugin->url('assets/vendor/pdf-js/web/viewer.html')
             . '?file={document_url}';
     }
 }
