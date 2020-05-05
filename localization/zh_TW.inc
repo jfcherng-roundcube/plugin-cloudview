@@ -4,9 +4,9 @@ $labels = [];
 $labels['cloud_view_document'] = '雲端檢視';
 
 // settings page
-$labels['plugin_settings_title'] = '雲端文件檢視器';
+$labels['plugin_settings_title'] = '雲端檔案檢視器';
 $labels['plugin_enabled'] = '啟用外掛';
-$labels['select_viewer'] = '偏好的雲端文件檢視器';
+$labels['select_viewer'] = '偏好的雲端檔案檢視器';
 $labels['viewers_tried_from_top_to_buttom'] = '檢視器將會以由上到下的順序進行嘗試。你可以拖動他們來進行排序。';
 $labels['viewer_google_docs'] = 'Google Docs';
 $labels['viewer_microsoft_office_web'] = 'Microsoft Office Web';
