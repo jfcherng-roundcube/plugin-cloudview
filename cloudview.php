@@ -59,9 +59,18 @@ final class cloudview extends AbstractRoundcubePlugin
     {
         parent::init();
 
-        $this->include_stylesheet("{$this->skinPath}/main.css");
-        $this->include_script('assets/vendor/Sortable.min.js');
-        $this->include_script('assets/main.min.js');
+        $rcmail = rcmail::get_instance();
+
+        if ($rcmail->task === 'mail') {
+            $this->include_stylesheet("{$this->skinPath}/pages/mail.css");
+            $this->include_script('assets/pages/mail.min.js');
+        }
+
+        if ($rcmail->task === 'settings') {
+            $this->include_stylesheet("{$this->skinPath}/pages/settings.css");
+            $this->include_script('assets/vendor/Sortable.min.js');
+            $this->include_script('assets/pages/settings.min.js');
+        }
     }
 
     /**

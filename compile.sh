@@ -11,13 +11,17 @@ THREAD_CNT=$(getconf _NPROCESSORS_ONLN)
 PROJECT_ROOT=${SCRIPT_DIR}
 
 LESS_FILES=(
-    "skins/classic/main.less"
-    "skins/elastic/main.less"
-    "skins/larry/main.less"
+    "skins/classic/pages/mail.less"
+    "skins/classic/pages/settings.less"
+    "skins/elastic/pages/mail.less"
+    "skins/elastic/pages/settings.less"
+    "skins/larry/pages/mail.less"
+    "skins/larry/pages/settings.less"
 )
 
 JS_FILES=(
-    "assets/main.js"
+    "assets/pages/mail.js"
+    "assets/pages/settings.js"
 )
 
 PATH=${PROJECT_ROOT}/node_modules/.bin:${PATH}

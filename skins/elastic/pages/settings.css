@@ -1,0 +1,16 @@
+#cloudview-form .sortable li {
+  background: #ddd;
+  border: 1px dashed #666;
+  cursor: move;
+  margin-bottom: .4em;
+  padding: .2em .4em
+}
+#cloudview-form .sortable li.sortable-chosen {
+  background: #ff6
+}
+.listing.iconized li.cloudview > a:before {
+  content: '\f06e'
+}
+#cloudview-form label {
+  vertical-align: middle
+}

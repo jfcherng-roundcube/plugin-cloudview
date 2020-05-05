@@ -15,7 +15,7 @@ $(() => {
     // @see https://github.com/SortableJS/Sortable#options
     sortableViewers = Sortable.create($sortables[0], {
       animation: 150,
-      ghostClass: 'ghost-background',
+      ghostClass: '', // "sortable-chosen" by default
     });
 
     sortableViewers.sort(viewerOrder);
