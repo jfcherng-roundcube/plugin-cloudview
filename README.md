@@ -13,22 +13,47 @@ with cloud viewers like Google Docs or Microsoft Office Web.
 ![cover](https://raw.githubusercontent.com/jfcherng-roundcube/plugin-cloudview/master/docs/screenshot/cover.png)
 
 <details>
-  <summary>Click me to see user settings page</summary>
+  <summary>Click me to see the user settings page</summary>
   <img src="https://raw.githubusercontent.com/jfcherng-roundcube/plugin-cloudview/master/docs/screenshot/settings.png">
 </details>
 
-## Supported Formats
+## Viewers & Supported Formats
 
-### Office Formats
-
-- **Text**: doc, docx, odt, ott
-- **Spreadsheet**: xls, xlsx, ods, ots
-- **Presentation**: ppt, pptx, odp, otp
-
-### Other Formats
-
-- md (Markdown, via [strapdown-zeta](https://github.com/chaitin/strapdown-zeta))
-- pdf (PDF, via [PDF.js](https://github.com/mozilla/pdf.js/))
+<table>
+  <thead>
+    <tr>
+      <th>Viewer</th>
+      <th>Supported Formats</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Google Docs</td>
+      <td>
+        doc, docx, xls, xlsx, ppt, pptx
+      </td>
+    </tr>
+    <tr>
+      <td>Microsoft Office Web</td>
+      <td>
+        doc, docx, xls, xlsx, ppt, pptx,
+        odt, ott, ods, ots, odp, otp
+      </td>
+    </tr>
+    <tr>
+      <td><a href="https://stackedit.io/">StackEdit</a></td>
+      <td>md</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/mozilla/pdf.js/">PDF JS</a></td>
+      <td>pdf</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/chaitin/strapdown-zeta/">Markdown JS</a></td>
+      <td>md</td>
+    </tr>
+  </tbody>
+</table>
 
 ## Requirements
 
