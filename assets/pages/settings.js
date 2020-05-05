@@ -7,7 +7,7 @@ const prefs = rcmail.env['cloudview.prefs'] || {};
 let sortableViewers;
 
 $(() => {
-  const $sortables = $('#cloudview-form .viewers.sortable');
+  const $sortables = $('#_cloudview_viewer_order');
 
   if ($sortables.length) {
     const viewerOrder = (prefs.viewer_order || '').split(/,/g);
@@ -30,7 +30,6 @@ rcmail.addEventListener('init', (evt) => {
 
       $('#cloudview-form').append(`<input
         type="hidden"
-        id="cloudview_viewer_order"
         name="_cloudview_viewer_order"
         value="${viewerOrder.join(',')}"
       >`);

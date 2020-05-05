@@ -1,16 +1,19 @@
 @import (reference) '../../_variables';
 
 #cloudview-form {
-  .sortable {
-    li {
-      background: #ddd;
-      border: 1px dashed #666;
-      cursor: move;
-      margin-bottom: 0.4em;
-      padding: 0.2em 0.4em;
+  ul,
+  ol {
+    &[data-sortable] {
+      li {
+        background: #ddd;
+        border: 1px dashed #666;
+        cursor: move;
+        margin-bottom: 0.4em;
+        padding: 0.2em 0.4em;
 
-      &.sortable-chosen {
-        background: #ff6;
+        &.sortable-chosen {
+          background: #ff6;
+        }
       }
     }
   }

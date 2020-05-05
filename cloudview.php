@@ -251,7 +251,7 @@ final class cloudview extends AbstractRoundcubePlugin
 
         // option: cloud viewer order
         $viewersSortable = '<h5>' . rcmail::Q($this->gettext('viewers_tried_from_top_to_buttom')) . '</h5>';
-        $viewersSortable .= '<ol class="viewers sortable">';
+        $viewersSortable .= '<ol id="_cloudview_viewer_order" data-sortable>';
         foreach ($this->getViewerHtmlInformation() as $vid => $vname) {
             $viewersSortable .= '<li data-id="' . $vid . '">' . rcmail::Q($vname) . '</li>';
         }
