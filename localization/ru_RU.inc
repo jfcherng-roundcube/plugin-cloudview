@@ -12,3 +12,4 @@ $labels['viewer_microsoft_office_web'] = 'Microsoft Office Web';
 $labels['viewer_pdf_js'] = 'PDF (JS)';
 $labels['viewer_markdown_js'] = 'Markdown (JS)';
 $labels['viewer_stack_edit'] = 'StackEdit';
+$labels['viewer_psd_js'] = 'PSD (JS)';

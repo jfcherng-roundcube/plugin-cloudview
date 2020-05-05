@@ -1,0 +1,37 @@
+<!-- @see https://codepen.io/MAX_3/pen/RpxjLW -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>PSD JS Viewer</title>
+    <link rel="stylesheet" type="text/css" href="assets/main.css">
+    <script src="assets/jquery.min.js"></script>
+    <script src="assets/psd.min.js"></script>
+    <script src="assets/main.js"></script>
+  </head>
+
+  <body id="dropzone">
+    <span id="name"></span>
+    <input id="num" type="range">
+    <div id="psd"></div>
+
+    <script>
+      function getUrlParameter(sParam) {
+        var sPageURL = window.location.search.substring(1),
+          sURLVariables = sPageURL.split('&'),
+          sParameterName,
+          i;
+
+        for (i = 0; i < sURLVariables.length; i++) {
+          sParameterName = sURLVariables[i].split('=');
+
+          if (sParameterName[0] === sParam) {
+            return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+          }
+        }
+      };
+
+      psd(getUrlParameter('url'));
+    </script>
+  </body>
+</html>

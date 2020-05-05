@@ -11,6 +11,7 @@ use Jfcherng\Roundcube\Plugin\CloudView\Viewer\GoogleDocsViewer;
 use Jfcherng\Roundcube\Plugin\CloudView\Viewer\MarkdownJsViewer;
 use Jfcherng\Roundcube\Plugin\CloudView\Viewer\MicrosoftOfficeWebViewer;
 use Jfcherng\Roundcube\Plugin\CloudView\Viewer\PdfJsViewer;
+use Jfcherng\Roundcube\Plugin\CloudView\Viewer\PsdJsViewer;
 use Jfcherng\Roundcube\Plugin\CloudView\Viewer\StackEditViewer;
 
 final class ViewerFactory
@@ -26,6 +27,7 @@ final class ViewerFactory
         cloudview::VIEWER_PDF_JS => PdfJsViewer::class,
         cloudview::VIEWER_MARKDOWN_JS => MarkdownJsViewer::class,
         cloudview::VIEWER_STACK_EDIT => StackEditViewer::class,
+        cloudview::VIEWER_PSD_JS => PsdJsViewer::class,
     ];
 
     /**

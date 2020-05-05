@@ -18,6 +18,7 @@ final class cloudview extends AbstractRoundcubePlugin
     const VIEWER_PDF_JS = 3;
     const VIEWER_MARKDOWN_JS = 4;
     const VIEWER_STACK_EDIT = 5;
+    const VIEWER_PSD_JS = 6;
 
     const VIEW_BUTTON_IN_ATTACHMENTSLIST = 1;
     const VIEW_BUTTON_IN_ATTACHMENTOPTIONSMENU = 2;
@@ -33,6 +34,7 @@ final class cloudview extends AbstractRoundcubePlugin
         self::VIEWER_PDF_JS => 'viewer_pdf_js',
         self::VIEWER_MARKDOWN_JS => 'viewer_markdown_js',
         self::VIEWER_STACK_EDIT => 'viewer_stack_edit',
+        self::VIEWER_PSD_JS => 'viewer_psd_js',
     ];
 
     /**

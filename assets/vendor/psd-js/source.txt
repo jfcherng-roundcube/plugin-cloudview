@@ -1,0 +1,3 @@
+meltingice-psd.js-v3.2.0-29-g333dd14.zip
+
+https://github.com/meltingice/psd.js
