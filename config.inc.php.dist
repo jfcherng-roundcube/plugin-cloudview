@@ -9,14 +9,19 @@
 $config = [];
 
 /**
- * The default viewer if the user has not set one.
+ * The default viewer order if the user has not set one.
  *
- * @type int
+ * @type string
  *
- * @value cloudview::VIEWER_GOOGLE_DOCS
- * @value cloudview::VIEWER_MICROSOFT_OFFICE_WEB
+ * @values cloudview::VIEWER_GOOGLE_DOCS
+ * @values cloudview::VIEWER_MICROSOFT_OFFICE_WEB
+ *
+ * For more values, see "cloudview.php"
  */
-$config['viewer'] = cloudview::VIEWER_MICROSOFT_OFFICE_WEB;
+$config['viewer_order'] = implode(',', [
+    cloudview::VIEWER_MICROSOFT_OFFICE_WEB,
+    cloudview::VIEWER_GOOGLE_DOCS,
+]);
 
 /**
  * The default view button layouts if the user has not set one.

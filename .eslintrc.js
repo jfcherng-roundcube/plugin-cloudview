@@ -15,6 +15,7 @@ module.exports = {
   globals: {
     $: true,
     jQuery: true,
+    Sortable: true,
   },
   extends: ['eslint:recommended', 'eslint-config-prettier'],
   plugins: ['prettier'],

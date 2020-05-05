@@ -4,6 +4,12 @@
 #cloudview-form label {
   vertical-align: middle
 }
+#cloudview-form .sortable li {
+  cursor: move
+}
+#cloudview-form .sortable .ghost-background {
+  background: #ff0
+}
 .attachmentslist li[data-with-cloudview] a.cloudview-preview-link {
   display: none
 }

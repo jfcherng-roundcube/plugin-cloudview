@@ -41,7 +41,7 @@ abstract class AbstractViewer implements ViewerInterface
     /**
      * {@inheritdoc}
      */
-    public static function isSupportedAttachment(Attachment $attachment): bool
+    public static function canSupportAttachment(Attachment $attachment): bool
     {
         return isset(static::SUPPORTED_MIME_TYPES[$attachment->getMimeType()]);
     }

@@ -68,4 +68,14 @@ final class ViewerFactory
     {
         return self::VIEWER_TABLE[$id] ?? null;
     }
+
+    /**
+     * Determine whether the specified viewer exists.
+     *
+     * @param int $id the viewer ID
+     */
+    public static function hasViewer(int $id): bool
+    {
+        return null !== self::getViewerFqcnById($id);
+    }
 }

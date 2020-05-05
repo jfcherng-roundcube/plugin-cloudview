@@ -22,5 +22,5 @@ interface ViewerInterface
      *
      * @param Attachment $attachment the attachment
      */
-    public static function isSupportedAttachment(Attachment $attachment): bool;
+    public static function canSupportAttachment(Attachment $attachment): bool;
 }
