@@ -24,6 +24,7 @@ with cloud viewers like Google Docs or Microsoft Office Web.
     <tr>
       <th>Viewer</th>
       <th>Supported Formats</th>
+      <th>3rd-party Server</th>
     </tr>
   </thead>
   <tbody>
@@ -32,6 +33,7 @@ with cloud viewers like Google Docs or Microsoft Office Web.
       <td>
         doc, docx, xls, xlsx, ppt, pptx
       </td>
+      <td>Yes</td>
     </tr>
     <tr>
       <td>Microsoft Office Web</td>
@@ -39,18 +41,22 @@ with cloud viewers like Google Docs or Microsoft Office Web.
         doc, docx, xls, xlsx, ppt, pptx,
         odt, ott, ods, ots, odp, otp
       </td>
+      <td>Yes</td>
     </tr>
     <tr>
       <td><a href="https://stackedit.io/">StackEdit</a></td>
       <td>md</td>
+      <td>Yes</td>
     </tr>
     <tr>
       <td><a href="https://github.com/mozilla/pdf.js/">PDF JS</a></td>
       <td>pdf</td>
+      <td>No</td>
     </tr>
     <tr>
       <td><a href="https://github.com/chaitin/strapdown-zeta/">Markdown JS</a></td>
       <td>md</td>
+      <td>No</td>
     </tr>
   </tbody>
 </table>
