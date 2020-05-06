@@ -78,7 +78,7 @@ Different environments may work as well without guarantee.
 
 ## How to install this plugin in Roundcube
 
-### Install via Composer
+### Install via Composer (Recommended)
 
 This plugin has been published on [Packagist](https://packagist.org) by the name of [jfcherng-roundcube/cloudview](https://packagist.org/packages/jfcherng-roundcube/cloudview).
 
