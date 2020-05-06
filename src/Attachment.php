@@ -68,6 +68,15 @@ final class Attachment implements ArrayAccess, JsonSerializable
     private $isSupported = false;
 
     /**
+     * Construct a new instance.
+     *
+     * Use ::fromArray() to create an instance
+     */
+    private function __construct()
+    {
+    }
+
+    /**
      * Return a string representation of the object.
      */
     public function __toString()
