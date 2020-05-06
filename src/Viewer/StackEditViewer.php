@@ -10,7 +10,7 @@ final class StackEditViewer extends AbstractViewer
      * {@inheritdoc}
      */
     const SUPPORTED_MIME_TYPES = [
-        'text/markdown' => true,
+        'text/markdown',
     ];
 
     /**

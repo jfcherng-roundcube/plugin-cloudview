@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Jfcherng\Roundcube\Plugin\CloudView\Viewer;
 
-use Jfcherng\Roundcube\Plugin\CloudView\Attachment;
+use Jfcherng\Roundcube\Plugin\CloudView\DataStructure\Attachment;
 
 interface ViewerInterface
 {

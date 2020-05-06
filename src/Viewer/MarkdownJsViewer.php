@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Jfcherng\Roundcube\Plugin\CloudView\Viewer;
 
-use Jfcherng\Roundcube\Plugin\CloudView\RoundcubeHelper;
+use Jfcherng\Roundcube\Plugin\CloudView\Helper\RoundcubeHelper;
 use rcube_plugin;
 
 final class MarkdownJsViewer extends AbstractViewer
@@ -13,7 +13,7 @@ final class MarkdownJsViewer extends AbstractViewer
      * {@inheritdoc}
      */
     const SUPPORTED_MIME_TYPES = [
-        'text/markdown' => true,
+        'text/markdown',
     ];
 
     /**

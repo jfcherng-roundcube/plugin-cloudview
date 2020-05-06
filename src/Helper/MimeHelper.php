@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Jfcherng\Roundcube\Plugin\CloudView;
+namespace Jfcherng\Roundcube\Plugin\CloudView\Helper;
 
 final class MimeHelper
 {

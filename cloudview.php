@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 include __DIR__ . '/lib/vendor/autoload.php';
 
-use Jfcherng\Roundcube\Plugin\CloudView\AbstractRoundcubePlugin;
-use Jfcherng\Roundcube\Plugin\CloudView\Attachment;
+use Jfcherng\Roundcube\Plugin\CloudView\DataStructure\Attachment;
 use Jfcherng\Roundcube\Plugin\CloudView\Exception\ViewerNotFoundException;
 use Jfcherng\Roundcube\Plugin\CloudView\Factory\ViewerFactory;
-use Jfcherng\Roundcube\Plugin\CloudView\MimeHelper;
-use Jfcherng\Roundcube\Plugin\CloudView\RoundcubeHelper;
+use Jfcherng\Roundcube\Plugin\CloudView\Helper\AbstractRoundcubePlugin;
+use Jfcherng\Roundcube\Plugin\CloudView\Helper\MimeHelper;
+use Jfcherng\Roundcube\Plugin\CloudView\Helper\RoundcubeHelper;
 
 final class cloudview extends AbstractRoundcubePlugin
 {
@@ -22,20 +22,6 @@ final class cloudview extends AbstractRoundcubePlugin
 
     const VIEW_BUTTON_IN_ATTACHMENTSLIST = 1;
     const VIEW_BUTTON_IN_ATTACHMENTOPTIONSMENU = 2;
-
-    /**
-     * The viewer HTML localization information.
-     *
-     * @return array<int,string> [ viewer ID => localization key ]
-     */
-    const VIEWER_HTML_LOCALIZATIONS = [
-        self::VIEWER_MICROSOFT_OFFICE_WEB => 'viewer_microsoft_office_web',
-        self::VIEWER_GOOGLE_DOCS => 'viewer_google_docs',
-        self::VIEWER_PDF_JS => 'viewer_pdf_js',
-        self::VIEWER_MARKDOWN_JS => 'viewer_markdown_js',
-        self::VIEWER_STACK_EDIT => 'viewer_stack_edit',
-        self::VIEWER_PSD_JS => 'viewer_psd_js',
-    ];
 
     /**
      * {@inheritdoc}
@@ -292,7 +278,7 @@ final class cloudview extends AbstractRoundcubePlugin
         // option: cloud viewer order
         $viewersSortable = '<h5>' . rcmail::Q($this->gettext('viewers_tried_from_top_to_buttom')) . '</h5>';
         $viewersSortable .= '<ol id="_cloudview_viewer_order" data-sortable>';
-        foreach ($this->getViewerHtmlInformation() as $viewerId => $viewerName) {
+        foreach ($this->getLocalizedViewerNames() as $viewerId => $viewerName) {
             $viewersSortable .= '<li data-id="' . $viewerId . '">' . rcmail::Q($viewerName) . '</li>';
         }
         $viewersSortable .= '</ol>';
@@ -438,13 +424,25 @@ final class cloudview extends AbstractRoundcubePlugin
     }
 
     /**
-     * Get the viewer HTML information.
+     * Get localized viewer names.
      *
      * @return array<int,string> [ viewer ID => localized viewer name ]
      */
-    private function getViewerHtmlInformation(): array
+    private function getLocalizedViewerNames(): array
     {
-        return \array_map([$this, 'gettext'], self::VIEWER_HTML_LOCALIZATIONS);
+        static $localizations;
+
+        return $localizations = $localizations ?? \array_map(
+            function (string $fqcn): string {
+                // "...\CloudView\Viewer\GoogleDocsViewer" to "GoogleDocs"
+                $transKey = \substr(\basename($fqcn), 0, -6);
+                // "GoogleDocs" to "viewer_google_docs"
+                $transKey = 'viewer' . \strtolower(\preg_replace('/[A-Z]/S', '_$0', $transKey));
+
+                return $this->gettext($transKey);
+            },
+            ViewerFactory::VIEWER_TABLE
+        );
     }
 
     /**
@@ -461,13 +459,13 @@ final class cloudview extends AbstractRoundcubePlugin
      * Get the suggested viewer ID for attachment.
      *
      * @param Attachment $attachment  the attachment
-     * @param null|int[] $viewerOrder the viewer order
+     * @param int[]      $viewerOrder the viewer order
      *
      * @return null|int the viewer ID or null if no suitable one
      */
-    private function getAttachmentSuggestedViewerId(Attachment $attachment, ?array $viewerOrder = []): ?int
+    private function getAttachmentSuggestedViewerId(Attachment $attachment, array $viewerOrder = []): ?int
     {
-        foreach ($this->calculatePreferredViewerOrder($viewerOrder) as $viewerId) {
+        foreach ($this->getPreferredViewerOrder($viewerOrder) as $viewerId) {
             if (ViewerFactory::getViewerFqcnById($viewerId)::canSupportAttachment($attachment)) {
                 return $viewerId;
             }
@@ -479,21 +477,18 @@ final class cloudview extends AbstractRoundcubePlugin
     /**
      * Get the preferred viewer ID order.
      *
-     * @param null|int[] $viewerOrder the (partial) viewer order
+     * @param int[] $viewerOrder the (partial) viewer order
      *
      * @return int[] the viewer ID order
      */
-    private function calculatePreferredViewerOrder(?array $viewerOrder = []): array
+    private function getPreferredViewerOrder(array $viewerOrder = []): array
     {
-        $viewerOrder = $viewerOrder ?? [];
         $viewerIds = \array_keys(ViewerFactory::VIEWER_TABLE);
+        $viewerOrder = \array_filter($viewerOrder, function (int $viewerId): bool {
+            return ViewerFactory::hasViewer($viewerId);
+        });
 
-        return \array_filter(
-            \array_unique(\array_merge($viewerOrder, $viewerIds)),
-            function (int $viewerId): bool {
-                return ViewerFactory::hasViewer($viewerId);
-            }
-        );
+        return \array_unique(\array_merge($viewerOrder, $viewerIds));
     }
 
     /**

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Jfcherng\Roundcube\Plugin\CloudView\Viewer;
 
-use Jfcherng\Roundcube\Plugin\CloudView\RoundcubeHelper;
+use Jfcherng\Roundcube\Plugin\CloudView\Helper\RoundcubeHelper;
 use rcube_plugin;
 
 final class PdfJsViewer extends AbstractViewer
@@ -13,12 +13,12 @@ final class PdfJsViewer extends AbstractViewer
      * {@inheritdoc}
      */
     const SUPPORTED_MIME_TYPES = [
-        'application/acrobat' => true,
-        'application/pdf' => true,
-        'application/x-pdf' => true,
-        'applications/vnd.pdf' => true,
-        'text/pdf' => true,
-        'text/x-pdf' => true,
+        'application/acrobat',
+        'application/pdf',
+        'application/x-pdf',
+        'applications/vnd.pdf',
+        'text/pdf',
+        'text/x-pdf',
     ];
 
     /**

@@ -11,23 +11,23 @@ final class GoogleDocsViewer extends AbstractViewer
      */
     const SUPPORTED_MIME_TYPES = [
         // text
-        'application/doc' => true,
-        'application/ms-doc' => true,
-        'application/msword' => true,
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => true,
+        'application/doc',
+        'application/ms-doc',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         // spreadsheet
-        'application/excel' => true,
-        'application/vnd.ms-excel' => true,
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => true,
-        'application/x-excel' => true,
-        'application/x-msexcel' => true,
+        'application/excel',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/x-excel',
+        'application/x-msexcel',
         // presentation
-        'application/mspowerpoint' => true,
-        'application/powerpoint' => true,
-        'application/vnd.ms-powerpoint' => true,
-        'application/vnd.openxmlformats-officedocument.presentationml.presentation' => true,
-        'application/vnd.openxmlformats-officedocument.presentationml.slideshow' => true,
-        'application/x-mspowerpoint' => true,
+        'application/mspowerpoint',
+        'application/powerpoint',
+        'application/vnd.ms-powerpoint',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'application/vnd.openxmlformats-officedocument.presentationml.slideshow',
+        'application/x-mspowerpoint',
     ];
 
     /**
