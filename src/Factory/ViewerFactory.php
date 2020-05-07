@@ -4,34 +4,12 @@ declare(strict_types=1);
 
 namespace Jfcherng\Roundcube\Plugin\CloudView\Factory;
 
-use cloudview;
 use Jfcherng\Roundcube\Plugin\CloudView\Exception\ViewerNotFoundException;
+use Jfcherng\Roundcube\Plugin\CloudView\Helper\PluginConst;
 use Jfcherng\Roundcube\Plugin\CloudView\Viewer\AbstractViewer;
-use Jfcherng\Roundcube\Plugin\CloudView\Viewer\GoogleDocsViewer;
-use Jfcherng\Roundcube\Plugin\CloudView\Viewer\HtmlJsViewer;
-use Jfcherng\Roundcube\Plugin\CloudView\Viewer\MarkdownJsViewer;
-use Jfcherng\Roundcube\Plugin\CloudView\Viewer\MicrosoftOfficeWebViewer;
-use Jfcherng\Roundcube\Plugin\CloudView\Viewer\PdfJsViewer;
-use Jfcherng\Roundcube\Plugin\CloudView\Viewer\PsdJsViewer;
-use Jfcherng\Roundcube\Plugin\CloudView\Viewer\StackEditViewer;
 
 final class ViewerFactory
 {
-    /**
-     * The map of viewer id to viewer FQCN.
-     *
-     * @var array<int,string>
-     */
-    const VIEWER_TABLE = [
-        cloudview::VIEWER_GOOGLE_DOCS => GoogleDocsViewer::class,
-        cloudview::VIEWER_MICROSOFT_OFFICE_WEB => MicrosoftOfficeWebViewer::class,
-        cloudview::VIEWER_PDF_JS => PdfJsViewer::class,
-        cloudview::VIEWER_MARKDOWN_JS => MarkdownJsViewer::class,
-        cloudview::VIEWER_STACK_EDIT => StackEditViewer::class,
-        cloudview::VIEWER_PSD_JS => PsdJsViewer::class,
-        cloudview::VIEWER_HTML_JS => HtmlJsViewer::class,
-    ];
-
     /**
      * Viewer singletons.
      *
@@ -72,7 +50,7 @@ final class ViewerFactory
      */
     public static function getViewerFqcnById(int $id): ?string
     {
-        return self::VIEWER_TABLE[$id] ?? null;
+        return PluginConst::VIEWER_TABLE[$id] ?? null;
     }
 
     /**

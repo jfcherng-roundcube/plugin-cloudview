@@ -9,21 +9,11 @@ use Jfcherng\Roundcube\Plugin\CloudView\Exception\ViewerNotFoundException;
 use Jfcherng\Roundcube\Plugin\CloudView\Factory\ViewerFactory;
 use Jfcherng\Roundcube\Plugin\CloudView\Helper\AbstractRoundcubePlugin;
 use Jfcherng\Roundcube\Plugin\CloudView\Helper\MimeHelper;
+use Jfcherng\Roundcube\Plugin\CloudView\Helper\PluginConst;
 use Jfcherng\Roundcube\Plugin\CloudView\Helper\RoundcubeHelper;
 
 final class cloudview extends AbstractRoundcubePlugin
 {
-    const VIEWER_GOOGLE_DOCS = 1;
-    const VIEWER_MICROSOFT_OFFICE_WEB = 2;
-    const VIEWER_PDF_JS = 3;
-    const VIEWER_MARKDOWN_JS = 4;
-    const VIEWER_STACK_EDIT = 5;
-    const VIEWER_PSD_JS = 6;
-    const VIEWER_HTML_JS = 7;
-
-    const VIEW_BUTTON_IN_ATTACHMENTSLIST = 1;
-    const VIEW_BUTTON_IN_ATTACHMENTOPTIONSMENU = 2;
-
     /**
      * {@inheritdoc}
      */
@@ -151,11 +141,11 @@ final class cloudview extends AbstractRoundcubePlugin
             return $p;
         }
 
-        if (\in_array(self::VIEW_BUTTON_IN_ATTACHMENTOPTIONSMENU, $this->prefs['view_button_layouts'])) {
+        if (\in_array(PluginConst::VIEW_BUTTON_IN_ATTACHMENTOPTIONSMENU, $this->prefs['view_button_layouts'])) {
             $this->addButton_BUTTON_IN_ATTACHMENTOPTIONSMENU($p);
         }
 
-        if (\in_array(self::VIEW_BUTTON_IN_ATTACHMENTSLIST, $this->prefs['view_button_layouts'])) {
+        if (\in_array(PluginConst::VIEW_BUTTON_IN_ATTACHMENTSLIST, $this->prefs['view_button_layouts'])) {
             $this->addButton_BUTTON_IN_ATTACHMENTSLIST($p);
         }
 
@@ -293,10 +283,10 @@ final class cloudview extends AbstractRoundcubePlugin
             (new html_checkbox([
                 'name' => '_cloudview_view_button_layouts[]',
                 'id' => '_cloudview_view_button_layout_in_attachmentslist',
-                'value' => self::VIEW_BUTTON_IN_ATTACHMENTSLIST,
+                'value' => PluginConst::VIEW_BUTTON_IN_ATTACHMENTSLIST,
             ]))->show(
-                \in_array(self::VIEW_BUTTON_IN_ATTACHMENTSLIST, $this->prefs['view_button_layouts'])
-                    ? self::VIEW_BUTTON_IN_ATTACHMENTSLIST : -1
+                \in_array(PluginConst::VIEW_BUTTON_IN_ATTACHMENTSLIST, $this->prefs['view_button_layouts'])
+                    ? PluginConst::VIEW_BUTTON_IN_ATTACHMENTSLIST : -1
             ) . html::label(
                 '_cloudview_view_button_layout_in_attachmentslist',
                 rcmail::Q($this->gettext('view_button_layout_in_attachmentslist'))
@@ -305,10 +295,10 @@ final class cloudview extends AbstractRoundcubePlugin
             (new html_checkbox([
                 'name' => '_cloudview_view_button_layouts[]',
                 'id' => '_cloudview_view_button_layout_in_attachmentoptionsmenu',
-                'value' => self::VIEW_BUTTON_IN_ATTACHMENTOPTIONSMENU,
+                'value' => PluginConst::VIEW_BUTTON_IN_ATTACHMENTOPTIONSMENU,
             ]))->show(
-                \in_array(self::VIEW_BUTTON_IN_ATTACHMENTOPTIONSMENU, $this->prefs['view_button_layouts'])
-                    ? self::VIEW_BUTTON_IN_ATTACHMENTOPTIONSMENU : -1
+                \in_array(PluginConst::VIEW_BUTTON_IN_ATTACHMENTOPTIONSMENU, $this->prefs['view_button_layouts'])
+                    ? PluginConst::VIEW_BUTTON_IN_ATTACHMENTOPTIONSMENU : -1
             ) . html::label(
                 '_cloudview_view_button_layout_in_attachmentoptionsmenu',
                 rcmail::Q($this->gettext('view_button_layout_in_attachmentoptionsmenu'))
@@ -442,7 +432,7 @@ final class cloudview extends AbstractRoundcubePlugin
 
                 return $this->gettext($transKey);
             },
-            ViewerFactory::VIEWER_TABLE
+            PluginConst::VIEWER_TABLE
         );
     }
 
@@ -484,7 +474,7 @@ final class cloudview extends AbstractRoundcubePlugin
      */
     private function getPreferredViewerOrder(array $viewerOrder = []): array
     {
-        $viewerIds = \array_keys(ViewerFactory::VIEWER_TABLE);
+        $viewerIds = \array_keys(PluginConst::VIEWER_TABLE);
         $viewerOrder = \array_filter($viewerOrder, function (int $viewerId): bool {
             return ViewerFactory::hasViewer($viewerId);
         });

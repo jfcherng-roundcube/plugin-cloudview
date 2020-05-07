@@ -1,5 +1,7 @@
 <?php
 
+use Jfcherng\Roundcube\Plugin\CloudView\Helper\PluginConst;
+
 /**
  * This file is mean to specify all default settings.
  *
@@ -13,14 +15,14 @@ $config = [];
  *
  * @type string
  *
- * @values cloudview::VIEWER_GOOGLE_DOCS
- * @values cloudview::VIEWER_MICROSOFT_OFFICE_WEB
+ * @values PluginConst::VIEWER_GOOGLE_DOCS
+ * @values PluginConst::VIEWER_MICROSOFT_OFFICE_WEB
  *
  * For more values, see "cloudview.php"
  */
 $config['viewer_order'] = implode(',', [
-    cloudview::VIEWER_MICROSOFT_OFFICE_WEB,
-    cloudview::VIEWER_GOOGLE_DOCS,
+    PluginConst::VIEWER_MICROSOFT_OFFICE_WEB,
+    PluginConst::VIEWER_GOOGLE_DOCS,
 ]);
 
 /**
@@ -28,11 +30,11 @@ $config['viewer_order'] = implode(',', [
  *
  * @type int[]
  *
- * @values cloudview::VIEW_BUTTON_IN_ATTACHMENTSLIST
- * @values cloudview::VIEW_BUTTON_IN_ATTACHMENTOPTIONSMENU
+ * @values PluginConst::VIEW_BUTTON_IN_ATTACHMENTSLIST
+ * @values PluginConst::VIEW_BUTTON_IN_ATTACHMENTOPTIONSMENU
  */
 $config['view_button_layouts'] = [
-    cloudview::VIEW_BUTTON_IN_ATTACHMENTSLIST,
+    PluginConst::VIEW_BUTTON_IN_ATTACHMENTSLIST,
 ];
 
 // for localhost dev test purpose
