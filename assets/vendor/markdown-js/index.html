@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>Loading...</title>
     <script src="../jquery.min.js"></script>
   </head>
@@ -22,7 +22,7 @@
           return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
         }
       }
-    };
+    }
 
     var url = getUrlParameter('url');
     var theme = getUrlParameter('theme');
@@ -35,7 +35,7 @@
       alert('error loading ' + url);
     };
 
-    var jqXHR = $.get(/*'//cors-anywhere.herokuapp.com/' + */url, function (response) {
+    var jqXHR = $.get(/*'//cors-anywhere.herokuapp.com/' + */ url, function (response) {
       $('xmp').html(response);
       if (0 == response.indexOf('<!')) errorHandler();
       else {

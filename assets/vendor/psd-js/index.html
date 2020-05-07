@@ -2,9 +2,9 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>PSD JS Viewer</title>
-    <link rel="stylesheet" type="text/css" href="assets/main.css">
+    <link rel="stylesheet" type="text/css" href="assets/main.css" />
     <script src="../jquery.min.js"></script>
     <script src="assets/psd.min.js"></script>
     <script src="assets/main.js"></script>
@@ -12,7 +12,7 @@
 
   <body id="dropzone">
     <span id="name"></span>
-    <input id="num" type="range">
+    <input id="num" type="range" />
     <div id="psd"></div>
 
     <script>
@@ -29,7 +29,7 @@
             return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
           }
         }
-      };
+      }
 
       psd(getUrlParameter('url'));
     </script>
