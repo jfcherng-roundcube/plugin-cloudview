@@ -49,7 +49,7 @@ with cloud viewers like Google Docs or Microsoft Office Web.
   </tbody>
 </table>
 
-### Local Hosted Viewers
+### Self-hosting Viewers
 
 <table>
   <thead>
