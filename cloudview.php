@@ -103,7 +103,7 @@ final class cloudview extends AbstractRoundcubePlugin
         /** @var rcmail_output_html */
         $output = $rcmail->output;
 
-        $uid = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_GET) ?? '';
+        $uid = \filter_input(\INPUT_GET, '_uid') ?? '';
 
         foreach ((array) $p['object']->attachments as $rcAttachment) {
             // Roundcube's mimetype detection seems to be less accurate
@@ -183,20 +183,13 @@ final class cloudview extends AbstractRoundcubePlugin
         $prefs['cloudview'] = $this->prefs = \array_merge(
             $this->prefs,
             [
-                'enabled' => (bool) (int) rcube_utils::get_input_value(
-                    '_cloudview_enabled',
-                    rcube_utils::INPUT_POST
-                ),
-                'viewer_order' => rcube_utils::get_input_value(
-                    '_cloudview_viewer_order',
-                    rcube_utils::INPUT_POST
-                ),
-                'view_button_layouts' => \array_map(
-                    'intval',
-                    (array) rcube_utils::get_input_value(
-                        '_cloudview_view_button_layouts',
-                        rcube_utils::INPUT_POST
-                    )
+                'enabled' => \filter_input(\INPUT_POST, '_cloudview_enabled', \FILTER_VALIDATE_BOOLEAN),
+                'viewer_order' => \filter_input(\INPUT_POST, '_cloudview_viewer_order') ?? '',
+                'view_button_layouts' => \filter_input(
+                    \INPUT_POST,
+                    '_cloudview_view_button_layouts',
+                    \FILTER_VALIDATE_INT,
+                    \FILTER_FORCE_ARRAY
                 ),
             ]
         );
@@ -225,8 +218,8 @@ final class cloudview extends AbstractRoundcubePlugin
         $output = $rcmail->output;
 
         // get the post values
-        $callback = rcube_utils::get_input_value('_callback', rcube_utils::INPUT_POST);
-        $attachmentInfo = rcube_utils::get_input_value('_attachment', rcube_utils::INPUT_POST);
+        $callback = \filter_input(\INPUT_POST, '_callback');
+        $attachmentInfo = \filter_input(\INPUT_POST, '_attachment');
 
         if (!$attachmentInfo) {
             return;
