@@ -18,7 +18,7 @@ $config = [];
  * @values PluginConst::VIEWER_GOOGLE_DOCS
  * @values PluginConst::VIEWER_MICROSOFT_OFFICE_WEB
  *
- * For more values, see "cloudview.php"
+ * For more values, see "Helper/PluginConst.php"
  */
 $config['viewer_order'] = implode(',', [
     PluginConst::VIEWER_MICROSOFT_OFFICE_WEB,
@@ -32,11 +32,16 @@ $config['viewer_order'] = implode(',', [
  *
  * @values PluginConst::VIEW_BUTTON_IN_ATTACHMENTSLIST
  * @values PluginConst::VIEW_BUTTON_IN_ATTACHMENTOPTIONSMENU
+ *
+ * For more values, see "Helper/PluginConst.php"
  */
 $config['view_button_layouts'] = [
     PluginConst::VIEW_BUTTON_IN_ATTACHMENTSLIST,
 ];
 
-// for localhost dev test purpose
+////////////////////////////////////
+// for localhost dev test purpose //
+////////////////////////////////////
+
 $config['is_dev_mode'] = false;
 $config['dev_mode_file_base_url'] = 'https://4272fd88.ngrok.io/';

@@ -238,7 +238,7 @@ final class cloudview extends AbstractRoundcubePlugin
         // trigger the frontend callback to open the cloud viewer window
         $callback && $output->command($callback, [
             'message' => [
-                'url' => $this->getAttachmentViewableUrl($attachment),
+                'url' => $this->getAttachmentViewableUrl($attachment) ?? '',
             ],
         ]);
         $output->send();
@@ -393,9 +393,9 @@ final class cloudview extends AbstractRoundcubePlugin
      *
      * @param Attachment $attachment the attachment
      *
-     * @return string the viewable URL for the attachment
+     * @return null|string the viewable URL for the attachment
      */
-    private function getAttachmentViewableUrl(Attachment $attachment): string
+    private function getAttachmentViewableUrl(Attachment $attachment): ?string
     {
         try {
             $viewerId = $this->getAttachmentSuggestedViewerId($attachment, $this->getViewerOrderArray());
@@ -410,7 +410,7 @@ final class cloudview extends AbstractRoundcubePlugin
 
             return $viewer->getViewableUrl(['document_url' => \urlencode($fileUrl)]) ?? '';
         } catch (ViewerNotFoundException $e) {
-            return '';
+            return null;
         }
     }
 
@@ -474,12 +474,11 @@ final class cloudview extends AbstractRoundcubePlugin
      */
     private function getPreferredViewerOrder(array $viewerOrder = []): array
     {
-        $viewerIds = \array_keys(PluginConst::VIEWER_TABLE);
-        $viewerOrder = \array_filter($viewerOrder, function (int $viewerId): bool {
-            return ViewerFactory::hasViewer($viewerId);
-        });
-
-        return \array_unique(\array_merge($viewerOrder, $viewerIds));
+        return \array_unique(\array_filter(
+            // ensure the viewer list is complete
+            \array_merge($viewerOrder, \array_keys(PluginConst::VIEWER_TABLE)),
+            function (int $viewerId): bool { return ViewerFactory::hasViewer($viewerId); }
+        ));
     }
 
     /**
@@ -520,19 +519,15 @@ final class cloudview extends AbstractRoundcubePlugin
                     [
                         'href' => '#',
                         'class' => 'cloudview-preview-link',
-                        'title' => rcmail::Q($this->gettext('cloud_view_document')),
+                        'title' => $this->gettext('cloud_view_document'),
                         'onclick' => "cloudview_openAttachment({$attachmentJson})",
                     ],
                     ''
                 );
 
-                // add "data-with-cloudview" attribute to the <li> tag
-                $li = '<li data-with-cloudview="' . (int) $attachment->getIsSupported() . '"' . \substr($li, 3);
-
-                // append the button into the <li> tag
-                $li = \substr($li, 0, -5) . $button . '</li>';
-
-                return $li;
+                return '<li data-with-cloudview="' . (int) $attachment->getIsSupported() . '"'
+                    . \substr($li, 3, -5) // remove leading "<li" and trailing "</li>"
+                    . $button . '</li>';
             },
             $p['content']
         );

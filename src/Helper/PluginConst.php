@@ -6,6 +6,10 @@ namespace Jfcherng\Roundcube\Plugin\CloudView\Helper;
 
 final class PluginConst
 {
+    ////////////////
+    // viewer IDs //
+    ////////////////
+
     const VIEWER_GOOGLE_DOCS = 1;
     const VIEWER_MICROSOFT_OFFICE_WEB = 2;
     const VIEWER_PDF_JS = 3;
@@ -13,6 +17,10 @@ final class PluginConst
     const VIEWER_STACK_EDIT = 5;
     const VIEWER_PSD_JS = 6;
     const VIEWER_HTML_JS = 7;
+
+    ///////////////////////////
+    // viewer button layouts //
+    ///////////////////////////
 
     const VIEW_BUTTON_IN_ATTACHMENTSLIST = 1;
     const VIEW_BUTTON_IN_ATTACHMENTOPTIONSMENU = 2;
