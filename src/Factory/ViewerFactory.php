@@ -8,6 +8,7 @@ use cloudview;
 use Jfcherng\Roundcube\Plugin\CloudView\Exception\ViewerNotFoundException;
 use Jfcherng\Roundcube\Plugin\CloudView\Viewer\AbstractViewer;
 use Jfcherng\Roundcube\Plugin\CloudView\Viewer\GoogleDocsViewer;
+use Jfcherng\Roundcube\Plugin\CloudView\Viewer\HtmlJsViewer;
 use Jfcherng\Roundcube\Plugin\CloudView\Viewer\MarkdownJsViewer;
 use Jfcherng\Roundcube\Plugin\CloudView\Viewer\MicrosoftOfficeWebViewer;
 use Jfcherng\Roundcube\Plugin\CloudView\Viewer\PdfJsViewer;
@@ -28,6 +29,7 @@ final class ViewerFactory
         cloudview::VIEWER_MARKDOWN_JS => MarkdownJsViewer::class,
         cloudview::VIEWER_STACK_EDIT => StackEditViewer::class,
         cloudview::VIEWER_PSD_JS => PsdJsViewer::class,
+        cloudview::VIEWER_HTML_JS => HtmlJsViewer::class,
     ];
 
     /**

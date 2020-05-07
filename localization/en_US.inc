@@ -14,6 +14,7 @@ $labels['viewer_pdf_js'] = 'PDF (JS)';
 $labels['viewer_markdown_js'] = 'Markdown (JS)';
 $labels['viewer_stack_edit'] = 'StackEdit';
 $labels['viewer_psd_js'] = 'PSD (JS)';
+$labels['viewer_html_js'] = 'HTML (JS)';
 $labels['select_view_button_layouts'] = 'Preferred view button layouts';
 $labels['view_button_layout_in_attachmentslist'] = 'In the attachments list';
 $labels['view_button_layout_in_attachmentoptionsmenu'] = 'In the attachment option menu';

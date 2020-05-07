@@ -19,6 +19,7 @@ final class cloudview extends AbstractRoundcubePlugin
     const VIEWER_MARKDOWN_JS = 4;
     const VIEWER_STACK_EDIT = 5;
     const VIEWER_PSD_JS = 6;
+    const VIEWER_HTML_JS = 7;
 
     const VIEW_BUTTON_IN_ATTACHMENTSLIST = 1;
     const VIEW_BUTTON_IN_ATTACHMENTOPTIONSMENU = 2;

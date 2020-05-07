@@ -14,6 +14,7 @@ $labels['viewer_pdf_js'] = 'PDF (JS)';
 $labels['viewer_markdown_js'] = 'Markdown (JS)';
 $labels['viewer_stack_edit'] = 'StackEdit';
 $labels['viewer_psd_js'] = 'PSD (JS)';
+$labels['viewer_html_js'] = 'HTML (JS)';
 $labels['select_view_button_layouts'] = '偏好的「浏览」按钮的显示方式';
 $labels['view_button_layout_in_attachmentslist'] = '在附件清单中';
 $labels['view_button_layout_in_attachmentoptionsmenu'] = '在附件的弹出式菜单中';
