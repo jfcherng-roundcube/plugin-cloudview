@@ -190,7 +190,7 @@ final class cloudview extends AbstractRoundcubePlugin
                 $output->command('display_message', $this->gettext('errfailedrequest'), 'error');
             }
 
-            // our preferences may have changed, we overwrite the old output the current one
+            // our preferences may have changed, we overwrite the old output with the current one
             $this->exposePluginPreferences();
         }
 
