@@ -36,6 +36,18 @@ const getFullViewerOrder = () => {
   );
 };
 
+/**
+ * Inject data into a HTML form.
+ *
+ * @param {string}                 formId     The form identifier
+ * @param {Object.<string,string>} dataObject The data object
+ */
+const injectFromData = (formId, dataObject) => {
+  for (let [k, v] of Object.entries(dataObject)) {
+    $(`#${formId}`).append(`<input type="hidden" name="${k}" value="${v}">`);
+  }
+};
+
 $(() => {
   const viewerOrderListDom = $('#_cloudview_viewer_order')?.[0];
 
@@ -54,13 +66,10 @@ rcmail.addEventListener('init', (evt) => {
   rcmail.register_command(
     'plugin.cloudview.settings-save',
     () => {
-      const viewerOrder = sortableViewers.toArray();
-
-      $('#cloudview-form').append(`<input
-        type="hidden"
-        name="_cloudview_viewer_order"
-        value="${viewerOrder.join(',')}"
-      >`);
+      injectFromData('cloudview-form', {
+        _cloudview_viewer_order: sortableViewers.toArray().join(','),
+        _is_saved: '1',
+      });
 
       rcmail.gui_objects['cloudview-form'].submit();
     },
