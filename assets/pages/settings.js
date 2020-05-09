@@ -15,24 +15,19 @@ const getFullViewerOrder = () => {
   // the user viewer order can be incomplete
   // if there is a new viewer added into this plugin
   // or an old viewer gets removed from this plugin
-  const userViewerOrder = (prefs.viewer_order || '').split(/,/g);
+  const userViewerOrder = (prefs.viewer_order || '').split(/,/g).map((id) => parseInt(id));
   const allViewerIds = $('#_cloudview_viewer_order li')
     .toArray()
-    .map((dom) => $(dom).attr('data-id'))
+    .map((dom) => parseInt(dom.getAttribute('data-id')))
     .sort();
 
   // the returned list should contain all available viewers in the preferred order
   return (
     [...userViewerOrder, ...allViewerIds]
       // remove invalid
-      .filter((value, index, self) => {
-        // code size: don't use ES6 includes()
-        return allViewerIds.indexOf(value) !== -1;
-      })
+      .filter((v) => allViewerIds.indexOf(v) !== -1)
       // unique (code size: don't use ES6 Set)
-      .filter((value, index, self) => {
-        return self.indexOf(value) === index;
-      })
+      .filter((v, idx, self) => self.indexOf(v) === idx)
   );
 };
 
@@ -44,7 +39,11 @@ const getFullViewerOrder = () => {
  */
 const injectFormData = (formId, dataObject) => {
   for (let [k, v] of Object.entries(dataObject)) {
-    $(`#${formId}`).append(`<input type="hidden" name="${k}" value="${v}">`);
+    $(`#${formId}`).append(`<input
+      type="hidden"
+      name="${k.replace(/"/g, '\\"')}"
+      value="${v.replace(/"/g, '\\"')}"
+    >`);
   }
 };
 
@@ -54,11 +53,12 @@ $(() => {
   if (viewerOrderListDom) {
     // @see https://github.com/SortableJS/Sortable#options
     sortableViewers = Sortable.create(viewerOrderListDom, {
-      animation: 150,
-      ghostClass: '', // "sortable-chosen" by default
+      animation: 120,
     });
 
     sortableViewers.sort(getFullViewerOrder());
+  } else {
+    console.error('cloudview: DOM "#_cloudview_viewer_order" is not found');
   }
 });
 
