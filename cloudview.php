@@ -62,8 +62,14 @@ final class cloudview extends AbstractRoundcubePlugin
 
         if ($rcmail->task === 'settings') {
             $this->include_stylesheet("{$this->skinPath}/pages/settings.css");
-            $this->include_script('assets/vendor/Sortable.min.js');
-            $this->include_script('assets/pages/settings.min.js');
+
+            if (
+                $rcmail->action === "plugin.{$this->ID}.settings" ||
+                $rcmail->action === "plugin.{$this->ID}.settings-save"
+            ) {
+                $this->include_script('assets/vendor/Sortable.min.js');
+                $this->include_script('assets/pages/settings.min.js');
+            }
         }
     }
 
@@ -177,7 +183,6 @@ final class cloudview extends AbstractRoundcubePlugin
         $output = $rcmail->output;
 
         $this->register_handler('plugin.body', [$this, 'getSettingsForm']);
-        $output->set_pagetitle($this->gettext('plugin_settings_title'));
 
         $prefs = $rcmail->user->get_prefs();
         $prefs['cloudview'] = $this->prefs = \array_merge(
@@ -204,7 +209,8 @@ final class cloudview extends AbstractRoundcubePlugin
         //  our preferences may have changed, we overwrite the old output the current one
         $this->exposePluginPreferences();
 
-        $rcmail->overwrite_action('plugin.cloudview.settings');
+        $rcmail->overwrite_action("plugin.{$this->ID}.settings");
+        $output->set_pagetitle($this->gettext('plugin_settings_title'));
         $output->send('plugin');
     }
 
@@ -245,6 +251,8 @@ final class cloudview extends AbstractRoundcubePlugin
         $rcmail = rcmail::get_instance();
         /** @var rcmail_output_html */
         $output = $rcmail->output;
+
+        $isSaved = \filter_input(\INPUT_POST, '_save_settings', \FILTER_VALIDATE_BOOLEAN);
 
         $boxTitle = html::div(['class' => 'boxtitle'], rcmail::Q($this->gettext('plugin_settings_title')));
 
