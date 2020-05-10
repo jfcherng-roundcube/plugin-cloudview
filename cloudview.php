@@ -105,7 +105,7 @@ final class cloudview extends AbstractRoundcubePlugin
         /** @var rcmail_output_html */
         $output = $rcmail->output;
 
-        $uid = \filter_input(\INPUT_GET, '_uid') ?? '';
+        $uid = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_GPC) ?? '';
 
         foreach ((array) $p['object']->attachments as $rcAttachment) {
             // Roundcube's mimetype detection seems to be less accurate
