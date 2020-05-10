@@ -32,7 +32,8 @@ with cloud viewers like Google Docs or Microsoft Office Web.
     <tr>
       <td>Google Docs</td>
       <td>
-        doc, docx, xls, xlsx, ppt, pptx
+        doc, docx, xls, xlsx, ppt, pptx,
+        rtf
       </td>
     </tr>
     <tr>
