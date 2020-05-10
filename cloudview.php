@@ -120,7 +120,7 @@ final class cloudview extends AbstractRoundcubePlugin
             $attachment->setMimeType($mimeType);
             $attachment->setSize($rcAttachment->size);
             $attachment->setIsSupported(
-                null !== $this->getAttachmentSuggestedViewerId(
+                PluginConst::VIEWER_NOT_FOUND !== $this->getAttachmentSuggestedViewerId(
                     $attachment,
                     $this->getViewerOrderArray()
                 )
@@ -435,9 +435,9 @@ final class cloudview extends AbstractRoundcubePlugin
      * @param Attachment $attachment  the attachment
      * @param int[]      $viewerOrder the viewer order
      *
-     * @return null|int the viewer ID or null if no suitable one
+     * @return int the viewer ID
      */
-    private function getAttachmentSuggestedViewerId(Attachment $attachment, array $viewerOrder = []): ?int
+    private function getAttachmentSuggestedViewerId(Attachment $attachment, array $viewerOrder = []): int
     {
         foreach ($this->getPreferredViewerOrder($viewerOrder) as $viewerId) {
             if (ViewerFactory::getViewerFqcnById($viewerId)::canSupportAttachment($attachment)) {
@@ -445,7 +445,7 @@ final class cloudview extends AbstractRoundcubePlugin
             }
         }
 
-        return null;
+        return PluginConst::VIEWER_NOT_FOUND;
     }
 
     /**

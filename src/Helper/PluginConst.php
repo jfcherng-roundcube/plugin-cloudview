@@ -10,6 +10,9 @@ final class PluginConst
     // viewer IDs //
     ////////////////
 
+    /** @var int indicate no available viewer */
+    const VIEWER_NOT_FOUND = -1;
+
     const VIEWER_GOOGLE_DOCS = 1;
     const VIEWER_MICROSOFT_OFFICE_WEB = 2;
     const VIEWER_PDF_JS = 3;
