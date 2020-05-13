@@ -52,17 +52,15 @@ final class cloudview extends AbstractRoundcubePlugin
     {
         parent::init();
 
-        $rcmail = rcmail::get_instance();
-
-        if ($rcmail->task === 'mail') {
+        if ($this->rcmail->task === 'mail') {
             $this->include_stylesheet("{$this->skinPath}/pages/mail.css");
             $this->include_script('assets/pages/mail.min.js');
         }
 
-        if ($rcmail->task === 'settings') {
+        if ($this->rcmail->task === 'settings') {
             $this->include_stylesheet("{$this->skinPath}/pages/settings.css");
 
-            if ($rcmail->action === "plugin.{$this->ID}.settings") {
+            if ($this->rcmail->action === "plugin.{$this->ID}.settings") {
                 $this->include_script('assets/vendor/Sortable.min.js');
                 $this->include_script('assets/pages/settings.min.js');
             }
@@ -101,9 +99,8 @@ final class cloudview extends AbstractRoundcubePlugin
      */
     public function messageLoadHook(array $p): array
     {
-        $rcmail = rcmail::get_instance();
         /** @var rcmail_output_html */
-        $output = $rcmail->output;
+        $output = $this->rcmail->output;
 
         $uid = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_GPC) ?? '';
 
@@ -159,16 +156,15 @@ final class cloudview extends AbstractRoundcubePlugin
      */
     public function settingsAction(): void
     {
-        $rcmail = rcmail::get_instance();
         /** @var rcmail_output_html */
-        $output = $rcmail->output;
+        $output = $this->rcmail->output;
 
         $this->register_handler('plugin.body', [$this, 'getSettingsForm']);
 
         $isSaved = \filter_input(\INPUT_POST, '_is_saved', \FILTER_VALIDATE_BOOLEAN);
 
         if ($isSaved) {
-            $prefs = $rcmail->user->get_prefs();
+            $prefs = $this->rcmail->user->get_prefs();
             $prefs['cloudview'] = $this->prefs = \array_merge(
                 $this->prefs,
                 [
@@ -183,8 +179,7 @@ final class cloudview extends AbstractRoundcubePlugin
                 ]
             );
 
-            // if no data received, we don't save
-            if (!empty($_POST) && $rcmail->user->save_prefs($prefs)) {
+            if ($this->rcmail->user->save_prefs($prefs)) {
                 $output->command('display_message', $this->gettext('successfullysaved'), 'confirmation');
             } else {
                 $output->command('display_message', $this->gettext('errfailedrequest'), 'error');
@@ -203,9 +198,8 @@ final class cloudview extends AbstractRoundcubePlugin
      */
     public function viewAction(): void
     {
-        $rcmail = rcmail::get_instance();
         /** @var rcmail_output_json */
-        $output = $rcmail->output;
+        $output = $this->rcmail->output;
 
         // get the post values
         $callback = \filter_input(\INPUT_POST, '_callback');
@@ -232,9 +226,8 @@ final class cloudview extends AbstractRoundcubePlugin
      */
     public function getSettingsForm(): string
     {
-        $rcmail = rcmail::get_instance();
         /** @var rcmail_output_html */
-        $output = $rcmail->output;
+        $output = $this->rcmail->output;
 
         $boxTitle = html::div(['class' => 'boxtitle'], rcmail::Q($this->gettext('plugin_settings_title')));
 
@@ -335,22 +328,21 @@ final class cloudview extends AbstractRoundcubePlugin
      */
     private function saveAttachmentToLocal(Attachment $attachment): void
     {
-        $rcmail = rcmail::get_instance();
-
         $fileFullPath = INSTALL_PATH . $this->getAttachmentTempPath($attachment);
 
-        // save the attachment into temp directory
-        if (!\is_file($fileFullPath)) {
-            $tempDir = \dirname($fileFullPath);
-
-            @\mkdir($tempDir, 0777, true);
-            // put an index.html to prevent from potential directory traversal
-            @\file_put_contents("{$tempDir}/index.html", '', \LOCK_EX);
-
-            $fp = \fopen($fileFullPath, 'w');
-            $rcmail->imap->get_message_part($attachment->getUid(), $attachment->getId(), null, null, $fp);
-            \fclose($fp);
+        if (\is_file($fileFullPath)) {
+            return;
         }
+
+        $tempDir = \dirname($fileFullPath);
+
+        @\mkdir($tempDir, 0777, true);
+        // put an index.html to prevent from potential directory traversal
+        @\file_put_contents("{$tempDir}/index.html", '', \LOCK_EX);
+
+        $fp = \fopen($fileFullPath, 'w');
+        $this->rcmail->imap->get_message_part($attachment->getUid(), $attachment->getId(), null, null, $fp);
+        \fclose($fp);
     }
 
     /**
@@ -362,13 +354,11 @@ final class cloudview extends AbstractRoundcubePlugin
      */
     private function getAttachmentTempPath(Attachment $attachment): string
     {
-        $rcmail = rcmail::get_instance();
-
         $fileExt = \strtolower(\pathinfo($attachment->getFilename(), \PATHINFO_EXTENSION));
         $fileDotExt = $fileExt ? ".{$fileExt}" : '';
         $fileBaseName = \hash('md5', (string) $attachment);
 
-        return $this->url("temp/{$rcmail->user->ID}/{$fileBaseName}{$fileDotExt}");
+        return $this->url("temp/{$this->rcmail->user->ID}/{$fileBaseName}{$fileDotExt}");
     }
 
     /**
@@ -380,21 +370,23 @@ final class cloudview extends AbstractRoundcubePlugin
      */
     private function getAttachmentViewableUrl(Attachment $attachment): ?string
     {
+        $viewerId = $this->getAttachmentSuggestedViewerId($attachment, $this->getViewerOrderArray());
+
         try {
-            $viewerId = $this->getAttachmentSuggestedViewerId($attachment, $this->getViewerOrderArray());
             $viewer = ViewerFactory::make($viewerId);
-            $viewer->setRcubePlugin($this);
-
-            $siteUrl = $this->config['is_dev_mode'] && $viewer::IS_SUPPORT_CORS_FILE
-                ? $this->config['dev_mode_file_base_url']
-                : RoundcubeHelper::getSiteUrl();
-
-            $fileUrl = $siteUrl . $this->getAttachmentTempPath($attachment);
-
-            return $viewer->getViewableUrl(['document_url' => \urlencode($fileUrl)]) ?? '';
         } catch (ViewerNotFoundException $e) {
             return null;
         }
+
+        $viewer->setRcubePlugin($this);
+
+        $siteUrl = $this->config['is_dev_mode'] && $viewer::IS_SUPPORT_CORS_FILE
+            ? (string) $this->config['dev_mode_file_base_url']
+            : RoundcubeHelper::getSiteUrl();
+
+        $fileUrl = $siteUrl . $this->getAttachmentTempPath($attachment);
+
+        return $viewer->getViewableUrl(['document_url' => \urlencode($fileUrl)]) ?? '';
     }
 
     /**
