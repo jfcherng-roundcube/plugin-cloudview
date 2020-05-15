@@ -5,50 +5,66 @@
     <title>Loading...</title>
     <script src="../jquery.min.js"></script>
   </head>
+  <body>
+    <xmp theme="united" style="display: none;"></xmp>
 
-  <xmp theme="united" style="display: none;"></xmp>
+    <style type="text/css">
+      .gohome-link,
+      .search-link,
+      .history-link,
+      .edit-link {
+        display: none !important;
+      }
+    </style>
+    <script>
+      function getUrlParameter(sParam) {
+        var sPageURL = window.location.search.substring(1),
+          sURLVariables = sPageURL.split('&'),
+          sParameterName;
 
-  <script>
-    function getUrlParameter(sParam) {
-      var sPageURL = window.location.search.substring(1),
-        sURLVariables = sPageURL.split('&'),
-        sParameterName,
-        i;
+        for (var i = 0; i < sURLVariables.length; i++) {
+          sParameterName = sURLVariables[i].split('=');
 
-      for (i = 0; i < sURLVariables.length; i++) {
-        sParameterName = sURLVariables[i].split('=');
-
-        if (sParameterName[0] === sParam) {
-          return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+          if (sParameterName[0] === sParam) {
+            return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+          }
         }
       }
-    }
 
-    var url = getUrlParameter('url');
-    var theme = getUrlParameter('theme');
+      var url = getUrlParameter('url');
+      var theme = getUrlParameter('theme');
 
-    if (theme) {
-      $('xmp').attr('theme', theme);
-    }
-
-    var errorHandler = function () {
-      alert('error loading ' + url);
-    };
-
-    var jqXHR = $.get(/*'//cors-anywhere.herokuapp.com/' + */ url, function (response) {
-      $('xmp').html(response);
-      if (0 == response.indexOf('<!')) errorHandler();
-      else {
-        title = url;
-        p = title.lastIndexOf('/');
-        if (p > 0) title = title.substring(p + 1);
-        p = title.indexOf('?');
-        if (p > 0) title = title.substring(0, p);
-        $('title').html(title);
-
-        $('head').append('<script src="assets/strapdown.min.js"><\/script>');
+      if (theme) {
+        $('xmp').attr('theme', theme);
       }
-    });
-    jqXHR.fail(errorHandler);
-  </script>
+
+      var errorHandler = function () {
+        alert('error loading ' + url);
+      };
+
+      var jqXHR = $.get(/*'//cors-anywhere.herokuapp.com/' + */ url, function (response) {
+        $('xmp').text(response);
+
+        if (0 === response.indexOf('<!')) {
+          return errorHandler();
+        }
+
+        var title;
+        var p = url.lastIndexOf('/');
+
+        if (p > 0) {
+          title = url.substring(p + 1);
+        }
+
+        p = url.indexOf('?');
+        if (p > 0) {
+          title = url.substring(0, p);
+        }
+
+        $('title').html(title);
+        $('head').append('<script src="assets/strapdown.min.js"><\/script>');
+      });
+      jqXHR.fail(errorHandler);
+    </script>
+  </body>
 </html>
