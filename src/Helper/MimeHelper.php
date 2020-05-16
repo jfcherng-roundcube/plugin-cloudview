@@ -16,21 +16,32 @@ final class MimeHelper
     ];
 
     /**
-     * Guess mimetype by the given filename.
-     *
-     * @param string $filename the filename
+     * Get the whole MIME type map.
      */
-    public static function guessMimeTypeByFilename(string $filename): ?string
+    public static function getMimeTypeMap(): array
     {
         static $mimeMap;
 
-        $mimeMap = $mimeMap ?? \array_merge(
-            (require __DIR__ . '/mime.types.php'),
-            self::EXTRA_MIME_MAP
-        );
+        if (null === $mimeMap) {
+            $mimeMap = require __DIR__ . '/mime.types.php';
 
+            foreach (self::EXTRA_MIME_MAP as $ext => $mimes) {
+                $mimeMap[$ext] = \array_merge($mimeMap[$ext] ?? [], $mimes);
+            }
+        }
+
+        return $mimeMap;
+    }
+
+    /**
+     * Get MIME type for the given filename.
+     *
+     * @param string $filename the filename
+     */
+    public static function getMimeTypeByFilename(string $filename): ?string
+    {
         $ext = \pathinfo($filename, \PATHINFO_EXTENSION);
-        $mimes = $mimeMap[$ext] ?? [];
+        $mimes = self::getMimeTypeMap()[$ext] ?? [];
 
         return $mimes[0] ?? null;
     }

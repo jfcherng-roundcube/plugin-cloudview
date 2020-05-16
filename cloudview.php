@@ -108,7 +108,7 @@ final class cloudview extends AbstractRoundcubePlugin
             // Roundcube's mimetype detection seems to be less accurate
             // (such as it detect "rtf" files as "application/msword" rather than "application/rtf")
             // so we use the mimetype map from Apache to determine it by filename if possible
-            $mimeType = MimeHelper::guessMimeTypeByFilename($rcAttachment->filename) ?? $rcAttachment->mimetype;
+            $mimeType = MimeHelper::getMimeTypeByFilename($rcAttachment->filename) ?? $rcAttachment->mimetype;
 
             $attachment = Attachment::fromArray([]);
             $attachment->setId($rcAttachment->mime_id);
