@@ -1,8 +1,9 @@
 const $ = global.$;
 const rcmail = global.rcmail;
 
-const config = rcmail.env['cloudview.config'] || {};
-const prefs = rcmail.env['cloudview.prefs'] || {};
+const plugin_name = 'cloudview';
+const config = rcmail.env[`${plugin_name}.config`] ?? {};
+const prefs = rcmail.env[`${plugin_name}.prefs`] ?? {};
 
 let sortableViewers;
 
@@ -15,7 +16,7 @@ const getFullViewerOrder = () => {
   // the user viewer order can be incomplete
   // if there is a new viewer added into this plugin
   // or an old viewer gets removed from this plugin
-  const userViewerOrder = (prefs.viewer_order || '').split(/,/g).map((id) => parseInt(id));
+  const userViewerOrder = (prefs.viewer_order ?? '').split(/,/g).map((id) => parseInt(id));
   const allViewerIds = $('#_cloudview_viewer_order li')
     .toArray()
     .map((dom) => parseInt(dom.getAttribute('data-id')))
@@ -58,13 +59,13 @@ $(() => {
 
     sortableViewers.sort(getFullViewerOrder());
   } else {
-    console.error('cloudview: DOM "#_cloudview_viewer_order" is not found');
+    console.error(`${plugin_name}: DOM "#_cloudview_viewer_order" is not found`);
   }
 });
 
 rcmail.addEventListener('init', (evt) => {
   rcmail.register_command(
-    'plugin.cloudview.settings-save',
+    `plugin.${plugin_name}.settings-save`,
     () => {
       injectFormData('cloudview-form', {
         _cloudview_viewer_order: sortableViewers.toArray().join(','),

@@ -1,7 +1,8 @@
 const rcmail = global.rcmail;
 
-const config = rcmail.env['cloudview.config'] || {};
-const prefs = rcmail.env['cloudview.prefs'] || {};
+const plugin_name = 'cloudview';
+const config = rcmail.env[`${plugin_name}.config`] ?? {};
+const prefs = rcmail.env[`${plugin_name}.prefs`] ?? {};
 
 /**
  * Get the attachment information by given ID.
@@ -10,7 +11,7 @@ const prefs = rcmail.env['cloudview.prefs'] || {};
  * @return {?Object.<string, any>} The attachment information.
  */
 const getAttachmentInfo = (attachmentId) =>
-  rcmail.env?.['cloudview.attachments']?.[attachmentId] || null;
+  rcmail.env[`${plugin_name}.attachments`]?.[attachmentId] || null;
 
 /**
  * Open the attachment with cloud viewer.
@@ -19,9 +20,9 @@ const getAttachmentInfo = (attachmentId) =>
  */
 const cloudview_openAttachment = (attachment) => {
   rcmail.http_post(
-    'plugin.cloudview.view',
+    `plugin.${plugin_name}.view`,
     {
-      _callback: 'plugin.cloudview.view-callback',
+      _callback: `plugin.${plugin_name}.view-callback`,
       _attachment: JSON.stringify(attachment),
     },
     rcmail.set_busy(true, 'loading')
@@ -31,9 +32,9 @@ const cloudview_openAttachment = (attachment) => {
 rcmail.addEventListener('init', (evt) => {
   // register the main command
   rcmail.register_command(
-    'plugin.cloudview.open-attachment',
+    `plugin.${plugin_name}.open-attachment`,
     () => {
-      let attachmentId = rcmail.env['cloudview.target-attachment-id'];
+      let attachmentId = rcmail.env[`${plugin_name}.target-attachment-id`];
       let attachment = getAttachmentInfo(attachmentId);
 
       cloudview_openAttachment(attachment);
@@ -48,12 +49,12 @@ rcmail.addEventListener('init', (evt) => {
     let attachmentId = evt.props.id;
     let attachment = getAttachmentInfo(evt.props.id);
 
-    rcmail.set_env('cloudview.target-attachment-id', attachmentId);
-    rcmail.enable_command('plugin.cloudview.open-attachment', attachment.isSupported);
+    rcmail.set_env(`${plugin_name}.target-attachment-id`, attachmentId);
+    rcmail.enable_command(`plugin.${plugin_name}.open-attachment`, attachment.isSupported);
   });
 
   // open the cloud viewer window
-  rcmail.addEventListener('plugin.cloudview.view-callback', (response) => {
+  rcmail.addEventListener(`plugin.${plugin_name}.view-callback`, (response) => {
     let windowSpecs = {
       width: window.innerWidth,
       height: window.innerHeight,

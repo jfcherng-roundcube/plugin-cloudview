@@ -85,7 +85,7 @@ final class cloudview extends AbstractRoundcubePlugin
     public function settingsActionsHook(array $args): array
     {
         $args['actions'][] = [
-            'action' => 'plugin.cloudview.settings',
+            'action' => "plugin.{$this->ID}.settings",
             'class' => $this->ID,
             'label' => 'plugin_settings_title',
             'domain' => $this->ID,
@@ -467,7 +467,7 @@ final class cloudview extends AbstractRoundcubePlugin
                 'label' => "{$this->ID}.cloud_view_document",
                 'href' => '#',
                 'prop' => '',
-                'command' => 'plugin.cloudview.open-attachment',
+                'command' => "plugin.{$this->ID}.open-attachment",
             ],
         ]);
     }
