@@ -132,6 +132,14 @@ For example, execute `crontab -e` and add the following job
 0 3 * * * rm -rf PATH_TO_ROUNDCUBE/plugins/cloudview/temp/*/
 ```
 
+## For Developers
+
+### Compile Frontend Assets
+
+- You will need to have [Node.js](https://nodejs.org) installed.
+- Install dependencies via `npm install` (or `yarn` if you prefer)
+- Compile assets with `./compile.sh`
+
 ## Acknowledgement
 
 - The basic idea comes from https://github.com/brestows/cloudview-roundcube
