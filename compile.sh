@@ -24,8 +24,6 @@ JS_FILES=(
     "assets/pages/settings.js"
 )
 
-PATH=${PROJECT_ROOT}/node_modules/.bin:${PATH}
-
 
 #-------#
 # begin #
@@ -50,9 +48,9 @@ for file_src in "${LESS_FILES[@]}"; do
 
     file_dst=${file_src%.*}.css
 
-    lessc --insecure "${file_src}" \
+    npx lessc --insecure "${file_src}" \
         | printf "%s\n" "$(cat -)" \
-        | cleancss -O2 -f 'breaks:afterAtRule=on,afterBlockBegins=on,afterBlockEnds=on,afterComment=on,afterProperty=on,afterRuleBegins=on,afterRuleEnds=on,beforeBlockEnds=on,betweenSelectors=on;spaces:aroundSelectorRelation=on,beforeBlockBegins=on,beforeValue=on;indentBy:2;indentWith:space;breakWith:lf' \
+        | npx cleancss -O2 -f 'breaks:afterAtRule=on,afterBlockBegins=on,afterBlockEnds=on,afterComment=on,afterProperty=on,afterRuleBegins=on,afterRuleEnds=on,beforeBlockEnds=on,betweenSelectors=on;spaces:aroundSelectorRelation=on,beforeBlockBegins=on,beforeValue=on;indentBy:2;indentWith:space;breakWith:lf' \
         > "${file_dst}"
 done
 
@@ -81,8 +79,8 @@ for file_src in "${JS_FILES[@]}"; do
 
     # to make the output file more diff-friendly, we beautify it and remove leading spaces
     cat "${file_src}" "${file_export}" \
-        | browserify -t [ babelify ] - \
-        | terser --config-file terser.json -- \
+        | npx browserify -t [ babelify ] - \
+        | npx terser --config-file terser.json -- \
         | sed -e 's/[[:space:]]+$//' \
         > "${file_dst}"
 
