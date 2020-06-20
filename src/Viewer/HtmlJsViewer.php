@@ -18,6 +18,13 @@ final class HtmlJsViewer extends AbstractViewer
 
     /**
      * {@inheritdoc}
+     *
+     * This viewer is pure frontend but current it directly use URL redirection so it supports CORS files.
+     */
+    const CAN_SUPPORT_CORS_FILE = false;
+
+    /**
+     * {@inheritdoc}
      */
     public function getViewableUrl(array $context): ?string
     {

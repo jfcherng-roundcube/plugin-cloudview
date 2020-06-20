@@ -380,7 +380,7 @@ final class cloudview extends AbstractRoundcubePlugin
 
         $viewer->setRcubePlugin($this);
 
-        $siteUrl = $this->config['is_dev_mode'] && $viewer::IS_SUPPORT_CORS_FILE
+        $siteUrl = $this->config['is_dev_mode'] && $viewer::CAN_SUPPORT_CORS_FILE
             ? (string) $this->config['dev_mode_file_base_url']
             : RoundcubeHelper::getSiteUrl();
 

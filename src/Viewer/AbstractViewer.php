@@ -19,11 +19,11 @@ abstract class AbstractViewer implements ViewerInterface
     /**
      * Does this viewer support viewing CORS files?
      *
-     * Pure frontend viewers should not support viewing files across domain.
+     * Pure frontend viewers usually cannot support viewing files across domain.
      *
      * @var bool
      */
-    const IS_SUPPORT_CORS_FILE = true;
+    const CAN_SUPPORT_CORS_FILE = true;
 
     /**
      * @var rcube_plugin

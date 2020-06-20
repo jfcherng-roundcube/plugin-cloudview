@@ -19,7 +19,7 @@ final class MarkdownJsViewer extends AbstractViewer
     /**
      * {@inheritdoc}
      */
-    const IS_SUPPORT_CORS_FILE = false;
+    const CAN_SUPPORT_CORS_FILE = false;
 
     /**
      * {@inheritdoc}
