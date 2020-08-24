@@ -401,7 +401,7 @@ final class cloudview extends AbstractRoundcubePlugin
         return $localizations = $localizations ?? \array_map(
             function (string $fqcn): string {
                 // "...\CloudView\Viewer\GoogleDocsViewer" to "GoogleDocs"
-                $transKey = \substr(\basename($fqcn), 0, -6);
+                $transKey = \substr((new \ReflectionClass($fqcn))->getShortName(), 0, -6);
                 // "GoogleDocs" to "viewer_google_docs"
                 $transKey = 'viewer' . \strtolower(\preg_replace('/[A-Z]/S', '_$0', $transKey));
 
