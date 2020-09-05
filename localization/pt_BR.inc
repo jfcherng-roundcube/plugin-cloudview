@@ -1,10 +1,14 @@
 <?php
 
-// Por Marcelo Leães
-// marcelo@eth1.com.br
-
+/**
+ * Por Marcelo Leães
+ *
+ * @author marcelo@eth1.com.br
+ */
 $labels = [];
 $labels['cloud_view_document'] = 'Cloud Viewer';
+
+// settings page
 $labels['plugin_settings_title'] = 'Cloud Viewer';
 $labels['plugin_enabled'] = 'Habilitar';
 $labels['select_viewer'] = 'Visualizador padrão';

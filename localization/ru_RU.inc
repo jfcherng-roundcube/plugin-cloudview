@@ -3,7 +3,7 @@
 $labels = [];
 $labels['cloud_view_document'] = 'Cloud View';
 
-// страница настроек
+// settings page
 $labels['plugin_settings_title'] = 'Cloud View';
 $labels['plugin_enabled'] = 'Включить Cloud View';
 $labels['select_viewer'] = 'Предпочитаемый сервис просмотра';
