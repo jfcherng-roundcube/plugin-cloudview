@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Por Marcelo Leães
+ * Por Marcelo Leães.
  *
  * @author marcelo@eth1.com.br
  */
