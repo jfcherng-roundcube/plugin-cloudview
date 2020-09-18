@@ -382,11 +382,23 @@ final class cloudview extends AbstractRoundcubePlugin
 
         $siteUrl = $this->config['is_dev_mode'] && $viewer::CAN_SUPPORT_CORS_FILE
             ? (string) $this->config['dev_mode_file_base_url']
-            : RoundcubeHelper::getSiteUrl();
+            : $this->getSiteUrl();
 
         $fileUrl = $siteUrl . $this->getAttachmentTempPath($attachment);
 
         return $viewer->getViewableUrl(['document_url' => \urlencode($fileUrl)]) ?? '';
+    }
+
+    /**
+     * Gets the site url.
+     *
+     * @return string the site url
+     */
+    private function getSiteUrl(): string
+    {
+        return $this->config['custom_site_url']
+            ? \rtrim((string) $this->config['custom_site_url'], '/') . '/'
+            : RoundcubeHelper::getSiteUrl();
     }
 
     /**

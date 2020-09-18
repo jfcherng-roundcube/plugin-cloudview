@@ -11,6 +11,14 @@ use Jfcherng\Roundcube\Plugin\CloudView\Helper\PluginConst;
 $config = [];
 
 /**
+ * You may want to set this if your Roundcube is set under a subdirectory or behind a reverse proxy.
+ * Here's a subdirectory example: https://example.com/roundcube/
+ *
+ * @type string
+ */
+$config['custom_site_url'] = '';
+
+/**
  * The default viewer order if the user has not set one.
  *
  * @type string
