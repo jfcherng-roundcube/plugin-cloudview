@@ -71,4 +71,30 @@ final class RoundcubeHelper
             (isset($parts['query']) ? "?{$parts['query']}" : '') .
             (isset($parts['fragment']) ? "#{$parts['fragment']}" : '');
     }
+
+    /**
+     * Encrypt a string.
+     *
+     * @param string $text   The original input text
+     * @param bool   $base64 Whether or not to base64_encode() the result before returning
+     *
+     * @return string Encrypted text
+     */
+    public static function encrypt(string $text, bool $base64 = true): string
+    {
+        return (string) rcube::get_instance()->encrypt($text, 'des_key', $base64);
+    }
+
+    /**
+     * Decrypt a string.
+     *
+     * @param string $cipher The encrypted text
+     * @param bool   $base64 Whether or not input is base64-encoded
+     *
+     * @return string Decrypted text
+     */
+    public static function decrypt(string $cipher, bool $base64 = true): string
+    {
+        return (string) rcube::get_instance()->decrypt($cipher, 'des_key', $base64);
+    }
 }
