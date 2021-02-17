@@ -85,7 +85,7 @@ with cloud viewers like Google Docs or Microsoft Office Web.
 This plugin is tested in the following environment.
 
 - Roundcube: `1.4`
-- PHP: `7.1` (min requirement), `7.4`
+- PHP: `7.1.3` (min requirement), `7.4`
 - Skin: `Classic`, `Larry`, `Elastic`
 
 Different environments may work as well without guarantee.
@@ -118,12 +118,18 @@ $config['plugins'] = array(
 );
 ```
 
-## Temporary Files
+## Prerequisites
 
 This plugin will extract attachments from messages into `plugins/cloudview/temp/`
-so that remote cloud viewers can publicly access them. But those files will not
-be deleted automatically. You will need to setup a cron job to periodically
-delete them.
+so that remote cloud viewers can publicly access them.
+
+- The `temp/` directory under `plugins/cloudview/temp/` should be public accessible.
+- Your RoundCube installation should be publicly accessible. I.e., not under an internal server.
+
+## Temporary Files
+
+Those temporary files under `plugins/cloudview/temp/` will not be deleted automatically.
+You will need to setup a cron job to periodically delete them.
 
 For example, execute `crontab -e` and add the following job
 
