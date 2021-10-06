@@ -9,7 +9,7 @@ final class StackEditViewer extends AbstractViewer
     /**
      * {@inheritdoc}
      */
-    const SUPPORTED_MIME_TYPES = [
+    public const SUPPORTED_MIME_TYPES = [
         'text/markdown',
     ];
 
@@ -18,7 +18,7 @@ final class StackEditViewer extends AbstractViewer
      *
      * @var string
      */
-    const URL = 'https://stackedit.io/viewer#!url={document_url}';
+    public const URL = 'https://stackedit.io/viewer#!url={document_url}';
 
     /**
      * {@inheritdoc}

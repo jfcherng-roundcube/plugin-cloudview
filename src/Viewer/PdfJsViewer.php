@@ -12,7 +12,7 @@ final class PdfJsViewer extends AbstractViewer
     /**
      * {@inheritdoc}
      */
-    const SUPPORTED_MIME_TYPES = [
+    public const SUPPORTED_MIME_TYPES = [
         'application/acrobat',
         'application/pdf',
         'application/x-pdf',
@@ -24,7 +24,7 @@ final class PdfJsViewer extends AbstractViewer
     /**
      * {@inheritdoc}
      */
-    const CAN_SUPPORT_CORS_FILE = false;
+    public const CAN_SUPPORT_CORS_FILE = false;
 
     /**
      * {@inheritdoc}

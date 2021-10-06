@@ -9,7 +9,7 @@ final class MicrosoftOfficeWebViewer extends AbstractViewer
     /**
      * {@inheritdoc}
      */
-    const SUPPORTED_MIME_TYPES = [
+    public const SUPPORTED_MIME_TYPES = [
         // text
         'application/doc',
         'application/ms-doc',
@@ -43,7 +43,7 @@ final class MicrosoftOfficeWebViewer extends AbstractViewer
      *
      * @var string
      */
-    const URL = 'https://view.officeapps.live.com/op/view.aspx?src={document_url}';
+    public const URL = 'https://view.officeapps.live.com/op/view.aspx?src={document_url}';
 
     /**
      * {@inheritdoc}

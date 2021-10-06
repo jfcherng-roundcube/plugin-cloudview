@@ -16,7 +16,7 @@ final class Attachment implements ArrayAccess, JsonSerializable
      *
      * @var string[]
      */
-    const JSON_SERIALIZE_PROPERTIES = [
+    public const JSON_SERIALIZE_PROPERTIES = [
         'id',
         'uid',
         'filename',
@@ -81,7 +81,7 @@ final class Attachment implements ArrayAccess, JsonSerializable
      */
     public function __toString()
     {
-        return \json_encode($this, \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE);
+        return json_encode($this, \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE);
     }
 
     /**

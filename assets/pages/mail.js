@@ -10,8 +10,7 @@ const prefs = rcmail.env[`${plugin_name}.prefs`] ?? {};
  * @param  {string} attachmentId The attachment identifier
  * @return {?Object.<string, any>} The attachment information.
  */
-const getAttachmentInfo = (attachmentId) =>
-  rcmail.env[`${plugin_name}.attachments`]?.[attachmentId] || null;
+const getAttachmentInfo = (attachmentId) => rcmail.env[`${plugin_name}.attachments`]?.[attachmentId] || null;
 
 /**
  * Open the attachment with cloud viewer.

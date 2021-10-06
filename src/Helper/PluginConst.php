@@ -11,29 +11,29 @@ final class PluginConst
     ////////////////
 
     /** @var int indicate no available viewer */
-    const VIEWER_NOT_FOUND = -1;
+    public const VIEWER_NOT_FOUND = -1;
 
-    const VIEWER_GOOGLE_DOCS = 1;
-    const VIEWER_MICROSOFT_OFFICE_WEB = 2;
-    const VIEWER_PDF_JS = 3;
-    const VIEWER_MARKDOWN_JS = 4;
-    const VIEWER_STACK_EDIT = 5;
-    const VIEWER_PSD_JS = 6;
-    const VIEWER_HTML_JS = 7;
+    public const VIEWER_GOOGLE_DOCS = 1;
+    public const VIEWER_MICROSOFT_OFFICE_WEB = 2;
+    public const VIEWER_PDF_JS = 3;
+    public const VIEWER_MARKDOWN_JS = 4;
+    public const VIEWER_STACK_EDIT = 5;
+    public const VIEWER_PSD_JS = 6;
+    public const VIEWER_HTML_JS = 7;
 
     ///////////////////////////
     // viewer button layouts //
     ///////////////////////////
 
-    const VIEW_BUTTON_IN_ATTACHMENTSLIST = 1;
-    const VIEW_BUTTON_IN_ATTACHMENTOPTIONSMENU = 2;
+    public const VIEW_BUTTON_IN_ATTACHMENTSLIST = 1;
+    public const VIEW_BUTTON_IN_ATTACHMENTOPTIONSMENU = 2;
 
     /**
      * The map of viewer id to viewer FQCN.
      *
      * @var array<int,string> [ view ID (int) => view FQCN ]
      */
-    const VIEWER_TABLE = [
+    public const VIEWER_TABLE = [
         self::VIEWER_GOOGLE_DOCS => \Jfcherng\Roundcube\Plugin\CloudView\Viewer\GoogleDocsViewer::class,
         self::VIEWER_MICROSOFT_OFFICE_WEB => \Jfcherng\Roundcube\Plugin\CloudView\Viewer\MicrosoftOfficeWebViewer::class,
         self::VIEWER_PDF_JS => \Jfcherng\Roundcube\Plugin\CloudView\Viewer\PdfJsViewer::class,

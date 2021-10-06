@@ -161,16 +161,16 @@ final class cloudview extends AbstractRoundcubePlugin
 
         $this->register_handler('plugin.body', [$this, 'getSettingsForm']);
 
-        $isSaved = \filter_input(\INPUT_POST, '_is_saved', \FILTER_VALIDATE_BOOLEAN);
+        $isSaved = filter_input(\INPUT_POST, '_is_saved', \FILTER_VALIDATE_BOOLEAN);
 
         if ($isSaved) {
             $prefs = $this->rcmail->user->get_prefs();
-            $prefs['cloudview'] = $this->prefs = \array_merge(
+            $prefs['cloudview'] = $this->prefs = array_merge(
                 $this->prefs,
                 [
-                    'enabled' => \filter_input(\INPUT_POST, '_cloudview_enabled', \FILTER_VALIDATE_BOOLEAN),
-                    'viewer_order' => \filter_input(\INPUT_POST, '_cloudview_viewer_order') ?? '',
-                    'view_button_layouts' => \filter_input(
+                    'enabled' => filter_input(\INPUT_POST, '_cloudview_enabled', \FILTER_VALIDATE_BOOLEAN),
+                    'viewer_order' => filter_input(\INPUT_POST, '_cloudview_viewer_order') ?? '',
+                    'view_button_layouts' => filter_input(
                         \INPUT_POST,
                         '_cloudview_view_button_layouts',
                         \FILTER_VALIDATE_INT,
@@ -202,14 +202,14 @@ final class cloudview extends AbstractRoundcubePlugin
         $output = $this->rcmail->output;
 
         // get the post values
-        $callback = \filter_input(\INPUT_POST, '_callback');
-        $attachmentInfo = \filter_input(\INPUT_POST, '_attachment');
+        $callback = filter_input(\INPUT_POST, '_callback');
+        $attachmentInfo = filter_input(\INPUT_POST, '_attachment');
 
         if (!$attachmentInfo) {
             return;
         }
 
-        $attachment = Attachment::fromArray(\json_decode($attachmentInfo, true) ?? []);
+        $attachment = Attachment::fromArray(json_decode($attachmentInfo, true) ?? []);
         $this->saveAttachmentToLocal($attachment);
 
         // trigger the frontend callback to open the cloud viewer window
@@ -283,7 +283,7 @@ final class cloudview extends AbstractRoundcubePlugin
         $objectTable->add(
             '',
             // wrap every checkbox in a <div>
-            \implode('', \array_map(
+            implode('', array_map(
                 function (string $checkbox): string { return html::div(null, $checkbox); },
                 $buttonLayoutCheckboxes
             ))
@@ -330,19 +330,19 @@ final class cloudview extends AbstractRoundcubePlugin
     {
         $fileFullPath = INSTALL_PATH . $this->getAttachmentTempPath($attachment);
 
-        if (\is_file($fileFullPath)) {
+        if (is_file($fileFullPath)) {
             return;
         }
 
         $tempDir = \dirname($fileFullPath);
 
-        @\mkdir($tempDir, 0777, true);
+        @mkdir($tempDir, 0777, true);
         // put an index.html to prevent from potential directory traversal
-        @\file_put_contents("{$tempDir}/index.html", '', \LOCK_EX);
+        @file_put_contents("{$tempDir}/index.html", '', \LOCK_EX);
 
-        $fp = \fopen($fileFullPath, 'w');
+        $fp = fopen($fileFullPath, 'w');
         $this->rcmail->imap->get_message_part($attachment->getUid(), $attachment->getId(), null, null, $fp);
-        \fclose($fp);
+        fclose($fp);
     }
 
     /**
@@ -354,9 +354,9 @@ final class cloudview extends AbstractRoundcubePlugin
      */
     private function getAttachmentTempPath(Attachment $attachment): string
     {
-        $fileExt = \strtolower(\pathinfo($attachment->getFilename(), \PATHINFO_EXTENSION));
+        $fileExt = strtolower(pathinfo($attachment->getFilename(), \PATHINFO_EXTENSION));
         $fileDotExt = $fileExt ? ".{$fileExt}" : '';
-        $fileBaseName = \hash('md5', (string) $attachment);
+        $fileBaseName = hash('md5', (string) $attachment);
 
         return $this->url("temp/{$this->rcmail->user->ID}/{$fileBaseName}{$fileDotExt}");
     }
@@ -386,7 +386,7 @@ final class cloudview extends AbstractRoundcubePlugin
 
         $fileUrl = $siteUrl . $this->getAttachmentTempPath($attachment);
 
-        return $viewer->getViewableUrl(['document_url' => \urlencode($fileUrl)]) ?? '';
+        return $viewer->getViewableUrl(['document_url' => urlencode($fileUrl)]) ?? '';
     }
 
     /**
@@ -397,7 +397,7 @@ final class cloudview extends AbstractRoundcubePlugin
     private function getSiteUrl(): string
     {
         return $this->config['custom_site_url']
-            ? \rtrim((string) $this->config['custom_site_url'], '/') . '/'
+            ? rtrim((string) $this->config['custom_site_url'], '/') . '/'
             : RoundcubeHelper::getSiteUrl();
     }
 
@@ -410,12 +410,12 @@ final class cloudview extends AbstractRoundcubePlugin
     {
         static $localizations;
 
-        return $localizations = $localizations ?? \array_map(
+        return $localizations = $localizations ?? array_map(
             function (string $fqcn): string {
                 // "...\CloudView\Viewer\GoogleDocsViewer" to "GoogleDocs"
-                $transKey = \substr((new \ReflectionClass($fqcn))->getShortName(), 0, -6);
+                $transKey = substr((new \ReflectionClass($fqcn))->getShortName(), 0, -6);
                 // "GoogleDocs" to "viewer_google_docs"
-                $transKey = 'viewer' . \strtolower(\preg_replace('/[A-Z]/S', '_$0', $transKey));
+                $transKey = 'viewer' . strtolower(preg_replace('/[A-Z]/S', '_$0', $transKey));
 
                 return $this->gettext($transKey);
             },
@@ -430,7 +430,7 @@ final class cloudview extends AbstractRoundcubePlugin
      */
     private function getViewerOrderArray(): array
     {
-        return \array_map('intval', \explode(',', $this->prefs['viewer_order']));
+        return array_map('intval', explode(',', $this->prefs['viewer_order']));
     }
 
     /**
@@ -461,9 +461,9 @@ final class cloudview extends AbstractRoundcubePlugin
      */
     private function getPreferredViewerOrder(array $viewerOrder = []): array
     {
-        return \array_unique(\array_filter(
+        return array_unique(array_filter(
             // ensure the viewer list is complete
-            \array_merge($viewerOrder, \array_keys(PluginConst::VIEWER_TABLE)),
+            array_merge($viewerOrder, array_keys(PluginConst::VIEWER_TABLE)),
             function (int $viewerId): bool { return ViewerFactory::hasViewer($viewerId); }
         ));
     }
@@ -489,18 +489,18 @@ final class cloudview extends AbstractRoundcubePlugin
      */
     private function addButton_BUTTON_IN_ATTACHMENTSLIST(array &$p): void
     {
-        $p['content'] = \preg_replace_callback(
+        $p['content'] = preg_replace_callback(
             '/<li (?:.*?)<\/li>/uS',
             function (array $matches): string {
                 $li = $matches[0];
 
-                if (!\preg_match('/ id="attach([0-9]+)"/uS', $li, $attachmentId)) {
+                if (!preg_match('/ id="attach([0-9]+)"/uS', $li, $attachmentId)) {
                     return $li;
                 }
 
                 $attachmentId = $attachmentId[1];
                 $attachment = $this->attachments[$attachmentId] ?? Attachment::fromArray([]);
-                $attachmentJson = \json_encode($attachment, \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE);
+                $attachmentJson = json_encode($attachment, \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE);
 
                 $button = html::a(
                     [
@@ -513,7 +513,7 @@ final class cloudview extends AbstractRoundcubePlugin
                 );
 
                 return '<li data-with-cloudview="' . (int) $attachment->getIsSupported() . '"'
-                    . \substr($li, 3, -5) // remove leading "<li" and trailing "</li>"
+                    . substr($li, 3, -5) // remove leading "<li" and trailing "</li>"
                     . $button . '</li>';
             },
             $p['content']

@@ -45,6 +45,6 @@ trait StrictPropertyArrayAccessTrait
      */
     public function offsetExists($offset)
     {
-        return \property_exists($this, $offset);
+        return property_exists($this, $offset);
     }
 }

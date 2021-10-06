@@ -12,7 +12,7 @@ final class HtmlJsViewer extends AbstractViewer
     /**
      * {@inheritdoc}
      */
-    const SUPPORTED_MIME_TYPES = [
+    public const SUPPORTED_MIME_TYPES = [
         'text/html',
     ];
 
@@ -21,7 +21,7 @@ final class HtmlJsViewer extends AbstractViewer
      *
      * This viewer is pure frontend but current it directly use URL redirection so it supports CORS files.
      */
-    const CAN_SUPPORT_CORS_FILE = false;
+    public const CAN_SUPPORT_CORS_FILE = false;
 
     /**
      * {@inheritdoc}

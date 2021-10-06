@@ -9,7 +9,7 @@ final class GoogleDocsViewer extends AbstractViewer
     /**
      * {@inheritdoc}
      */
-    const SUPPORTED_MIME_TYPES = [
+    public const SUPPORTED_MIME_TYPES = [
         // text
         'application/doc',
         'application/ms-doc',
@@ -36,7 +36,7 @@ final class GoogleDocsViewer extends AbstractViewer
      *
      * @var string
      */
-    const URL = 'https://docs.google.com/viewer?embedded=true&url={document_url}';
+    public const URL = 'https://docs.google.com/viewer?embedded=true&url={document_url}';
 
     /**
      * {@inheritdoc}

@@ -12,14 +12,14 @@ final class PsdJsViewer extends AbstractViewer
     /**
      * {@inheritdoc}
      */
-    const SUPPORTED_MIME_TYPES = [
+    public const SUPPORTED_MIME_TYPES = [
         'image/vnd.adobe.photoshop',
     ];
 
     /**
      * {@inheritdoc}
      */
-    const CAN_SUPPORT_CORS_FILE = false;
+    public const CAN_SUPPORT_CORS_FILE = false;
 
     /**
      * {@inheritdoc}

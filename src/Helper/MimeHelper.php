@@ -11,7 +11,7 @@ final class MimeHelper
      *
      * @var array<string,string[]>
      */
-    const EXTRA_MIME_MAP = [
+    public const EXTRA_MIME_MAP = [
         'md' => ['text/markdown'],
     ];
 
@@ -26,7 +26,7 @@ final class MimeHelper
             $mimeMap = require __DIR__ . '/mime.types.php';
 
             foreach (self::EXTRA_MIME_MAP as $ext => $mimes) {
-                $mimeMap[$ext] = \array_merge($mimeMap[$ext] ?? [], $mimes);
+                $mimeMap[$ext] = array_merge($mimeMap[$ext] ?? [], $mimes);
             }
         }
 
@@ -40,7 +40,7 @@ final class MimeHelper
      */
     public static function getMimeTypeByFilename(string $filename): ?string
     {
-        $ext = \pathinfo($filename, \PATHINFO_EXTENSION);
+        $ext = pathinfo($filename, \PATHINFO_EXTENSION);
         $mimes = self::getMimeTypeMap()[$ext] ?? [];
 
         return $mimes[0] ?? null;

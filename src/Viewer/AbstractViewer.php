@@ -14,7 +14,7 @@ abstract class AbstractViewer implements ViewerInterface
      *
      * @var string[]
      */
-    const SUPPORTED_MIME_TYPES = [];
+    public const SUPPORTED_MIME_TYPES = [];
 
     /**
      * Does this viewer support viewing CORS files?
@@ -23,7 +23,7 @@ abstract class AbstractViewer implements ViewerInterface
      *
      * @var bool
      */
-    const CAN_SUPPORT_CORS_FILE = true;
+    public const CAN_SUPPORT_CORS_FILE = true;
 
     /**
      * @var rcube_plugin
@@ -57,7 +57,7 @@ abstract class AbstractViewer implements ViewerInterface
     protected function formatString(string $str, array $context): string
     {
         foreach ($context as $key => $value) {
-            $str = \str_replace("{{$key}}", $value, $str);
+            $str = str_replace("{{$key}}", $value, $str);
         }
 
         return $str;
@@ -70,6 +70,6 @@ abstract class AbstractViewer implements ViewerInterface
      */
     protected function isStringFullyFormatted(string $str): bool
     {
-        return false === \strpbrk($str, '{}');
+        return false === strpbrk($str, '{}');
     }
 }
