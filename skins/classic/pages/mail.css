@@ -12,15 +12,15 @@
   display: inline-block;
   width: 14px;
   height: 14px;
-  background-image: url('../images//preview.png');
+  background-image: url('../images/preview.png');
   background-repeat: no-repeat;
   background-size: contain
 }
 #attachment-list li[data-with-cloudview='1'] a.cloudview-preview-link:hover {
-  background-image: url('../images//preview-hovered.png')
+  background-image: url('../images/preview-hovered.png')
 }
 #attachmentmenu li a.cloudviewlink {
-  background-image: url('../images//toolbarmenu-cloudview-icon.png');
+  background-image: url('../images/toolbarmenu-cloudview-icon.png');
   background-position: 9px;
   background-repeat: no-repeat;
   background-size: 13px

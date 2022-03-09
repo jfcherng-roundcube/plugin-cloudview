@@ -8,12 +8,12 @@
   display: inline-block;
   height: 1.5rem;
   width: 1.5rem;
-  background-image: url('../images//preview.png');
+  background-image: url('../images/preview.png');
   background-repeat: no-repeat;
   background-size: contain
 }
 .attachmentslist li[data-with-cloudview='1'] a.cloudview-preview-link:hover {
-  background-image: url('../images//preview-hovered.png')
+  background-image: url('../images/preview-hovered.png')
 }
 .menu a.cloudview:before {
   content: '\f06e'

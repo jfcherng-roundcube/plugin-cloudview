@@ -1,14 +1,22 @@
 #cloudview-form ol[data-sortable] li,
 #cloudview-form ul[data-sortable] li {
-  background: #ddd;
-  border: 1px dashed #666;
   cursor: move;
   margin-bottom: .4em;
   padding: .2em .4em
 }
-#cloudview-form ol[data-sortable] li.sortable-chosen,
-#cloudview-form ul[data-sortable] li.sortable-chosen {
+#cloudview-form ol[data-sortable] li {
+  background: #ddd;
+  border: 1px dashed #666
+}
+#cloudview-form ol[data-sortable] li.sortable-chosen {
   background: #ff6
+}
+html.dark-mode #cloudview-form ol[data-sortable] li {
+  background: #333;
+  border: 1px dashed #aaa
+}
+html.dark-mode #cloudview-form ol[data-sortable] li.sortable-chosen {
+  background: #000
 }
 .listing.iconized li.cloudview > a:before {
   content: '\f06e'
