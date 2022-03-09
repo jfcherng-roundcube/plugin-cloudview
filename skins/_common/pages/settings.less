@@ -1,18 +1,48 @@
 @import (reference) '../../_variables';
 
+////////////////////
+// layout-related //
+////////////////////
+
 #cloudview-form {
   ul,
   ol {
     &[data-sortable] {
       li {
-        background: #ddd;
-        border: 1px dashed #666;
         cursor: move;
         margin-bottom: 0.4em;
         padding: 0.2em 0.4em;
+      }
+    }
+  }
+}
+
+///////////////////
+// color-related //
+///////////////////
+
+#cloudview-form {
+  ol[data-sortable] {
+    li {
+      background: #ddd;
+      border: 1px dashed #666;
+
+      &.sortable-chosen {
+        background: #ff6;
+      }
+    }
+  }
+}
+
+html.dark-mode {
+  #cloudview-form {
+    ol[data-sortable] {
+      li {
+        background: #333;
+        border: 1px dashed #aaa;
 
         &.sortable-chosen {
-          background: #ff6;
+          background: #000;
         }
       }
     }
