@@ -6,9 +6,9 @@ namespace Jfcherng\Roundcube\Plugin\CloudView\Helper;
 
 final class PluginConst
 {
-    ////////////////
-    // viewer IDs //
-    ////////////////
+    // /////////// //
+    // viewer IDs  //
+    // /////////// //
 
     /** @var int indicate no available viewer */
     public const VIEWER_NOT_FOUND = -1;
@@ -21,9 +21,9 @@ final class PluginConst
     public const VIEWER_PSD_JS = 6;
     public const VIEWER_HTML_JS = 7;
 
-    ///////////////////////////
-    // viewer button layouts //
-    ///////////////////////////
+    // ////////////////////// //
+    // viewer button layouts  //
+    // ////////////////////// //
 
     public const VIEW_BUTTON_IN_ATTACHMENTSLIST = 1;
     public const VIEW_BUTTON_IN_ATTACHMENTOPTIONSMENU = 2;
