@@ -11,6 +11,7 @@ trait StrictPropertyArrayAccessTrait
     /**
      * {@inheritdoc}
      */
+    #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         if ($this->offsetExists($offset)) {
@@ -23,6 +24,7 @@ trait StrictPropertyArrayAccessTrait
     /**
      * {@inheritdoc}
      */
+    #[\ReturnTypeWillChange]
     public function offsetSet($offset, $value)
     {
         if ($this->offsetExists($offset)) {
@@ -35,6 +37,7 @@ trait StrictPropertyArrayAccessTrait
     /**
      * {@inheritdoc}
      */
+    #[\ReturnTypeWillChange]
     public function offsetUnset($offset)
     {
         throw new Exception('Unsupported operation');
@@ -43,6 +46,7 @@ trait StrictPropertyArrayAccessTrait
     /**
      * {@inheritdoc}
      */
+    #[\ReturnTypeWillChange]
     public function offsetExists($offset)
     {
         return property_exists($this, $offset);
