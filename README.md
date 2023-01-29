@@ -84,8 +84,8 @@ with cloud viewers like Google Docs or Microsoft Office Web.
 
 This plugin is tested in the following environment.
 
-- Roundcube: `1.4`
-- PHP: `7.1.3` (min requirement), `7.4`
+- Roundcube: `1.4.0`, `1.6.0`
+- PHP: `7.1.3` (min requirement), `8.1`
 - Skin: `Classic`, `Larry`, `Elastic`
 
 Different environments may work as well without guarantee.
