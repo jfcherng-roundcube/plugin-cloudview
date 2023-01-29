@@ -341,7 +341,7 @@ final class cloudview extends AbstractRoundcubePlugin
         @file_put_contents("{$tempDir}/index.html", '', \LOCK_EX);
 
         $fp = fopen($fileFullPath, 'w');
-        $this->rcmail->imap->get_message_part($attachment->getUid(), $attachment->getId(), null, null, $fp);
+        $this->getStorage()->get_message_part($attachment->getUid(), $attachment->getId(), null, null, $fp);
         fclose($fp);
     }
 
@@ -399,6 +399,22 @@ final class cloudview extends AbstractRoundcubePlugin
         return $this->config['custom_site_url']
             ? rtrim((string) $this->config['custom_site_url'], '/') . '/'
             : RoundcubeHelper::getSiteUrl();
+    }
+
+    /**
+     * Gets the storage object.
+     *
+     * @return \rcube_imap|\rcube_storage the storage
+     */
+    private function getStorage()
+    {
+        // RC >= 1.5.0
+        if (property_exists($this->rcmail, 'storage')) {
+            return $this->rcmail->storage;
+        }
+
+        // legacy
+        return $this->rcmail->imap;
     }
 
     /**
