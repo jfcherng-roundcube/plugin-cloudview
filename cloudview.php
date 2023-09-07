@@ -175,7 +175,7 @@ final class cloudview extends AbstractRoundcubePlugin
                         '_cloudview_view_button_layouts',
                         \FILTER_VALIDATE_INT,
                         \FILTER_FORCE_ARRAY
-                    ),
+                    ) ?? [],
                 ]
             );
 
