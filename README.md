@@ -124,6 +124,7 @@ This plugin will extract attachments from messages into `plugins/cloudview/temp/
 so that remote cloud viewers can publicly access them.
 
 - The `temp/` directory under `plugins/cloudview/temp/` should be public accessible.
+- Make sure the user running the RoundCube server has "write" permission to the `temp/` directory.
 - Your RoundCube installation should be publicly accessible. I.e., not under an internal server.
 
 ## Temporary Files
