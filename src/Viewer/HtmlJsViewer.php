@@ -13,7 +13,24 @@ final class HtmlJsViewer extends AbstractViewer
      * {@inheritdoc}
      */
     public const SUPPORTED_MIME_TYPES = [
+        'audio/aac',
+        'audio/mpeg',
+        'audio/opus',
+        'audio/wav',
+        'audio/webm',
+        'image/avif',
+        'image/bmp',
+        'image/gif',
+        'image/jpeg',
+        'image/png',
+        'image/svg+xml',
+        'image/vnd.microsoft.icon',
+        'image/webp',
         'text/html',
+        'video/mp4',
+        'video/mpeg',
+        'video/ogg',
+        'video/webm',
     ];
 
     /**
