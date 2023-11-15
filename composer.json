@@ -4,7 +4,7 @@
     "type": "roundcube-plugin",
     "license": "MIT",
     "homepage": "https://github.com/jfcherng-roundcube/plugin-cloudview",
-    "version": "0.6.18",
+    "version": "0.6.19",
     "authors": [
         {
             "name": "Jack Cherng",
