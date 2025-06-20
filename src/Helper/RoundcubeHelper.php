@@ -19,8 +19,11 @@ final class RoundcubeHelper
             return $url;
         }
 
-        $scheme = filter_var($_SERVER['HTTPS'] ?? 'off', \FILTER_VALIDATE_BOOLEAN) ? 'https' : 'http';
-        $requestedUrl = "{$scheme}://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
+        $host = $_SERVER['HTTP_X_FORWARDED_HOST'] ?? $_SERVER['HTTP_HOST'];
+        $scheme = $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? (
+            filter_var($_SERVER['HTTPS'] ?? 'off', \FILTER_VALIDATE_BOOLEAN) ? 'https' : 'http'
+        );
+        $requestedUrl = "{$scheme}://{$host}{$_SERVER['REQUEST_URI']}";
         $parts = parse_url($requestedUrl);
 
         // remove potential trailing index.php
